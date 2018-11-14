@@ -2,8 +2,8 @@
 dvcs/pi0/eta  generator using pdfs and gpds. 
 To get command line options `./dvcsgen --help`
 
-Code requires GPD grid files. Set the `CLASDVCS_PDF` variable to pint to directory where the
-gpd.dat file is located (ex. /scratch/username/dvcsgen)
+Code requires GPD grid files. Set the `CLASDVCS_PDF` variable to point to directory where the
+gpd.dat file is located (ex. CLASDVCS_PDF=/scratch/username/dvcsgen )
 
 
 ```
