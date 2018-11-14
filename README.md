@@ -9,7 +9,7 @@ Example
 `./clasdis --trig 10000000 --nmax 10000`
 will write `gemc lund type` data files with 10K events in the current directory  with total of 10M events.
 
-`./clasdis --trig 10000--docker`
+`./clasdis --trig 10000 --docker`
 will write `gemc lund type` single data file dvcs.dat with 10K events 
 
 
