@@ -6,10 +6,10 @@ Code requires GPD grid files. Set the `CLASDVCS_PDF` variable to point to direct
 gpd.dat file is located (ex. CLASDVCS_PDF=/scratch/username/dvcsgen )
 
 Example
-`./clasdis --trig 10000000 --nmax 10000`
-will write `gemc lund type` data files with 10K events in the current directory  with total of 10M events.
+`./dvcsgen --trig 10000000 --nmax 10000`
+will write `gemc lund type` data files with 10K DVCS events (--pi0 for pi0, --eta for eta) in the current directory  with total of 10M events.
 
-`./clasdis --trig 10000 --docker`
+`./dvcsgen --trig 10000 --docker`
 will write `gemc lund type` single data file dvcs.dat with 10K events 
 
 
