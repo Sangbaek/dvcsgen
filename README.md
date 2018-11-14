@@ -5,6 +5,14 @@ To get command line options `./dvcsgen --help`
 Code requires GPD grid files. Set the `CLASDVCS_PDF` variable to point to directory where the
 gpd.dat file is located (ex. CLASDVCS_PDF=/scratch/username/dvcsgen )
 
+Example
+`./clasdis --trig 10000000 --nmax 10000`
+will write `gemc lund type` data files with 10K events in the current directory  with total of 10M events.
+
+`./clasdis --trig 10000--docker`
+will write `gemc lund type` single data file dvcs.dat with 10K events 
+
+
 
 ```
  dvcspi0gen [options]
