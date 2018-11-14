@@ -2505,8 +2505,13 @@ c
 *
       common/retbl1/ vh1urenf(51,21,2), vh1drenf(51,21,2) 
       common/imtbl1/ vh1uimnf(51,21,2), vh1dimnf(51,21,2)
+      character*200  pdffile,clasdvcspdf
 * 
-      open(unit=11,file='gpd.dat',status='old')
+      call getenv('CLASDVCS_PDF',clasdvcspdf)
+       print *,'READING the gpd.dat from directory $CLASDVCS_PDF='
+     6,trim(clasdvcspdf)
+       write(pdffile,'(A,A)') trim(clasdvcspdf),'/gpd.dat'
+      open(unit=11,file=pdffile,status='old')
       do i = 1,51
         read(11,101) vh1ure(i,1),vh1dre(i,1),vh1ture(i,1),vh1tdre(i,1),
      &               ve1ture(i,1),ve1tdre(i,1) 
