@@ -1,5 +1,9 @@
 # dvcsgen
 dvcs/pi0/eta  generator using pdfs and gpds. 
+git clone https://github.com/JeffersonLab/dvcsgen.git
+cd dvcsgen
+make
+
 To get command line options `./dvcsgen --help`
 
 Code requires GPD grid files. Set the `CLASDVCS_PDF` variable to point to directory where the
