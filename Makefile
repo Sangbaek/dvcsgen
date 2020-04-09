@@ -3,7 +3,7 @@ OBJC=  dvcs_grid_pack.o
 
 # -lstdc++ for Gagik's stuff
 #
-FOR   =  -lstdc++ -lnsl -lcrypt -ldl
+FOR   =  -lstdc++ 
 CERNLIBS =  -L/apps/cernlib/x86_64_rhel6_4.7.2/2005/lib  -lmathlib  -lpacklib 
  
 dvcsgen : $(OBJ) $(OBJC)
