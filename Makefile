@@ -9,7 +9,7 @@ CERNLIBS =  -L/apps/cernlib/x86_64_rhel6_4.7.2/2005/lib  -lmathlib  -lpacklib
 dvcsgen : $(OBJ) $(OBJC)
 	 gfortran  -o	dvcsgen  $(OBJ) $(OBJC) $(FOR) 
 $(OBJ) : %.o: %.F
-	gfortran   -DLinux -fno-automatic  -ffixed-line-length-none -fno-second-underscore  -c $< -o $@  
+	gfortran  -std=legacy  -DLinux -fno-automatic  -ffixed-line-length-none -fno-second-underscore  -c $< -o $@  
 $(OBJC) : %.o: %.cc
 	g++  -DLinux   -c $<  -o $@ 
 clean:
