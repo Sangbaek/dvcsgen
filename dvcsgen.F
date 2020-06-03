@@ -1064,7 +1064,7 @@ c
 c
           if (lFirst) then   ! open the file
            if(cl_docker) then
-             write(fname,'(A)') 'dvcs.dat'
+             write(fname,'(A)') 'dvcsgen.dat'
              cl_nmax=cl_triggers+100
            else
            if(ifile.le.9) then
