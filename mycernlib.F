@@ -33,7 +33,7 @@ c
        implicit none
        REAL VEC(LEN)
        INTEGER i,LEN
-       CALL RANDOM_SEED()
+       CALL RANDOM_SEED(size=LEN)
        CALL RANDOM_NUMBER(VEC)
        return
       end 
