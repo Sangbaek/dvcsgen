@@ -177,7 +177,7 @@ c
       cl_wmin=4.0            ! def w2min
       cl_ymin=0.05           ! def ymin -> Emax=(1-ymin)*E
       cl_ymax=0.9            ! def ymax
-      cl_thmin=0.2           ! def e'tmin
+      cl_thmin=0.09           ! def e'tmin
       cl_thmax=1.57            ! def e'tmax
       cl_tmax=1.0             ! def tmax
       cl_tmin=0.0             ! def tmin
