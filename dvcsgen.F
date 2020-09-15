@@ -200,7 +200,7 @@ c
       cl_verblev=0
       cl_writef=0            ! 0-clas12 1-gsim lund format
       cl_nprint=1000         ! print every cl_nprint event
-      cl_triggers = 10  
+      cl_triggers = 10000  
       cl_nmax = 2000         ! max number of events in the file
       cl_printgpd=.FALSE.
       cl_mom=.FALSE.
