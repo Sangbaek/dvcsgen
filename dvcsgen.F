@@ -177,7 +177,7 @@ c
       cl_wmin=4.0            ! def w2min
       cl_ymin=0.05           ! def ymin -> Emax=(1-ymin)*E
       cl_ymax=0.9            ! def ymax
-      cl_thmin=0.2           ! def e'tmin
+      cl_thmin=0.09           ! def e'tmin
       cl_thmax=1.57            ! def e'tmax
       cl_tmax=1.0             ! def tmax
       cl_tmin=0.0             ! def tmin
@@ -200,7 +200,7 @@ c
       cl_verblev=0
       cl_writef=0            ! 0-clas12 1-gsim lund format
       cl_nprint=1000         ! print every cl_nprint event
-      cl_triggers = 10  
+      cl_triggers = 10000  
       cl_nmax = 2000         ! max number of events in the file
       cl_printgpd=.FALSE.
       cl_mom=.FALSE.
