@@ -197,6 +197,7 @@ c
       cl_smf=0.003         ! F
       cl_smg=0.015         ! G
 c
+      cl_seed=0
       cl_verblev=0
       cl_writef=0            ! 0-clas12 1-gsim lund format
       cl_nprint=1000         ! print every cl_nprint event
@@ -357,12 +358,10 @@ c
            cl_docker=.TRUE.
         elseif(cnumber.eq.'--nont') then
            ntOK=.FALSE.
-        elseif(cnumber.eq.'--rndm') then
-        call itime(now)     ! now(1)=hour, (2)=minute, (3)=second
-           irannom=10000*now(3)+100*now(2)+now(1)
-        print *,'Random number for this set->',irannom,now(1),now(2),now(3)
-           DO 100 iran=1,irannom
- 100       RNDNMBR=rand()
+        elseif(cnumber.eq.'--seed'.and.i.lt.numopts) then
+          i=i+1
+          CALL GETARG(i,cnumber)
+          cl_seed=valnum(cnumber)
         elseif(cnumber.eq.'--proloss') then
           cl_proloss=1
         elseif(cnumber.eq.'--smear') then
@@ -402,6 +401,10 @@ c
         if(i.lt. numopts) goto 1
  2      continue
         call printvalues
+c
+c randomize
+c
+        call RNDMSEED()
         return 
         end
 c
@@ -3097,3 +3100,25 @@ c
        corraul=1.0/qfac*tfac
        return 
        end
+c
+       subroutine RNDMSEED()
+       implicit none
+#include "dvcs.inc"
+       integer*4 now(3),ifilenum
+       integer iran,irannom
+       real rand,rnd
+c
+c
+          if(cl_seed.eq.0) then
+          call itime(now)     ! now(1)=hour, (2)=minute, (3)=second
+	  irannom=now(3)+now(1)*3600+now(2)*60
+	  else 
+	  irannom=cl_seed
+	  endif
+           CALL SRAND(irannom)
+          print *,'Rndm numb->',irannom,now(1),now(2),now(3),rand()
+c           DO 100 iran=1,irannom
+c 100       RND=rand()
+c
+	   return
+	   end
