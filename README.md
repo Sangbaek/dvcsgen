@@ -26,6 +26,7 @@ will write `gemc lund type` single data file dvcs.dat with 10K events
       --nodvcs                 DVCS off
       --v    verbos_level    0  additional printout
       --trig nevents  10      number of triggers
+      --seed random_seed 0    use the local time
       --nmax nevents   40k     # of triggers per file
       --beam beam_energy   5.754 e- momentum in GeV
       --ycol P_1 cut        0.005      P_1>ycol_cut
