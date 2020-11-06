@@ -43,7 +43,7 @@ will write `gemc lund type` single data file dvcs.dat with 10K events
       --printgpd               print gpds and exit
       --nont               do not write out the ntuple
       --file              dvcspi0gen   filename
-      --gpd  Igpd 3  GPD model(1-A,2-B,3-C,4-D)>=100VGG
+      --gpd  Igpd 3  GPD model(1-A,2-B,3-C,4-D) 101 VGG+Dterm
       --scale  scale      1.0   scale the sinphi-mom
       --targ target       proton   deut/neut possible
       --lpol                    Long.pol.target
