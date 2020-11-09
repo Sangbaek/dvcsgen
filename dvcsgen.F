@@ -519,7 +519,7 @@ c
         print *,'     --t tmin tmax  0 1.0      t  min/max in GeV^2 '
         print *,'     --th thmin thmax  0.2 1 theta min/max \theta rad'
         print *,'     --zpos z-position      0 target z position in cm '
-        print *,'     --zwidth z-width 0  width z in cm (zpos+/-zwidth)'
+        print *,'     --zwidth z-width 0  width z in cm (zpos+/-zwidth/2)'
         print *,'      --raster diameter 0.75   raster diameter in cm  '
         print *,'     --weight   flat distributions with weight(part12)'
         print *,'     --printgpd               print gpds and exit '
