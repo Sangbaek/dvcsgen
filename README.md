@@ -37,7 +37,7 @@ will write `gemc lund type` single data file dvcs.dat with 10K events
       --t tmin tmax  0 1.0      t  min/max in GeV^2
       --th thmin thmax  0.2 1 theta min/max \theta rad
       --zpos z-position      0 target z position in cm
-      --zwidth z-width 0  width z in cm (zpos+/-zwidth)
+      --zwidth z-width 0  width z in cm (zpos+/-zwidth/2)
        --raster diameter 0.75   raster diameter in cm
       --weight   flat distributions with weight(part12)
       --printgpd               print gpds and exit
