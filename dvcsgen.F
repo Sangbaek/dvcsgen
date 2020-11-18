@@ -151,7 +151,7 @@ c
        SUBROUTINE CL_OPTIONS
        implicit none
 #include "dvcs.inc"
-       integer i,iran,irannom
+       integer i,iran,irannom,ivalnum
        real VEC1,valnum,rndnmbr
        character*20 cnumber
        integer  numopts,IARGC
@@ -361,7 +361,7 @@ c
         elseif(cnumber.eq.'--seed'.and.i.lt.numopts) then
           i=i+1
           CALL GETARG(i,cnumber)
-          cl_seed=valnum(cnumber)
+          cl_seed=ivalnum(cnumber)
         elseif(cnumber.eq.'--proloss') then
           cl_proloss=1
         elseif(cnumber.eq.'--smear') then
@@ -519,7 +519,7 @@ c
         print *,'     --t tmin tmax  0 1.0      t  min/max in GeV^2 '
         print *,'     --th thmin thmax  0.2 1 theta min/max \theta rad'
         print *,'     --zpos z-position      0 target z position in cm '
-        print *,'     --zwidth z-width 0  width z in cm (zpos+/-zwidth/2)'
+        print *,'     --zwidth z-width 0  width z in cm (zpos+/-zwidth)'
         print *,'      --raster diameter 0.75   raster diameter in cm  '
         print *,'     --weight   flat distributions with weight(part12)'
         print *,'     --printgpd               print gpds and exit '
@@ -3082,6 +3082,55 @@ c     translate the decimal portion
 
 10    if(segno)valnum=-valnum
 
+      return
+      end     
+c
+      integer function ivalnum(str)
+c     return the real value contained into a string
+
+      implicit integer (k-l)
+      character *(*) str
+      logical segno
+      double precision valnum
+      
+
+      segno=.false.
+      valnum=0.00
+      lu=length(str)
+      
+c     check the number sign
+      if(str(1:1).eq.'-')then
+      segno=.true.
+      str=str(2:lu)
+      lu=lu-1
+      end if
+
+c     check if number is float or integer
+      if(index(str,'.').ne.0)then
+      iin=index(str,'.')-1
+      else
+      iin=lu
+      end if
+
+      ifr=lu-(iin+1)
+
+c     translate the integer portion
+      doi=1,iin  
+      k=ichar(str(i:i))-48
+      valnum=valnum+float(k)*10.00**float(iin-i)
+      end do         
+
+      if(iin.eq.lu)goto 10
+      str=str(iin+2:lu)
+
+c     translate the decimal portion
+      doi=1,ifr  
+      k=ichar(str(i:i))-48
+      valnum=valnum+float(k)/10.00**float(i)
+      end do
+
+10    if(segno)valnum=-valnum
+      ivalnum=int(valnum)
       return
       end     
 c
