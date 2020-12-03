@@ -170,7 +170,7 @@ c
       cl_bpi0=1.3            ! b=1.7
       cl_ycol=0.005          ! default min for P1
       cl_zpos=0              ! z-position
-      cl_rast=0.75           ! raster diameter in cm
+      cl_rast=0.0           ! raster diameter in cm
       cl_zwidth=0            ! z-width ( zpos+/-zwidth)
       cl_pol=0               ! unpolarized target
       cl_beam_energy=10.6    ! def clas12
