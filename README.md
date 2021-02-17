@@ -26,6 +26,7 @@ will write `gemc lund type` single data file dvcs.dat with 10K events
       --nodvcs                 DVCS off
       --v    verbos_level    0  additional printout
       --trig nevents  10      number of triggers
+      --seed random_seed 0    use the local time
       --nmax nevents   40k     # of triggers per file
       --beam beam_energy   5.754 e- momentum in GeV
       --ycol P_1 cut        0.005      P_1>ycol_cut
@@ -36,14 +37,13 @@ will write `gemc lund type` single data file dvcs.dat with 10K events
       --t tmin tmax  0 1.0      t  min/max in GeV^2
       --th thmin thmax  0.2 1 theta min/max \theta rad
       --zpos z-position      0 target z position in cm
-      --zwidth z-width 0  width z in cm (zpos+/-zwidth)
+      --zwidth z-width 0  width z in cm (zpos+/-zwidth/2)
        --raster diameter 0.75   raster diameter in cm
       --weight   flat distributions with weight(part12)
       --printgpd               print gpds and exit
       --nont               do not write out the ntuple
       --file              dvcspi0gen   filename
-      --rndm               randomize
-      --gpd  Igpd 3  GPD model(1-A,2-B,3-C,4-D)>=100VGG
+      --gpd  Igpd 3  GPD model(1-A,2-B,3-C,4-D) 101 VGG+Dterm
       --scale  scale      1.0   scale the sinphi-mom
       --targ target       proton   deut/neut possible
       --lpol                    Long.pol.target

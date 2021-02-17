@@ -5,7 +5,7 @@
       REAL  cl_q2min,cl_q2max,cl_xmin,cl_xmax
       integer cl_verblev,cl_rand,cl_nprint,cl_writef
       integer cl_triggers,cl_nmax,cl_pol,cl_gpd,cl_bh,cl_mod
-      integer  cl_smear,cl_proloss
+      integer  cl_smear,cl_proloss,cl_seed
       real  cl_sma,cl_smb,cl_smc,cl_smd
       real  cl_sme,cl_smf,cl_smg,cl_rast
       logical dvcsgenOK,bosOK,ntOK,weightOK,cl_mom,cl_dvcs,cl_pi0,cl_eta
@@ -13,7 +13,7 @@
       logical cl_ktcor,cl_printgpd,cl_docker
       character*7 bosout
       common /OUT_NAMES/ bosout
-      common /clasdvcs1/ cl_verblev,cl_nprint,cl_proloss,cl_writef
+      common /clasdvcs1/ cl_verblev,cl_nprint,cl_proloss,cl_writef,cl_seed
       common /clasdvcs2/ cl_triggers,cl_gpd,cl_bh,cl_target,cl_nmax
       common /clasdvcs3/ cl_beam_energy,cl_pol,cl_be,cl_scale,cl_bpi0
       common /clasdvcs4/ cl_zpos,cl_zwidth

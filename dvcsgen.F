@@ -151,7 +151,7 @@ c
        SUBROUTINE CL_OPTIONS
        implicit none
 #include "dvcs.inc"
-       integer i,iran,irannom
+       integer i,iran,irannom,ivalnum
        real VEC1,valnum,rndnmbr
        character*20 cnumber
        integer  numopts,IARGC
@@ -170,7 +170,7 @@ c
       cl_bpi0=1.3            ! b=1.7
       cl_ycol=0.005          ! default min for P1
       cl_zpos=0              ! z-position
-      cl_rast=0.75           ! raster diameter in cm
+      cl_rast=0.0           ! raster diameter in cm
       cl_zwidth=0            ! z-width ( zpos+/-zwidth)
       cl_pol=0               ! unpolarized target
       cl_beam_energy=10.6    ! def clas12
@@ -197,6 +197,7 @@ c
       cl_smf=0.003         ! F
       cl_smg=0.015         ! G
 c
+      cl_seed=0
       cl_verblev=0
       cl_writef=0            ! 0-clas12 1-gsim lund format
       cl_nprint=1000         ! print every cl_nprint event
@@ -357,12 +358,10 @@ c
            cl_docker=.TRUE.
         elseif(cnumber.eq.'--nont') then
            ntOK=.FALSE.
-        elseif(cnumber.eq.'--rndm') then
-        call itime(now)     ! now(1)=hour, (2)=minute, (3)=second
-           irannom=10000*now(3)+100*now(2)+now(1)
-        print *,'Random number for this set->',irannom,now(1),now(2),now(3)
-           DO 100 iran=1,irannom
- 100       RNDNMBR=rand()
+        elseif(cnumber.eq.'--seed'.and.i.lt.numopts) then
+          i=i+1
+          CALL GETARG(i,cnumber)
+          cl_seed=ivalnum(cnumber)
         elseif(cnumber.eq.'--proloss') then
           cl_proloss=1
         elseif(cnumber.eq.'--smear') then
@@ -402,6 +401,10 @@ c
         if(i.lt. numopts) goto 1
  2      continue
         call printvalues
+c
+c randomize
+c
+        call RNDMSEED()
         return 
         end
 c
@@ -505,6 +508,7 @@ c
         print *,'     --nodvcs                 DVCS off '
         print *,'     --v    verbos_level    0  additional printout '
         print *,'     --trig nevents  10      number of triggers '
+        print *,'     --seed seed_number 0-use local time '
         print *,'     --nmax nevents   40k     # of triggers per file '
         print *,'     --beam beam_energy   5.754 e- momentum in GeV'
         print *,'     --ycol P_1 cut        0.005      P_1>ycol_cut'
@@ -521,7 +525,6 @@ c
         print *,'     --printgpd               print gpds and exit '
         print *,'     --nont               do not write out the ntuple '
         print *,'     --file              dvcspi0gen   filename'
-        print *,'     --rndm               randomize '
         print *,'     --gpd  Igpd 3  GPD model(1-A,2-B,3-C,4-D)>=100VGG'
         print *,'     --scale  scale      1.0   scale the sinphi-mom '
         print *,'     --targ target       proton   deut/neut possible '
@@ -3083,6 +3086,55 @@ c     translate the decimal portion
       return
       end     
 c
+      integer function ivalnum(str)
+c     return the real value contained into a string
+
+      implicit integer (k-l)
+      character *(*) str
+      logical segno
+      double precision valnum
+      
+
+      segno=.false.
+      valnum=0.00
+      lu=length(str)
+      
+c     check the number sign
+      if(str(1:1).eq.'-')then
+      segno=.true.
+      str=str(2:lu)
+      lu=lu-1
+      end if
+
+c     check if number is float or integer
+      if(index(str,'.').ne.0)then
+      iin=index(str,'.')-1
+      else
+      iin=lu
+      end if
+
+      ifr=lu-(iin+1)
+
+c     translate the integer portion
+      doi=1,iin  
+      k=ichar(str(i:i))-48
+      valnum=valnum+float(k)*10.00**float(iin-i)
+      end do         
+
+      if(iin.eq.lu)goto 10
+      str=str(iin+2:lu)
+
+c     translate the decimal portion
+      doi=1,ifr  
+      k=ichar(str(i:i))-48
+      valnum=valnum+float(k)/10.00**float(i)
+      end do
+
+10    if(segno)valnum=-valnum
+      ivalnum=int(valnum)
+      return
+      end     
+c
 c     k_T correction to A_LU from Marc Vdh program
 c
 
@@ -3098,3 +3150,25 @@ c
        corraul=1.0/qfac*tfac
        return 
        end
+c
+       subroutine RNDMSEED()
+       implicit none
+#include "dvcs.inc"
+       integer*4 now(3),ifilenum
+       integer iran,irannom
+       real rand,rnd
+c
+c
+          if(cl_seed.eq.0) then
+          call itime(now)     ! now(1)=hour, (2)=minute, (3)=second
+	  irannom=now(3)+now(1)*3600+now(2)*60
+	  else 
+	  irannom=cl_seed
+	  endif
+           CALL SRAND(irannom)
+          print *,'Rndm numb->',irannom,now(1),now(2),now(3),rand()
+c           DO 100 iran=1,irannom
+c 100       RND=rand()
+c
+	   return
+	   end
