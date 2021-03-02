@@ -1097,7 +1097,7 @@ c
             randnum=random_num()-0.5
  9         v(1)=(cl_rast*(random_num()-0.5))
            v(2)=(cl_rast*(random_num()-0.5)-0.05)
-      if(sqrt(v(1)**2+v(2)**2).gt.cl_rast) goto 9
+      if(sqrt(v(1)**2+(v(2)+0.05)**2).gt.cl_rast) goto 9
            v(3)=cl_zpos+randnum*cl_zwidth
           gelex=v(1)
           geley=v(2)
