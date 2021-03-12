@@ -36,6 +36,8 @@ will write `gemc lund type` single data file dvcs.dat with 10K events
       --w w^2-min         4.0 min for w^2=M^2+2MyE-Q^2
       --t tmin tmax  0 1.0      t  min/max in GeV^2
       --th thmin thmax  0.2 1 theta min/max \theta rad
+      --xpos x-position      0 beam x position in cm
+      --ypos y-position      0 beam y position in cm
       --zpos z-position      0 target z position in cm
       --zwidth z-width 0  width z in cm (zpos+/-zwidth/2)
        --raster diameter 0.75   raster diameter in cm

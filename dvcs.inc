@@ -1,5 +1,5 @@
       character*10 cl_target 
-      REAL cl_beam_energy,cl_zpos,cl_zwidth,cl_be
+      REAL cl_beam_energy,cl_xpos,cl_ypos,cl_zpos,cl_zwidth,cl_be
       REAL  cl_ymin,cl_ymax,cl_tmin,cl_tmax,cl_thmin,cl_thmax
       REAL  cl_ycol,cl_scale,cl_bpi0,cl_dmin,cl_dmax,cl_wmin
       REAL  cl_q2min,cl_q2max,cl_xmin,cl_xmax
@@ -16,7 +16,7 @@
       common /clasdvcs1/ cl_verblev,cl_nprint,cl_proloss,cl_writef,cl_seed
       common /clasdvcs2/ cl_triggers,cl_gpd,cl_bh,cl_target,cl_nmax
       common /clasdvcs3/ cl_beam_energy,cl_pol,cl_be,cl_scale,cl_bpi0
-      common /clasdvcs4/ cl_zpos,cl_zwidth
+      common /clasdvcs4/ cl_xpos, cl_ypos, cl_zpos,cl_zwidth
       common /clasdvcs5/ cl_ymin,cl_ymax,cl_tmin,cl_tmax,cl_thmin,cl_thmax
       common /clasdvcs6/ cl_ycol,cl_dmin,cl_dmax,cl_wmin
       common /clasdvcs7/ cl_q2min,cl_q2max,cl_xmin,cl_xmax
