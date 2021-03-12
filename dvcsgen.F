@@ -2522,7 +2522,7 @@ c
 *
       common/retbl1/ vh1urenf(51,21,2), vh1drenf(51,21,2) 
       common/imtbl1/ vh1uimnf(51,21,2), vh1dimnf(51,21,2)
-      character*200  pdffile,clasdvcspdf
+      character*500  pdffile,clasdvcspdf
 * 
       call getenv('CLASDVCS_PDF',clasdvcspdf)
        print *,'READING the gpd.dat from directory $CLASDVCS_PDF='

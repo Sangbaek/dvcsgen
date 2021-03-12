@@ -115,8 +115,8 @@ int     GPD_FindGridFile(const char *file)
   }
   
 
-  printf("Checking in $GPD_DATA_DIR\n");
-  env_dir = getenv("GPD_DATA_DIR");
+  printf("Checking in $CLASDVCS_PDF\n");
+  env_dir = getenv("CLASDVCS_PDF");
   if(env_dir!=NULL){
     printf("Lenght = %d\n",strlen(env_dir));
     sprintf(GPD_CurrentGridFile,"%s/%s",env_dir,file);
@@ -125,7 +125,7 @@ int     GPD_FindGridFile(const char *file)
       return 0;
     }
   } else {
-    printf("GPD_FindGridFile: the enviromental variable GPD_DATA_DIR is not defined\n");
+    printf("GPD_FindGridFile: the enviromental variable CLASDVCS_PDF is not defined\n");
   }
   
   
