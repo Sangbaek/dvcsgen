@@ -1,5 +1,5 @@
       character*10 cl_target 
-      REAL cl_beam_energy,cl_zpos,cl_zwidth,cl_be
+      REAL cl_beam_energy,cl_xpos,cl_ypos,cl_zpos,cl_zwidth,cl_be
       REAL  cl_ymin,cl_ymax,cl_tmin,cl_tmax,cl_thmin,cl_thmax
       REAL  cl_ycol,cl_scale,cl_bpi0,cl_dmin,cl_dmax,cl_wmin
       REAL  cl_q2min,cl_q2max,cl_xmin,cl_xmax

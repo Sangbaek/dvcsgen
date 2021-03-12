@@ -169,6 +169,8 @@ c
       cl_scale=1.0           ! gpd model
       cl_bpi0=1.3            ! b=1.7
       cl_ycol=0.005          ! default min for P1
+      cl_xpos=0              ! x-position
+      cl_ypos=0              ! y-position
       cl_zpos=0              ! z-position
       cl_rast=0.0           ! raster diameter in cm
       cl_zwidth=0            ! z-width ( zpos+/-zwidth)
@@ -316,6 +318,14 @@ c
            i=i+1
            CALL GETARG(i,cnumber)
            cl_ymax=valnum(cnumber)
+        elseif(cnumber.eq.'--xpos'.and.i.lt.numopts) then
+           i=i+1
+           CALL GETARG(i,cnumber)
+           cl_xpos=valnum(cnumber)
+        elseif(cnumber.eq.'--ypos'.and.i.lt.numopts) then
+           i=i+1
+           CALL GETARG(i,cnumber)
+           cl_ypos=valnum(cnumber)
         elseif(cnumber.eq.'--zpos'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cnumber)
@@ -518,6 +528,8 @@ c
         print *,'     --w w^2-min         4.0 min for w^2=M^2+2MyE-Q^2'
         print *,'     --t tmin tmax  0 1.0      t  min/max in GeV^2 '
         print *,'     --th thmin thmax  0.2 1 theta min/max \theta rad'
+        print *,'     --xpos x-position      0 beam x position in cm '
+        print *,'     --ypos y-position      0 beam y position in cm '
         print *,'     --zpos z-position      0 target z position in cm '
         print *,'     --zwidth z-width 0  width z in cm (zpos+/-zwidth)'
         print *,'      --raster diameter 0.75   raster diameter in cm  '
@@ -568,6 +580,8 @@ c
         print *,'Q2  q2min/q2max:         ',cl_q2min,cl_q2max  
         print *,'x  xmin/xmax:         ',cl_xmin,cl_xmax  
         print *,'TARGET:              ', cl_target 
+        print *,'BEAM x-position in cm:   ', cl_xpos 
+        print *,'BEAM y-position in cm:   ', cl_ypos 
         print *,'TARGET z-position in cm:   ', cl_zpos 
         print *,'TARGET 1/2 width in cm:   ', cl_zwidth 
         print *,'raster diameter(cm)  :   ', cl_rast
@@ -1094,9 +1108,9 @@ c
            gw2=gw*gw
            u=heli+10*helpi
             randnum=random_num()-0.5
- 9         v(1)=(cl_rast*(random_num()-0.5))
-           v(2)=(cl_rast*(random_num()-0.5))
-      if(sqrt(v(1)**2+v(2)**2).gt.cl_rast) goto 9
+ 9         v(1)=(cl_rast*(random_num()-0.5)+cl_xpos)
+           v(2)=(cl_rast*(random_num()-0.5)+cl_ypos)
+      if(sqrt((v(1)-cl_xpos)**2+(v(2)-cl_ypos)**2).gt.cl_rast*0.5) goto 9 
            v(3)=cl_zpos+randnum*cl_zwidth
           gelex=v(1)
           geley=v(2)
