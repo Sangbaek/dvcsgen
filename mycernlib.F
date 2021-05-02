@@ -33,15 +33,15 @@ c
        implicit none
        REAL VEC(LEN)
        INTEGER i,LEN
-       DO i=1,LEN
-       VEC(i)=rand() 
-       ENDDO
+       CALL RANDOM_SEED(size=LEN)
+       CALL RANDOM_NUMBER(VEC)
        return
       end 
 c
 c
       REAL FUNCTION ZBQLU01(DUMMY)
-      ZBQLU01=rand() !rndm(-1)
+      CALL RANDOM_SEED()
+      CALL RANDOM_NUMBER(ZBQLU01)
       return
       end 
 c

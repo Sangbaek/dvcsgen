@@ -936,7 +936,8 @@ C**********************************************************************
 C      random number generator
 C**********************************************************************
          real function random_num()
-         random_num=rand()
+         CALL RANDOM_SEED()
+         CALL RANDOM_NUMBER(random_num)
          return
          end
 
