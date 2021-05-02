@@ -528,8 +528,8 @@ c
         print *,'     --w w^2-min         4.0 min for w^2=M^2+2MyE-Q^2'
         print *,'     --t tmin tmax  0 1.0      t  min/max in GeV^2 '
         print *,'     --th thmin thmax  0.2 1 theta min/max \theta rad'
-        print *,'     --xpos x-position      0 target z position in cm '
-        print *,'     --ypos y-position      0 target z position in cm '
+        print *,'     --xpos x-position      0 beam x position in cm '
+        print *,'     --ypos y-position      0 beam y position in cm '
         print *,'     --zpos z-position      0 target z position in cm '
         print *,'     --zwidth z-width 0  width z in cm (zpos+/-zwidth)'
         print *,'      --raster diameter 0.75   raster diameter in cm  '
@@ -2523,7 +2523,7 @@ c
 *
       common/retbl1/ vh1urenf(51,21,2), vh1drenf(51,21,2) 
       common/imtbl1/ vh1uimnf(51,21,2), vh1dimnf(51,21,2)
-      character*200  pdffile,clasdvcspdf
+      character*500  pdffile,clasdvcspdf
 * 
       call getenv('CLASDVCS_PDF',clasdvcspdf)
        print *,'READING the gpd.dat from directory $CLASDVCS_PDF='
