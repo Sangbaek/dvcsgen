@@ -936,7 +936,8 @@ C**********************************************************************
 C      random number generator
 C**********************************************************************
          real function random_num()
-         random_num=rand()
+c         CALL RANDOM_SEED()
+         CALL RANDOM_NUMBER(random_num)
          return
          end
 
@@ -3170,16 +3171,25 @@ c
        integer*4 now(3),ifilenum
        integer iran,irannom
        real rand,rnd
+       integer :: n
+       integer,allocatable :: seeds(:)
+
 c
 c
-          if(cl_seed.eq.0) then
-          call itime(now)     ! now(1)=hour, (2)=minute, (3)=second
-	  irannom=now(3)+now(1)*3600+now(2)*60
-	  else 
-	  irannom=cl_seed
-	  endif
-           CALL SRAND(irannom)
-          print *,'Rndm numb->',irannom,now(1),now(2),now(3),rand()
+      if(cl_seed.eq.0) then
+      call itime(now)     ! now(1)=hour, (2)=minute, (3)=second
+  	  irannom=now(3)+now(1)*3600+now(2)*60
+  	  else 
+  	  irannom=cl_seed
+  	  endif
+      call random_seed(size=n) ! get size of the seed used by the OS
+      allocate(seeds(n))
+      seeds = irannom 
+      call random_seed(put=seeds)
+      deallocate(seeds)
+      CALL SRAND(irannom)
+      call random_number(rnd)  ! random number in [0,1]
+      print *,'Rndm numb->',irannom,now(1),now(2),now(3),rnd
 c           DO 100 iran=1,irannom
 c 100       RND=rand()
 c
