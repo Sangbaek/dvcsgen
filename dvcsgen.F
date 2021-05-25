@@ -19,32 +19,32 @@ c
 c
 C..   number of events   
 c
-       NEVENT=cl_triggers
+C        NEVENT=cl_triggers
 c
        CALL DVCSINIT       ! init limits/cuts for dvcs/pi0
 c
-       if(cl_verblev.gt.0) WRITE(*,*) 'NEVENT=',NEVENT
+C        if(cl_verblev.gt.0) WRITE(*,*) 'NEVENT=',NEVENT
 c
 C.. Event generation: 
 c
-        DO I = 1,NEVENT
-c
-         CALL CLEANNT
-         CALL genEVENT(I)       
-         CALL CLASFILL(I)    ! process event
-c
-         IF (MOD(I,cl_nprint).EQ.0.and.cl_verblev.gt.0)
-     6   WRITE(*,*) I,'  from ',NEVENT,cl_nprint,cl_be
-c
-        ENDDO
-c
-         if (datfileOK) close(41)
-#ifdef  hbook
-         if(ntOK) call CLOSE_PAW()
-#endif
-c
-       WRITE(*,*) 'Total ',NEVENT,' in pb ',smax
-C.. Saving the last random number configuration 
+C         DO I = 1,NEVENT
+C c
+C          CALL CLEANNT
+C          CALL genEVENT(I)       
+C          CALL CLASFILL(I)    ! process event
+C c
+C          IF (MOD(I,cl_nprint).EQ.0.and.cl_verblev.gt.0)
+C      6   WRITE(*,*) I,'  from ',NEVENT,cl_nprint,cl_be
+C c
+C         ENDDO
+C c
+C          if (datfileOK) close(41)
+C #ifdef  hbook
+C          if(ntOK) call CLOSE_PAW()
+C #endif
+C c
+C        WRITE(*,*) 'Total ',NEVENT,' in pb ',smax
+C C.. Saving the last random number configuration 
        END      
 c
 c
@@ -723,71 +723,27 @@ c
         dt=(tmax-tmin)/nt
         dfe=2*pi/nfe
         dfg=2*pi/nfg
-        if(cl_pol.ge.1) la0=-1
-       if(cl_verblev.gt.50) print *,'loop limits',nx,xmin,dx,nq,q2min,dq,nt,tmin,dt
-          DO helpi=la0,1,2
-            DO heli=-1,1,2
-         stotint=0
-         DO ix=1,nx
-         xbd=xmin+ix*dx
-         cix=1.0
-         if(ix.eq.1.or.ix.eq.nx) cix=0.5
-          DO iq=1,nq
-          Q2d=q2min+iq*dq
-          ciq=1.0
-          if(iq.eq.1.or.iq.eq.nx) ciq=0.5
+         xbd=xmin
+          Q2d=q2min
            yb=Q2d/(2D0*Mp*xbd*cl_be)
            w2=Mp*Mp+2.0*Mp*cl_be*yb-Q2d
 c
          if( .not.outoflimits(xbd,Q2d) ) then
 c
-             DO it=1,nt
-              del2d=tmin+it*dt
-              cit=1.0
-             if(it.eq.1.or.it.eq.nx) cit=0.5
-              DO ife=1,nfe
-               phield=ife*dfe
-               cife=1.0
-               if(ife.eq.1.or.ife.eq.nx) cife=0.5
-               DO ifg=1,nfg
-                phigd=ifg*dfg
-                cifg=1.0
-                if(ifg.eq.1.or.ifg.eq.nx) cifg=0.5
+              del2d=tmin
+              DO ifg=1,nfg
+               phigd=ifg*dfg
 c
-             if(cl_dvcs) then
-              CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
-             else if(cl_pi0.or.cl_eta) then
-              CALL excpi0(xbd, Q2d, del2d, phield,phigd,dstot)
-             else
-              print *,'ERROR! at least one reaction should be ON'
-              stop
-             endif
+              CALL bmkxsec(xbd, Q2d, del2d, 0.1, phigd,dstot)
 c
-             stotint=stotint+dstot*cix*cit*ciq*cife*cifg
 c
-           if(smax.lt.dstot) then
-            smax=dstot
-            if(cl_verblev.gt.1) print *,
-     6'smax',heli,helpi,xbd,q2d,del2d,stotint,dstot,smax
 
-           endif
+C            endif
 c
-       if(cl_verblev.gt.50) print *,'loopall',ix,iq,it,ife,ifg,dstot
-            ENDDO
-           ENDDO
-        ENDDO
-       altime=etime(alltime)
-       if(cl_verblev.gt.50) print *,'loopin getscale',ix,iq,it,ife,ifg,dstot
-     6,altime,alltime(1),alltime(2)
-       else
-c        print *,'bad-y',xmin,xmax,xbd,q2min,q2max,q2d,del2d
-       endif
-       ENDDO
-       ENDDO
-       if(cl_verblev.gt.-1) print *,'Maximum found at',SMAX,
-     6'x-sec(pb) = ',stotint*dx*dt*dq*dfe*dfg,dx*dt*dq*dfe*dfg
-          ENDDO
-         ENDDO
+              print 11, xbd, Q2d, del2d, phigd, dstot*2*pi*0.001
+11          FORMAT (4(2X, F8.3), 2X, F8.5)
+              ENDDO
+        endif
         return
         end            
 
