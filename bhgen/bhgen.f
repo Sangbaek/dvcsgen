@@ -662,60 +662,65 @@ c      write(*,'(i4,6f8.4,i7)')ich,egamma,missingmass2,complanarity,complanarity
           if(iappr.eq.2)then
             if(sphi.ge.0d0)phiphi=acos(min(1d0,max(-1d0,cphi)))
             if(sphi.lt.0d0)phiphi=2.*pi-acos(min(1d0,max(-1d0,cphi)))
-            call bmkxsec(3, 3, 1, -1, 1,hel, s/2./mp, x, Q2, t,  pi-phiphi,siborn,eta,ipol,3)
+C             call bmkxsec(3, 3, 1, -1, 1,hel, s/2./mp, x, Q2, t,  pi-phiphi,siborn,eta,ipol,3)
+C          subroutine bmkxsec(Ivar, IGPD, Ipn, Ich, uel, hel,   
+C      &                 E, xb, Q2, del2, Phi_g,dsigma,eta,ipol,iborn)
+            call bmkxsec(x, Q2, t,  0, pi-phiphi,siborn)
+c          subroutine bmkxsec(xb, Q2, del2, Phi_e, Phi_g,dsigma)
+
             return   
           endif
         
         
-        sx=q2/x
-	xx=s-sx
-	sp=s+xx
-	w2=sx-q2+mp2
-	lay=sx**2+4d0*mp2*q2
-        sqly=sqrt(lay)
-	tmin=-0.5d0*((sx-q2)*(sx+dsqrt(lay))+2d0*mp2*q2)/w2
-	tmax=-0.5d0*((sx-q2)*(sx-dsqrt(lay))+2d0*mp2*q2)/w2
-	call sffun(t,f1,f2,f3,f4)
-        lauw=4d0*q2*w2*(s*xx-mp2*q2-ml2*lay)*(tmax-t)*(t-tmin)
-	w0=-0.5d0*(q2+t)+0.5d0*sp/lay*(sx*(q2-t)+2d0*t*q2)
-     +	+sqrt(lauw)/lay*cphi	
-	u0=w0+q2+t
-c	if(ia.eq.1)alphar=alpha	
-caku	if(ia.eq.2)alphar=alpha/(1d0-alpha/2d0/pi*vacpol(q2))	
-c	if(ia.eq.2)alphar=alpha/(1d0-alpha    /pi*vacpol(q2))	
-	if(ia.eq.1)factorvac=1d0	
-	if(ia.eq.2)factorvac=1d0/(1d0-alpha/2d0/pi*vacpol(q2))**2	
-c        if(ipol.eq.0)then
-	 tt10=2d0*(u0**2+w0**2-2d0*q2*t)/u0/w0
-	 tt20=0.5d0*mp2*tt10+t*(s**2+xx**2-q2*sx-s*w0-xx*u0)/u0/w0
-         TT1m=2.d0*t*(1d0/u0**2+1d0/w0**2)
-         TT2m=mp2/2d0*TT1m+(s**2+s*t)/u0**2+(xx**2-xx*t)/W0**2
-          tt1=tt10+2d0*ml2*tt1m
-          tt2=tt20+2d0*ml2*tt2m
-	 siborn=-barn*factorvac*alpha**3*q2*(tt1*f1+tt2*f2)/4d0/pi
-     +	 /s**2/x**2/t/sqly	
-c        endif
-        if(ipol.gt.0)then
-          sqlsxq=sqrt(S*XX*Q2-mp2*q2**2)
-          etak1=-( sqlsxq/sqly*eta(1)+(S*Sx+2d0*mp2*Q2)/
-     +	  (2d0*mp*sqly)*eta(3) )
-          etak2=-( sqlsxq/sqly*eta(1)+(xx*Sx-2d0*mp2*Q2)/
-     +	  (2d0*mp*sqly)*eta(3) )
-          etap2=-( sqrt(lauw)/(2.*sqlsxq*sqly)*(eta(1)*cphi+eta(2)
-     +	  *sphi)+(-t*Sx+2d0*mp2*(Q2-t))/(2d0*mp*sqly)*eta(3) )
-          tt30=4d0*(2d0*xx*(u0-q2)-2d0*s*(w0+q2)+(w0+u0)*(q2-t))
-     +	  *etap2*mp/((t-4d0*mp**2)*u0*w0)
-          tt40=-Mp2*TT30+2d0*mp/(u0*w0)*((q2-u0)*(t*etak2+
-     +	  etap2*xx)+(q2+w0)*(t*etak1+etap2*s))
-           tt3m=4d0*((2d0*s+t)*(1d0/u0**2+Sx/s/w0**2)+1d0/w0**2
-     +	   *(-q2+1d0/s*(xx**2+(xx-t)**2)))*etap2*mp/(t-4d0*mp**2)
-           tt4m=-Mp2*TT3m+2*mp*((sx+t)/s/w0**2*(t*etak2+etap2*xx)
-     +	   -(1d0/u0**2+1d0/w0**2)*(t*etak1+etap2*s))
-            tt3=tt30+2d0*ml2*tt3m
-            tt4=tt40+2d0*ml	2*tt4m
-          siborn=siborn-barn*factorvac*alpha**3*Q2/(4*pi*S**2*x**2
-     +	  *t*sqly)*(TT3*F3+TT4*F4)
-        endif
+C         sx=q2/x
+C 	xx=s-sx
+C 	sp=s+xx
+C 	w2=sx-q2+mp2
+C 	lay=sx**2+4d0*mp2*q2
+C         sqly=sqrt(lay)
+C 	tmin=-0.5d0*((sx-q2)*(sx+dsqrt(lay))+2d0*mp2*q2)/w2
+C 	tmax=-0.5d0*((sx-q2)*(sx-dsqrt(lay))+2d0*mp2*q2)/w2
+C 	call sffun(t,f1,f2,f3,f4)
+C         lauw=4d0*q2*w2*(s*xx-mp2*q2-ml2*lay)*(tmax-t)*(t-tmin)
+C 	w0=-0.5d0*(q2+t)+0.5d0*sp/lay*(sx*(q2-t)+2d0*t*q2)
+C      +	+sqrt(lauw)/lay*cphi	
+C 	u0=w0+q2+t
+C c	if(ia.eq.1)alphar=alpha	
+C caku	if(ia.eq.2)alphar=alpha/(1d0-alpha/2d0/pi*vacpol(q2))	
+C c	if(ia.eq.2)alphar=alpha/(1d0-alpha    /pi*vacpol(q2))	
+C 	if(ia.eq.1)factorvac=1d0	
+C 	if(ia.eq.2)factorvac=1d0/(1d0-alpha/2d0/pi*vacpol(q2))**2	
+C c        if(ipol.eq.0)then
+C 	 tt10=2d0*(u0**2+w0**2-2d0*q2*t)/u0/w0
+C 	 tt20=0.5d0*mp2*tt10+t*(s**2+xx**2-q2*sx-s*w0-xx*u0)/u0/w0
+C          TT1m=2.d0*t*(1d0/u0**2+1d0/w0**2)
+C          TT2m=mp2/2d0*TT1m+(s**2+s*t)/u0**2+(xx**2-xx*t)/W0**2
+C           tt1=tt10+2d0*ml2*tt1m
+C           tt2=tt20+2d0*ml2*tt2m
+C 	 siborn=-barn*factorvac*alpha**3*q2*(tt1*f1+tt2*f2)/4d0/pi
+C      +	 /s**2/x**2/t/sqly	
+C c        endif
+C         if(ipol.gt.0)then
+C           sqlsxq=sqrt(S*XX*Q2-mp2*q2**2)
+C           etak1=-( sqlsxq/sqly*eta(1)+(S*Sx+2d0*mp2*Q2)/
+C      +	  (2d0*mp*sqly)*eta(3) )
+C           etak2=-( sqlsxq/sqly*eta(1)+(xx*Sx-2d0*mp2*Q2)/
+C      +	  (2d0*mp*sqly)*eta(3) )
+C           etap2=-( sqrt(lauw)/(2.*sqlsxq*sqly)*(eta(1)*cphi+eta(2)
+C      +	  *sphi)+(-t*Sx+2d0*mp2*(Q2-t))/(2d0*mp*sqly)*eta(3) )
+C           tt30=4d0*(2d0*xx*(u0-q2)-2d0*s*(w0+q2)+(w0+u0)*(q2-t))
+C      +	  *etap2*mp/((t-4d0*mp**2)*u0*w0)
+C           tt40=-Mp2*TT30+2d0*mp/(u0*w0)*((q2-u0)*(t*etak2+
+C      +	  etap2*xx)+(q2+w0)*(t*etak1+etap2*s))
+C            tt3m=4d0*((2d0*s+t)*(1d0/u0**2+Sx/s/w0**2)+1d0/w0**2
+C      +	   *(-q2+1d0/s*(xx**2+(xx-t)**2)))*etap2*mp/(t-4d0*mp**2)
+C            tt4m=-Mp2*TT3m+2*mp*((sx+t)/s/w0**2*(t*etak2+etap2*xx)
+C      +	   -(1d0/u0**2+1d0/w0**2)*(t*etak1+etap2*s))
+C             tt3=tt30+2d0*ml2*tt3m
+C             tt4=tt40+2d0*ml	2*tt4m
+C           siborn=siborn-barn*factorvac*alpha**3*Q2/(4*pi*S**2*x**2
+C      +	  *t*sqly)*(TT3*F3+TT4*F4)
+C         endif
 
 	return
 	end
@@ -889,37 +894,41 @@ c      print *,t,vacpol,suml,sumh,-(aaa+bbb*log(1.+ccc*t)) *2*pi/alpha,aaa,bbb,c
 
       end
 
-      subroutine sffun(t,f1,f2,f3,f4)
-      implicit real*8(a-h,l,m,o-z)
-	common/const/alpha,barn,mp,mp2,ml2,ml,pi
-c       call ffpro(-t,fd,fp)
-       call nuclff01(t,fd,fp)
-c       call nuclff(t,fd,fp)
-       f1=(fd+fp)**2
-       f2=4d0/t*(fd**2-t*fp**2/4d0/mp2)
-       f3=f1
-       f4=4d0/t*(Fd+Fp)*(Fd+t/(4*mp2)*Fp)
-c      write(*,*)' ff',fd,fp,f1,f2
-      end
+C       subroutine sffun(t,f1,f2,f3,f4)
+C       implicit real*8(a-h,l,m,o-z)
+C 	common/const/alpha,barn,mp,mp2,ml2,ml,pi
+C c       call ffpro(-t,fd,fp)
+C        call nuclff01(t,fd,fp)
+C        f1=(fd+fp)**2
+C        f2=4d0/t*(fd**2-t*fp**2/4d0/mp2)
+C        f3=f1
+C        f4=4d0/t*(Fd+Fp)*(Fd+t/(4*mp2)*Fp)
+C c      write(*,*)' ff',fd,fp,f1,f2
+C       end
 
-       subroutine ffpro(t,fd,fp)
+C        subroutine ffpro(t,fd,fp)
 
-      implicit real*8(a-h,l,m,o-z)
-	common/const/alpha,barn,mp,mp2,ml2,ml,pi
-      gep=1.2742/(1.+t/0.6394**2)-.2742/(1.+t/1.582**2)
-      gmp=(1.3262/(1.+t/0.6397**2)-.3262/(1.+t/1.3137**2))*2.7921
-c     gep=1./((1.+.61*t)*(1.+2.31*t)*(1.+.04*t))
-c     gmp=amm*gep
-	tap=t/4d0/mp2
-	fd=(gep+tap*gmp)/(1d0+tap)
-	fp=(gmp-gep)/(1d0+tap)
+C       implicit real*8(a-h,l,m,o-z)
+C 	common/const/alpha,barn,mp,mp2,ml2,ml,pi
+C       gep=1.2742/(1.+t/0.6394**2)-.2742/(1.+t/1.582**2)
+C       gmp=(1.3262/(1.+t/0.6397**2)-.3262/(1.+t/1.3137**2))*2.7921
+C c     gep=1./((1.+.61*t)*(1.+2.31*t)*(1.+.04*t))
+C c     gmp=amm*gep
+C 	tap=t/4d0/mp2
+C 	fd=(gep+tap*gmp)/(1d0+tap)
+C 	fp=(gmp-gep)/(1d0+tap)
  
-      end
+C       end
 
-      subroutine nuclFF( del2,fd,fp )
-      implicit double precision (A-H,k,l,m,O-Z)
-      parameter (Mv = 0.843D0, kp = 1.79285D0, 
-     +      kn = -1.91D0, mp=0.938272d0)
+      subroutine nuclFF( del2 )
+C
+C  Elastic nucleon's formfactors
+C
+      implicit double precision (A-H,O-Z)
+#include "dvcs.inc"
+      common/formfac/ F1pn(2), F2pn(2)
+      double precision Mv, kp, kn
+      parameter (Mv = 0.843D0, kp = 1.79285D0, kn = -1.91D0)
 C
       dipol = 1D0/(1D0 - del2/Mv**2)**2
 *
@@ -927,73 +936,96 @@ C
       GE_n = 0D0
       GM_p = (1D0 + kp)*dipol
       GM_n =        kn*dipol
-
-c	print*,'aku',GE_p,GM_p
-c==MICK
-		 P_MAGN=2.79
-		 Q = sqrt(-del2)		  
-		 GM_p =  P_MAGN
-     +                     /( 1. + 0.116 * Q + 2.874 *  Q**2
-     +			  + 0.241 * Q**3 + 1.006 * Q**4 
-     +			  + 0.345 * Q**5)
-		 ratio = 1. - 0.13 * ( -del2- 0.04)
-		 GE_p = GM_p  /P_MAGN * ratio
-c==MICK
-*
-c	print*,'mick',GE_p,GM_p
-      delm = del2/(2D0*Mp)**2
-*
-      Fd = (GE_p - delm*GM_p)/(1D0-delm)
-      Fp = (GM_p - GE_p)/(1D0-delm)         
-c        write(*,*)' ttf',fd,fp 
-c      F1pn(2) = (GE_n - delm*GM_n)/(1D0-delm)
-c      F2pn(2) = (GM_n - GE_n)/(1D0-delm)         
-      return
-      end
-
-      subroutine nuclff01( del2,fd,fp )
-      implicit double precision (A-H,k,l,m,O-Z)
-      parameter (Mv = 0.843D0, kp = 1.79285D0, kn = -1.91D0, mp=0.938272d0)
-C
-      dipol = 1D0/(1D0 - del2/Mv**2)**2
-*
-       GE_p = dipol
-      GE_n = 0D0
-      GM_p = (1D0 + kp)*dipol
-      GM_n =        kn*dipol
 *
       delm = del2/(2D0*Mp)**2
 *
-      Fd = (GE_p - delm*GM_p)/(1D0-delm)
-      Fp = (GM_p - GE_p)/(1D0-delm)         
-c        write(*,*)' ttf',fd,fp 
-c      F1pn(2) = (GE_n - delm*GM_n)/(1D0-delm)
-c      F2pn(2) = (GM_n - GE_n)/(1D0-delm)         
+      F1pn(1) = (GE_p - delm*GM_p)/(1D0-delm)
+      F1pn(2) = (GE_n - delm*GM_n)/(1D0-delm)
+      F2pn(1) = (GM_p - GE_p)/(1D0-delm)         
+      F2pn(2) = (GM_n - GE_n)/(1D0-delm)         
       return
       end
 
-      subroutine bmkxsec(Ivar, IGPD, Ipn, Ich, uel, hel,   
-c     &                 E, xb, Q2, del2, Phi_e, Phi_g,dsigma)
-     &                 E, xb, Q2, del2, Phi_g,dsigma,eta,ipol,iborn)
-        include "dvcsmom.inc"
-c      double precision E, xb, Q2, del2,Phi_e,Phi_g,Phi_s,Phi_gb,dsigma
-      double precision E, xb, Q2, del2,Phi_g,Phi_gb,dsigma
+
+C       subroutine nuclFF( del2,fd,fp )
+C       implicit double precision (A-H,k,l,m,O-Z)
+C       parameter (Mv = 0.843D0, kp = 1.79285D0, 
+C      +      kn = -1.91D0, mp=0.938272d0)
+C C
+C       dipol = 1D0/(1D0 - del2/Mv**2)**2
+C *
+C       GE_p = dipol
+C       GE_n = 0D0
+C       GM_p = (1D0 + kp)*dipol
+C       GM_n =        kn*dipol
+
+C c	print*,'aku',GE_p,GM_p
+C c==MICK
+C 		 P_MAGN=2.79
+C 		 Q = sqrt(-del2)		  
+C 		 GM_p =  P_MAGN
+C      +                     /( 1. + 0.116 * Q + 2.874 *  Q**2
+C      +			  + 0.241 * Q**3 + 1.006 * Q**4 
+C      +			  + 0.345 * Q**5)
+C 		 ratio = 1. - 0.13 * ( -del2- 0.04)
+C 		 GE_p = GM_p  /P_MAGN * ratio
+C c==MICK
+C *
+C c	print*,'mick',GE_p,GM_p
+C       delm = del2/(2D0*Mp)**2
+C *
+C       Fd = (GE_p - delm*GM_p)/(1D0-delm)
+C       Fp = (GM_p - GE_p)/(1D0-delm)         
+C c        write(*,*)' ttf',fd,fp 
+C c      F1pn(2) = (GE_n - delm*GM_n)/(1D0-delm)
+C c      F2pn(2) = (GM_n - GE_n)/(1D0-delm)         
+C       return
+C       end
+
+C       subroutine nuclff01( del2,fd,fp )
+C       implicit double precision (A-H,k,l,m,O-Z)
+C       parameter (Mv = 0.843D0, kp = 1.79285D0, kn = -1.91D0, mp=0.938272d0)
+C C
+C       dipol = 1D0/(1D0 - del2/Mv**2)**2
+C *
+C        GE_p = dipol
+C       GE_n = 0D0
+C       GM_p = (1D0 + kp)*dipol
+C       GM_n =        kn*dipol
+C *
+C       delm = del2/(2D0*Mp)**2
+C *
+C       Fd = (GE_p - delm*GM_p)/(1D0-delm)
+C       Fp = (GM_p - GE_p)/(1D0-delm)         
+C c        write(*,*)' ttf',fd,fp 
+C c      F1pn(2) = (GE_n - delm*GM_n)/(1D0-delm)
+C c      F2pn(2) = (GM_n - GE_n)/(1D0-delm)         
+C       return
+C       end
+
+
+C        Ich  -  positron(electron) = +1(-1)
+C int   hel  -  lepton beam polarization
+C int   help -  target polarization
+C double  dsigma   d^5\sig / dx dQ^2 d|\Delta^2| d\phi_e d\phi_\gamma
+C                  (pb GeV^{-4})
+c
+      subroutine bmkxsec(xb, Q2, del2, Phi_e, Phi_g,dsigma)
+      implicit none
+#include "dvcsmom.inc"
+#include "dvcs.inc"
+#include "ntupgdvcs.inc"
+      double precision E, xb, Q2, del2,Phi_e,Phi_g,Phi_s,Phi_gb,dsigma
       double precision nu,W2,W,qmod,E1cm,P1cm,E2cm,P2cm,del2max,del2min
-      double precision Mp, mele, pi
-      real*8 alpha000,barn000,mp000,mp2000,ml2000,ml000,pi000
-      common/const/alpha000,barn000,mp000,mp2000,ml2000,ml000,pi000
-      common/myconst/ Mp, mele, pi
-c      data Mp/0.938D0/, mele/0.000511D0/, pi/3.1415926536D0/
-      integer istat,Ivar, IGPD, Ipn, Ich, hel, uel
-         integer*4 ipol
-         real*8 eta(3)
-      
-      pi=pi000
-      mele=ml000
-      mp=mp000
+      double precision yb,ymax,ycol
+      double precision  xmin1,xmax1
+      double precision dsIunp,dsBHlp, dsIlp,dsBHtp,dsItp
+      real corraul,rP1,rP2
 c
 c
-      istat=0                    ! kinematic range OK
+      istatus=0                    ! kinematic range OK
+      Ed=cl_be
+      E=Ed
       xmin1 = Q2/(2D0*Mp*E)
       xmax1 = 1D0
       nu  = Q2/(2D0*Mp*xb)
@@ -1008,84 +1040,120 @@ c
       del2max = 2D0*(Mp**2 - E1cm*E2cm - P1cm*P2cm)
       del2min = 2D0*(Mp**2 - E1cm*E2cm + P1cm*P2cm)
 c
-      if( xb.le.xmin1 .or. xb.gt.xmax1 ) istat=1           !    x  out of range
-      if( del2.ge.del2min .or. del2.le.del2max ) istat=2   ! delta out of range
+      if( xb.le.xmin1 .or. xb.gt.xmax1 ) istatus=1           !    x  out of range
+      if( del2.ge.del2min .or. del2.le.del2max ) istatus=2   ! delta out of range
+      yb=nu/Ed
+      if(yb.gt.cl_ymax) istatus=3                               ! y<ymax
+      call dvcsycol(del2,xb,Q2,ycol)
 
-      if (istat.eq.0) then
-      call resetmom()
-!      call getphoton(E,  xb,  Q2,  del2,  Phi_e,Phi_g)
-      call getphoton(E,  xb,  Q2,  del2,  Phi_g)
       Phi_gb=pi - Phi_g
-c      Phi_s=Phi_e
-c      call bhdvcs(Ivar,IGPD,Ipn,E,  xb,  Q2,  del2,  Phi_s,Phi_gb) 
-      call bhdvcs(Ivar,IGPD,Ipn,E,  xb,  Q2,  del2, Phi_gb) 
+      Phi_s=Phi_e
+      call bhdvcs(xb,  Q2,  del2,  Phi_s,Phi_gb,rP1,rP2) 
 c
-c      dsBH =hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb)
-c      dsBHlp =hel*help*(hc0BHlp +hc1BHlp*cos(Phi_gb))
-c      dsBHtp =hel*help*cos(Phi_s)*(hc0BHtpcos +hc1BHtpcos*cos(Phi_gb)) 
-c     6       +hel*hs1BHtpsin*sin(Phi_s)*sin(Phi_gb)
-c      dsDVCS=hc0dvcs+hc1dvcs*cos(Phi_gb)+hs1dvcs*sin(Phi_gb)+hs2dvcs*sin(2*Phi_gb)
-c      dsIunp=hc0Iunp +hel*hs1Iunp*sin(Phi_gb)+hc1Iunp*cos(Phi_gb) 
-c     6     +hel*hs2Iunp*sin(2*Phi_gb)+hc2Iunp*cos(2*Phi_gb)
-c      dsIlp=hel*help*hc0Ilp+hel*help*hc1Ilp*cos(Phi_gb)+help*hs1Ilp*sin(Phi_gb)
-c      dsItp=hel*hc0Itpcos*cos(Phi_s)+hc0Itpsin*sin(Phi_s)
-c     6     +hc1Itpsin*cos(Phi_gb)*sin(Phi_s)+hel*hc1Itpcos*cos(Phi_gb)*cos(Phi_s)
-c     6     +hel*hs1Itpsin*sin(Phi_gb)*sin(Phi_s)+hs1Itpcos*sin(Phi_gb)*cos(Phi_s)
+      if(abs(rP1).le.cl_ycol ) istatus=4                   ! y-too big
+c      if((ycol-yb).le.cl_ycol ) istatus=4                   ! y-too big
 
-
-       cosphis=eta(1)*cos(Phi_gb)+eta(2)*sin(Phi_gb)
-       sinphis=eta(2)*cos(Phi_gb)-eta(1)*sin(Phi_gb)
-       eta3bmk=-eta(3)
-
-      dsBH =uel*(hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb))
-      dsBHlp =hel*eta3bmk*(hc0BHlp +hc1BHlp*cos(Phi_gb))
-      dsBHtp =hel*cosphis*(hc0BHtpcos +hc1BHtpcos*cos(Phi_gb)) 
-     6       +hel*sinphis*hs1BHtpsin*sin(Phi_gb)
-c      dsDVCS=hc0dvcs+hc1dvcs*cos(Phi_gb)+hs1dvcs*sin(Phi_gb)+hs2dvcs*sin(2*Phi_gb)
-      dsIunp=uel*hc0Iunp +hel*hs1Iunp*sin(Phi_gb)+uel*hc1Iunp*cos(Phi_gb) 
-     6     +hel*hs2Iunp*sin(2*Phi_gb)+uel*hc2Iunp*cos(2*Phi_gb)
-      dsIlp=eta3bmk*(hel*hc0Ilp+hel*hc1Ilp*cos(Phi_gb)+uel*hs1Ilp*sin(Phi_gb))
-      dsItp=hel*hc0Itpcos*cosphis+uel*hc0Itpsin*sinphis
-     6     +uel*hc1Itpsin*cos(Phi_gb)*sinphis+hel*hc1Itpcos*cos(Phi_gb)*cosphis
-     6     +hel*hs1Itpsin*sin(Phi_gb)*sinphis+uel*hs1Itpcos*sin(Phi_gb)*cosphis
-
-*	     write(61,'(8g11.3)')phi_gb,hc0Iunp,hc1Iunp,hc2Iunp,hs1Iunp,hs2Iunp
-c	     write(*,'(8g11.3)')xb,q2,del2,Phi_g ,hc0Iunp,hs1Iunp,hc1Iunp,hs2Iunp,hc2Iunp
-c		 stop
-
-	 
+      if (istatus.eq.0) then
+c
+      dsBH =hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb)
+      dsDVCS=hc0dvcs+hc1dvcs*cos(Phi_gb)+hs1dvcs*sin(Phi_gb)+hs2dvcs*sin(2*Phi_gb)
+      dsIunp=hc0Iunp +heli*hs1Iunp*sin(Phi_gb)+hc1Iunp*cos(Phi_gb) 
+     6     +heli*hs2Iunp*sin(2*Phi_gb)+hc2Iunp*cos(2*Phi_gb)
 c      
-CC       dsigma=dsBH +dsDVCS-Ich*dsIunp !+dsBHlp -Ich*dsIlp !-Ich*dsItp
+c
+c      scale the sin\phi moment
+       dsIunp=dsIunp*cl_scale
+c
+       if(cl_ktcor) then
+         dsIunp=dsIunp*corraul(del2,Q2)     ! correct~20% of A_LU at small t
+       endif
+c
+       dsigma=dsBH
+       if(cl_bh.gt.1)  dsigma=dsigma+dsDVCS-Ich*dsIunp 
 
-      if(iborn.eq.1.and.ipol.eq.0) dsigma=2.*pi*dsBH
-      if(iborn.eq.1.and.ipol.gt.0) dsigma=2.*pi*(dsBHlp + dsBHtp)
-      if(iborn.eq.2.and.ipol.eq.0) dsigma=2.*pi*(-Ich*dsIunp)
-      if(iborn.eq.2.and.ipol.gt.0) dsigma=2.*pi*(-Ich*dsIlp-Ich*dsItp)
-      if(iborn.eq.3.and.ipol.eq.0) dsigma=2.*pi*(dsBH-Ich*dsIunp)
-      if(iborn.eq.3.and.ipol.gt.0) dsigma=2.*pi*(dsBHlp + dsBHtp-Ich*dsIlp-Ich*dsItp)
-
-c      write(*,*)dsigma,eta(1),eta(2),eta(3),dsBHlp,dsBHtp,cos(Phi_gb),sin(Phi_gb)
-c      stop
-
-cc       dsigma=2.*pi*dsBH !+dsDVCS-Ich*dsIunp !+dsBHlp -Ich*dsIlp !-Ich*dsItp
-c       dsigma=2.*pi*dsIunp
-c      dsigma=2.*pi*dsBH
-       
-c       write(*,'(6f8.3,g16.5)')E, xb, Q2, del2, Phi_e, Phi_g,dsigma
-
-
-c       write(*,11) dsBH,hc0BH,hc1BH,cos(Phi_gb),hc2BH,cos(2D0*Phi_gb)
-!xb,del2,Phi_g ,hc0BH,hc1BH/hc0BH,hc0BHlp/hc0BH,hc1BHlp/hc0BH,dsIunp
- 11   format(3h+++ ,15G11.3)
+c
+c      L-POL
+c
+       if(cl_pol.eq.1) then 
+         dsBHlp =heli*helpi*(hc0BHlp +hc1BHlp*cos(Phi_gb))
+         dsIlp=heli*helpi*hc0Ilp+heli*helpi*hc1Ilp*cos(Phi_gb)
+     +         +helpi*hs1Ilp*sin(Phi_gb)
+         dsigma=dsigma+dsBHlp -Ich*dsIlp
+       endif
+c
+c      T-POL
+c 
+       if(cl_pol.eq.2) then 
+         dsBHtp =heli*helpi*cos(Phi_s)*(hc0BHtpcos +hc1BHtpcos*cos(Phi_gb)) 
+     6       +heli*hs1BHtpsin*sin(Phi_s)*sin(Phi_gb)
+         dsItp=heli*hc0Itpcos*cos(Phi_s)+hc0Itpsin*sin(Phi_s)
+     6     +hc1Itpsin*cos(Phi_gb)*sin(Phi_s)+heli*hc1Itpcos*cos(Phi_gb)*cos(Phi_s)
+     6     +heli*hs1Itpsin*sin(Phi_gb)*sin(Phi_s)+hs1Itpcos*sin(Phi_gb)*cos(Phi_s)
+         dsigma=dsigma+dsBHtp -Ich*dsItp
+       endif
+c
+c
+c
       else
-       dsigma=0
-c      print *,'out of limits ',xb,xmin1,xmax1,del2,del2min,del2max,istat      
+        dsigma=0
+c       print *,'out of limits ',xb,xmin1,xmax1,del2,del2min,del2max,istat      
       endif
+       gwbh=dsBH
+       gwdvcs=dsDVCS
+       gvint=dsIunp
+c       gsin=hs1Iunp/(hc0BH+hc0dvcs+hc0Iunp)
+       gsin=hs1Iunp/hc0BH
+       gsin2=dsigma
+        gproh=helpi
+        ghp1=hcp1
+        ghp2=hcp2
+        ghccb=hccb
+        ghcci=hcci
+        gh0bh=hc0BH
+        gh1bh=hc1BH
+        gh2bh=hc2BH
+        gh0dvcs=hc0dvcs
+        gh1dvcs=hc1dvcs
+        ghs1dvcs=hs1dvcs
+        gh0iunp=hc0Iunp
+        gh1iunp=hc1Iunp
+        ghs1iunp=hs1Iunp
+        ghs2iunp=hs2Iunp
+       if(cl_pol.eq.1) then
+        gh0bhlp=hc0bhlp
+        gh1bhlp=hc1bhlp
+        ghs1ilp=hs1ilp
+        gh1ilp=hc1ilp
+        gh0ilp=hc0ilp
+       else if(cl_pol.eq.2) then
+        gh0bhtpcos = hc0BHtpcos
+        gh1bhtpcos = hc1BHtpcos
+        ghs1bhtpsin= hs1BHtpsin
+        ghs1itpcos = hs1Itpcos
+        ghs1itpsin = hs1Itpsin
+        gh1itpcos  = hc1Itpcos
+        gh1itpsin  = hc1Itpsin
+        gh0itpcos  = hc0Itpcos
+        gh0itpsin  = hc0Itpsin
+      endif
+c      print *,'bhdvcs rP1= ',rP1,rP2,dsigma,cl_ycol,ycol-yb,xb,Q2,del2
       return
       end
 c
-c      subroutine bhdvcs(Ivar,IGPD,Ipn,Ed, xbd, Q2d, del2d, phield, phigd)
-      subroutine bhdvcs(Ivar,IGPD,Ipn,Ed, xbd, Q2d, del2d,  phigd)
+
+       subroutine dvcsycol(d,xb,q2,ycol)
+       implicit none
+       double precision d,xb,q2,ycol
+       ycol=(q2+d)/(q2+xb*d)
+       return
+       end
+c
+c
+
+      subroutine bhdvcs(xbd, Q2d, del2d, phield, phigd,rP1,rP2)
+      implicit double precision (A-H,O-Z)
+#include "dvcsmom.inc"
+#include "dvcs.inc"
 c
 C BH+DVCS+INT by V. Korotkov
 C Tpol and Lpol added by  H.Avakian
@@ -1105,18 +1173,13 @@ C OUTPUT:
 C real   hs*,hc* sin and cos moments of 5-fold diff. cross-section for
 C                            BH, DVCS and interf. terms
 *
-      implicit double precision (A-H,O-Z)
-       include "dvcsmom.inc"
 
       parameter ( alpha = 1D0/137.036D0, hc2  = 0.38938D0)
       parameter ( coeff = 1D+9*hc2*alpha**3 )
 c
-      double precision Mp, mele, pi
-      common/myconst/ Mp, mele, pi
-*
+      real rP1,rP2
       double precision nu, k1pl, k2pl, Kfac, Jfac
-c      common/todvcs/ xb, yb, Q2, del2, del2min,phip,phipel,P1,P2,Kfac,ds
-      common/todvcs/ xb, yb, Q2, del2, del2min,phip,P1,P2,Kfac,ds
+      common/todvcs/ xb, yb, Q2, del2, del2min,phip,phipel,P1,P2,Kfac,Jfac,ds
 *
       common/formfac/ F1pn(2), F2pn(2)
 *
@@ -1147,9 +1210,9 @@ c
 *
 *
       phip = phigd 
-c      phipel = phield 
+      phipel = phield 
 *
-      call nuclFF00( del2d )
+      call nuclFF( del2d )
 *
       y1eps=1D0 - yb - yb*yb*eps2/4D0
       sqy1eps=sqrt(y1eps)
@@ -1159,12 +1222,10 @@ c      phipel = phield
      *                                       ((del2d - del2min)/Q2)))
       Jfac = (1D0 - yb - yb*eps2/2D0)*(1D0 + del2q2) - 
      *       (1D0 - xbd)*(2D0 - yb)*del2q2
-caku      P1 = -(Jfac + 2D0*Kfac*cos(phip))/(yb*(1D0 + eps2))
       P1 = -(Jfac + 2D0*Kfac*cos(phip))/(yb*(1D0 + eps2))
       P2 = 1D0 + del2q2 - P1
-
-c      write(*,'(10g11.3)')p1,ed,xbd,yb,del2,q2d,phip,nu,kfac,jfac
-
+      rP1=P1
+      rP2=P2
 c
         if( Ivar.eq.1 .or. Ivar.eq.3 ) then   
        F1 = F1pn(Ipn)
@@ -1201,9 +1262,7 @@ c
       c0_BHlp=c01_BHlp*c02_BHlp*F1_P_F+c03_BHlp*c04_BHlp*F1_M_F
       c0_BHlp=c0_BHlp*(2D0-yb)*bhkin1
 c
-caku      c11_BHlp=2D0*tau-xbd*del2q2m1*(1D0-xbd+xbd*del2q2)
-      c11_BHlp=(2D0*tau-xbd*del2q2m1)*(1D0-xbd+xbd*del2q2)
-caku      c12_BHlp=1D0+xbd-(3D0-2D0*xbd)*(1D0+xbd*del2q2)-xtau*(1D0-del2q4)
+      c11_BHlp=(2D0*tau-xbd*del2q2m1)*(1D0-xbd+xbd*del2q2)  
       c12_BHlp=1D0+xbd-(3D0-2D0*xbd)*(1D0+xbd*del2q2)-xtau*(1D0+del2q4)
       c1_BHlp=c11_BHlp*F1_P_F+c12_BHlp*F1_M_F
       c1_BHlp=-c1_BHlp*Kfac*bhkin1
@@ -1230,13 +1289,17 @@ c
       s1_BHtpsin=s11_BHtpsin*s12_BHtpsin
 c
        BHfact=ds/((xbd*yb*(1D0 + eps2))**2*del2d*P1*P2)
-ccc       BHfact=ds/((xbd*yb*(1D0 + eps2))**2*del2d)
+       hcP1=P1
+       hcP2=P2
+       hccb=BHfact
        hc0BH=c0_BH*BHfact
        hc1BH=c1_BH*BHfact
        hc2BH=c2_BH*BHfact
-
-caku       write(*,11)BHfact,Jfac, 2D0*Kfac*cos(phip),EPS2,c0_BH,c1_BH,c2_BH
- 11   format(3h++1 ,15G11.3)
+c
+       ac0bh=c0_BH
+       ac1bh=c1_BH
+       ac2bh=c2_BH
+c
 c
        hc0BHlp=c0_BHlp*BHfact
        hc1BHlp=c1_BHlp*BHfact
@@ -1248,52 +1311,34 @@ c
         endif
 c
         if( Ivar.eq.2 .or. Ivar.eq.3 ) then       
-         call dvcsfun( IGPD, Ipn)
+         call dvcsfun()
         endif
 c
-
-        
-c        write(*,*)hc0BHtpcos/BHfact,hc1BHtpcos/BHfact,hs1BHtpsin/BHfact,f1,f2,kfac
-c        stop
-
-
       return
       end
 
-      subroutine dvcsfun( IGPD, Ipn)
+      subroutine dvcsfun()
       implicit double precision (A-H,O-Z)
-       include "dvcsmom.inc"
-      double precision Kfac,Intfac
-c      common/todvcs/ x, y,Q2,del2,del2min,phip,phipel,P1,P2,Kfac,ds
-      common/todvcs/ x, y,Q2,del2,del2min,phip,P1,P2,Kfac,ds
+#include "dvcs.inc"
+#include "dvcsmom.inc"
+      double precision Kfac,Jfac,Intfac
+      common/todvcs/ x, y,Q2,del2,del2min,phip,phipel,P1,P2,Kfac,Jfac,ds
       common/formfac/ F1pn(2), F2pn(2)
-      double precision Mp, mele, pi
-      common/myconst/ Mp, mele, pi
-c
-      real zskew,zF1,zF2,zHp,zEp,zHtp,zEtp,zCIim
-      common /zgpds/zskew,zF1,zF2,zHp,zEp,zHtp,zEtp,zCIim
 c
       skew = x/(2D0 - x)
-      call amptab( IGPD, Ipn, skew, del2, 
+      if(IGPD.lt.100) then
+      call amptab(skew, del2, 
      &             H1_RE, H1_IM, H1T_RE, H1T_IM,
      &             E1_RE, E1_IM, E1T_RE, E1T_IM )
+      else
+      call amptabgag(skew, del2, 
+     &             H1_RE, H1_IM, H1T_RE, H1T_IM,
+     &             E1_RE, E1_IM, E1T_RE, E1T_IM )
+      endif
 *
-c
-c
 C         proton/neutron
       F1 = F1pn(Ipn)
       F2 = F2pn(Ipn)
-c
-c
-c      print *,skew,F1,F2,del2
-      zskew=skew
-      zF1=F1
-      zF2=F2
-      zHp=H1_IM
-      zEp=E1_IM
-      zHtp=H1T_IM
-      zEtp=E1T_IM
-c
 *
       deldel    = 1D0 - del2min/del2
       deldel_sq = sqrt(deldel)
@@ -1302,8 +1347,8 @@ c
       delm2_sq  = sqrt(del2m2)
       cy2   = 2D0 - 2D0*y + y**2
       Intfac=ds/(x*y**3*P1*P2*(-del2))
-c
-c
+      hcci=Intfac
+*
 C  DVCS
 C     
       a1 = H1_RE**2 + H1_IM**2 + H1T_RE**2 + H1T_IM**2
@@ -1320,18 +1365,13 @@ C
       DVCSfac=ds/(y**2*Q2)
       hc0dvcs=c0_DVCS*DVCSfac
       hc1dvcs=Kfac*c1_DVCS*DVCSfac
+      ac0dvcs=c0_DVCS
+      ac1dvcs=Kfac*c1_DVCS
 C
 C  INTERF
 C
-c
-c
       C_I_re = F1*H1_RE + x/(2D0-x)*(F1+F2)*H1T_RE - del2m4*F2*E1_RE
-      C_I_im1 = F1*H1_IM
-      C_I_im2 = x/(2D0-x)*(F1+F2)*H1T_IM
-      C_I_im3  = -del2m4*F2*E1_IM
-      
-      C_I_im = C_I_im1 + C_I_im2 + C_I_im3
-      zCIim=-C_I_im/F1 
+      C_I_im = F1*H1_IM + x/(2D0-x)*(F1+F2)*H1T_IM - del2m4*F2*E1_IM
       RE2    = x/(2D0-x)*(H1_RE + E1_RE) + H1T_RE
       C_I_re_eff = -x*C_I_re
       C_I_im_eff = -x*C_I_im
@@ -1344,13 +1384,18 @@ c
       c2_I = -16D0*((2D0 - y)/(2D0 - x))*C_I_re_eff
       s2_I =  16D0*(y/(2D0 - x))*C_I_im_eff
 c
+c
+C     moments
+c
       hs2Iunp=Kfac*Kfac*s2_I*Intfac
       hs1Iunp=Kfac*s1_I*Intfac
       hc2Iunp=Kfac*Kfac*c2_I*Intfac
       hc1Iunp=Kfac*c1_I*Intfac
       hc0Iunp=del2/Q2*c0_I*Intfac
 c
-c      print *, 'vvv ',hs1Iunp/hc0BH,C_I_im2/C_I_im1,C_I_im3/C_I_im1
+      ac0int=del2/Q2*c0_I
+      ac1int=Kfac*c1_I
+      as1int=Kfac*s1_I
 c
 c      print *,'mysl-dvcs',hs1Iunp,hc1Iunp,hc0Iunp
 C
@@ -1440,6 +1485,475 @@ c
 c
       return
       end
+
+
+C       subroutine bmkxsec(Ivar, IGPD, Ipn, Ich, uel, hel,   
+C      &                 E, xb, Q2, del2, Phi_g,dsigma,eta,ipol,iborn)
+C         include "dvcsmom.inc"
+C c      double precision E, xb, Q2, del2,Phi_e,Phi_g,Phi_s,Phi_gb,dsigma
+C       double precision E, xb, Q2, del2,Phi_g,Phi_gb,dsigma
+C       double precision nu,W2,W,qmod,E1cm,P1cm,E2cm,P2cm,del2max,del2min
+C       double precision Mp, mele, pi
+C       real*8 alpha000,barn000,mp000,mp2000,ml2000,ml000,pi000
+C       common/const/alpha000,barn000,mp000,mp2000,ml2000,ml000,pi000
+C       common/myconst/ Mp, mele, pi
+C c      data Mp/0.938D0/, mele/0.000511D0/, pi/3.1415926536D0/
+C       integer istat,Ivar, IGPD, Ipn, Ich, hel, uel
+C          integer*4 ipol
+C          real*8 eta(3)
+      
+C       pi=pi000
+C       mele=ml000
+C       mp=mp000
+C c
+C c
+C       istat=0                    ! kinematic range OK
+C       xmin1 = Q2/(2D0*Mp*E)
+C       xmax1 = 1D0
+C       nu  = Q2/(2D0*Mp*xb)
+C       W2  = Mp**2 + 2D0*Mp*nu - Q2
+C       W   = sqrt(W2)
+C       qmod = sqrt(nu**2 + Q2)
+C c
+C       E1cm = Mp*(Mp + nu)/W
+C       P1cm = Mp*qmod/W
+C       E2cm = (W2 + Mp**2)/(2D0*W)
+C       P2cm = (W2 - Mp**2)/(2D0*W)
+C       del2max = 2D0*(Mp**2 - E1cm*E2cm - P1cm*P2cm)
+C       del2min = 2D0*(Mp**2 - E1cm*E2cm + P1cm*P2cm)
+C c
+C       if( xb.le.xmin1 .or. xb.gt.xmax1 ) istat=1           !    x  out of range
+C       if( del2.ge.del2min .or. del2.le.del2max ) istat=2   ! delta out of range
+
+C       if (istat.eq.0) then
+C       call resetmom()
+C !      call getphoton(E,  xb,  Q2,  del2,  Phi_e,Phi_g)
+C       call getphoton(E,  xb,  Q2,  del2,  Phi_g)
+C       Phi_gb=pi - Phi_g
+C c      Phi_s=Phi_e
+C c      call bhdvcs(Ivar,IGPD,Ipn,E,  xb,  Q2,  del2,  Phi_s,Phi_gb) 
+C       call bhdvcs(Ivar,IGPD,Ipn,E,  xb,  Q2,  del2, Phi_gb) 
+C c
+C c      dsBH =hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb)
+C c      dsBHlp =hel*help*(hc0BHlp +hc1BHlp*cos(Phi_gb))
+C c      dsBHtp =hel*help*cos(Phi_s)*(hc0BHtpcos +hc1BHtpcos*cos(Phi_gb)) 
+C c     6       +hel*hs1BHtpsin*sin(Phi_s)*sin(Phi_gb)
+C c      dsDVCS=hc0dvcs+hc1dvcs*cos(Phi_gb)+hs1dvcs*sin(Phi_gb)+hs2dvcs*sin(2*Phi_gb)
+C c      dsIunp=hc0Iunp +hel*hs1Iunp*sin(Phi_gb)+hc1Iunp*cos(Phi_gb) 
+C c     6     +hel*hs2Iunp*sin(2*Phi_gb)+hc2Iunp*cos(2*Phi_gb)
+C c      dsIlp=hel*help*hc0Ilp+hel*help*hc1Ilp*cos(Phi_gb)+help*hs1Ilp*sin(Phi_gb)
+C c      dsItp=hel*hc0Itpcos*cos(Phi_s)+hc0Itpsin*sin(Phi_s)
+C c     6     +hc1Itpsin*cos(Phi_gb)*sin(Phi_s)+hel*hc1Itpcos*cos(Phi_gb)*cos(Phi_s)
+C c     6     +hel*hs1Itpsin*sin(Phi_gb)*sin(Phi_s)+hs1Itpcos*sin(Phi_gb)*cos(Phi_s)
+
+
+C        cosphis=eta(1)*cos(Phi_gb)+eta(2)*sin(Phi_gb)
+C        sinphis=eta(2)*cos(Phi_gb)-eta(1)*sin(Phi_gb)
+C        eta3bmk=-eta(3)
+
+C       dsBH =uel*(hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb))
+C       dsBHlp =hel*eta3bmk*(hc0BHlp +hc1BHlp*cos(Phi_gb))
+C       dsBHtp =hel*cosphis*(hc0BHtpcos +hc1BHtpcos*cos(Phi_gb)) 
+C      6       +hel*sinphis*hs1BHtpsin*sin(Phi_gb)
+C c      dsDVCS=hc0dvcs+hc1dvcs*cos(Phi_gb)+hs1dvcs*sin(Phi_gb)+hs2dvcs*sin(2*Phi_gb)
+C       dsIunp=uel*hc0Iunp +hel*hs1Iunp*sin(Phi_gb)+uel*hc1Iunp*cos(Phi_gb) 
+C      6     +hel*hs2Iunp*sin(2*Phi_gb)+uel*hc2Iunp*cos(2*Phi_gb)
+C       dsIlp=eta3bmk*(hel*hc0Ilp+hel*hc1Ilp*cos(Phi_gb)+uel*hs1Ilp*sin(Phi_gb))
+C       dsItp=hel*hc0Itpcos*cosphis+uel*hc0Itpsin*sinphis
+C      6     +uel*hc1Itpsin*cos(Phi_gb)*sinphis+hel*hc1Itpcos*cos(Phi_gb)*cosphis
+C      6     +hel*hs1Itpsin*sin(Phi_gb)*sinphis+uel*hs1Itpcos*sin(Phi_gb)*cosphis
+
+C *	     write(61,'(8g11.3)')phi_gb,hc0Iunp,hc1Iunp,hc2Iunp,hs1Iunp,hs2Iunp
+C c	     write(*,'(8g11.3)')xb,q2,del2,Phi_g ,hc0Iunp,hs1Iunp,hc1Iunp,hs2Iunp,hc2Iunp
+C c		 stop
+
+	 
+C c      
+C CC       dsigma=dsBH +dsDVCS-Ich*dsIunp !+dsBHlp -Ich*dsIlp !-Ich*dsItp
+
+C       if(iborn.eq.1.and.ipol.eq.0) dsigma=2.*pi*dsBH
+C       if(iborn.eq.1.and.ipol.gt.0) dsigma=2.*pi*(dsBHlp + dsBHtp)
+C       if(iborn.eq.2.and.ipol.eq.0) dsigma=2.*pi*(-Ich*dsIunp)
+C       if(iborn.eq.2.and.ipol.gt.0) dsigma=2.*pi*(-Ich*dsIlp-Ich*dsItp)
+C       if(iborn.eq.3.and.ipol.eq.0) dsigma=2.*pi*(dsBH-Ich*dsIunp)
+C       if(iborn.eq.3.and.ipol.gt.0) dsigma=2.*pi*(dsBHlp + dsBHtp-Ich*dsIlp-Ich*dsItp)
+
+C c      write(*,*)dsigma,eta(1),eta(2),eta(3),dsBHlp,dsBHtp,cos(Phi_gb),sin(Phi_gb)
+C c      stop
+
+C cc       dsigma=2.*pi*dsBH !+dsDVCS-Ich*dsIunp !+dsBHlp -Ich*dsIlp !-Ich*dsItp
+C c       dsigma=2.*pi*dsIunp
+C c      dsigma=2.*pi*dsBH
+       
+C c       write(*,'(6f8.3,g16.5)')E, xb, Q2, del2, Phi_e, Phi_g,dsigma
+
+
+C c       write(*,11) dsBH,hc0BH,hc1BH,cos(Phi_gb),hc2BH,cos(2D0*Phi_gb)
+C !xb,del2,Phi_g ,hc0BH,hc1BH/hc0BH,hc0BHlp/hc0BH,hc1BHlp/hc0BH,dsIunp
+C  11   format(3h+++ ,15G11.3)
+C       else
+C        dsigma=0
+C c      print *,'out of limits ',xb,xmin1,xmax1,del2,del2min,del2max,istat      
+C       endif
+C       return
+C       end
+c
+c      subroutine bhdvcs(Ivar,IGPD,Ipn,Ed, xbd, Q2d, del2d, phield, phigd)
+C       subroutine bhdvcs(Ivar,IGPD,Ipn,Ed, xbd, Q2d, del2d,  phigd)
+C c
+C C BH+DVCS+INT by V. Korotkov
+C C Tpol and Lpol added by  H.Avakian
+C c
+C C   Diff. cross-section for Bethe-Heitler, DVCS and interf.term 
+C C
+C C         d^5\sig / dx dQ^2 d|\Delta^2| d\phi_e d\phi_\gamma
+C C              (pb GeV^{-4})
+C C INPUT:
+C C        Ivar -  1 (BH only), 2 (DVCS + int only), 3 (BH + DVCS + int)
+C C        IGPD -  GPD variant
+C C        Ipn  -  proton(neutron) target = 1(2)
+C C real   E(GeV), xb, Q2(GeV^2), del2(GeV^2)(negative) 
+C C real   phiel(rad) - scatt. electron azimuthal angle
+C C real   phig(rad)  - photon azimuthal angle around momentum transfer vector q
+C C OUTPUT:
+C C real   hs*,hc* sin and cos moments of 5-fold diff. cross-section for
+C C                            BH, DVCS and interf. terms
+C *
+C       implicit double precision (A-H,O-Z)
+C        include "dvcsmom.inc"
+
+C       parameter ( alpha = 1D0/137.036D0, hc2  = 0.38938D0)
+C       parameter ( coeff = 1D+9*hc2*alpha**3 )
+C c
+C       double precision Mp, mele, pi
+C       common/myconst/ Mp, mele, pi
+C *
+C       double precision nu, k1pl, k2pl, Kfac, Jfac
+C c      common/todvcs/ xb, yb, Q2, del2, del2min,phip,phipel,P1,P2,Kfac,ds
+C       common/todvcs/ xb, yb, Q2, del2, del2min,phip,P1,P2,Kfac,ds
+C *
+C       common/formfac/ F1pn(2), F2pn(2)
+C *
+C       xb    = xbd
+C       Q2    = Q2d
+C       del2  = del2d
+C *
+C       nu  = Q2d/(2D0*Mp*xbd)
+C       qmod = sqrt(nu**2 + Q2d)
+C       yb = nu/Ed
+C       Esc = Ed - nu
+
+C c
+C       eps = 2D0*xbd*Mp/sqrt(Q2)
+C       eps2=eps*eps
+C       qeps2=1D0 + eps2
+C       sqeps2=sqrt(qeps2)
+C       ds = coeff*(xbd*yb**2/(16D0*pi**2*Q2**2))/sqeps2
+C c
+C       del2min=-Q2*(2D0*(1D0-xb)*(1D0-sqeps2)+eps2)
+C       del2min=del2min/(4D0*xb*(1D0-xb)+eps2)
+C       tau  = del2d/(4D0*Mp**2)
+C       taum1=1D0-tau
+C       xtau=xbd*xbd/tau
+C       del2q2=del2d/Q2
+C       del2q4=del2q2*del2q2
+C       del2q2m1=1D0-del2q2
+C *
+C *
+C       phip = phigd 
+C c      phipel = phield 
+C *
+C       call nuclFF00( del2d )
+C *
+C       y1eps=1D0 - yb - yb*yb*eps2/4D0
+C       sqy1eps=sqrt(y1eps)
+C       Kfac = sqrt((-del2q2)*(1D0 - xbd)*y1eps*
+C      *       (1D0 - del2min/del2d)*(sqrt(1D0 + eps2) + 
+C      *  ((4D0*xbd*(1D0 - xbd) + eps2)/(4D0*(1D0 - xbd)))*
+C      *                                       ((del2d - del2min)/Q2)))
+C       Jfac = (1D0 - yb - yb*eps2/2D0)*(1D0 + del2q2) - 
+C      *       (1D0 - xbd)*(2D0 - yb)*del2q2
+C caku      P1 = -(Jfac + 2D0*Kfac*cos(phip))/(yb*(1D0 + eps2))
+C       P1 = -(Jfac + 2D0*Kfac*cos(phip))/(yb*(1D0 + eps2))
+C       P2 = 1D0 + del2q2 - P1
+
+C c      write(*,'(10g11.3)')p1,ed,xbd,yb,del2,q2d,phip,nu,kfac,jfac
+
+C c
+C         if( Ivar.eq.1 .or. Ivar.eq.3 ) then   
+C        F1 = F1pn(Ipn)
+C        F2 = F2pn(Ipn)    
+C        F1_M_F = F1 + tau*F2
+C        F1_M_F2 = F1**2 - tau*F2**2
+C        F1_P_F = F1 + F2
+C        F1_P_F2 = F1_P_F*F1_P_F
+C        c01_BH = 8D0*Kfac**2*((2D0 + 3D0*eps2)*Q2*F1_M_F2/del2d +
+C      *                                          2D0*xbd**2*F1_P_F2)
+C        c02_BH = (2D0 - yb)**2*((2D0 + eps2)*F1_M_F2*
+C      *       ((2D0*xbd*Mp)**2*(1D0 + del2q2)**2/del2d + 
+C      *                         4D0*(1D0 - xbd)*(1D0 + xbd*del2q2)) +
+C      *     4D0*xbd**2*F1_P_F2*(xbd + 
+C      *                   (1D0 - xbd + eps2/2D0)*(del2q2m1)**2 -
+C      *                    xbd*(1D0 - 2D0*xbd)*(del2q2)**2))
+C        c03_BH = 8D0*(1D0 + eps2)*(1D0 - yb - yb*yb*eps2/4D0)*
+C      *       (2D0*eps2*(1D0 - del2d/(4D0*Mp**2))*F1_M_F2 - 
+C      *           xbd**2*(del2q2m1)**2*F1_P_F2)
+C        c0_BH = c01_BH + c02_BH + c03_BH
+C        c1_BH = 8D0*Kfac*(2D0 - yb)*(
+C      *      F1_M_F2*(4D0*(xbd*Mp)**2/del2d - 2D0*xbd - eps2) +
+C      *      F1_P_F2*2D0*xbd**2*(1D0 - (1D0 - 2D0*xbd)*del2q2))
+C        c2_BH = 8D0*(xbd*Kfac)**2*(F1_M_F2*4D0*Mp**2/del2d + 2D0*F1_P_F2)
+C c
+C c     BH-lpol part
+C c
+C       bhkin1=8D0*xbd*yb*sqeps2/taum1*F1_P_F
+C       c01_BHlp=(xbd/2D0*del2q2m1-tau)/2D0
+C       c02_BHlp=2D0-xbd-2D0*(1D0-xbd)**2*del2q2+eps2*del2q2m1
+C      6         -xbd*(1D0-2D0*xbd)*del2q4
+C       c03_BHlp=1D0-(1D0-xbd)*del2q2
+C       c04_BHlp=xtau/4D0*(1D0+del2q2)**2+(1D0-xbd)*(1D0+xbd*del2q2)
+C       c0_BHlp=c01_BHlp*c02_BHlp*F1_P_F+c03_BHlp*c04_BHlp*F1_M_F
+C       c0_BHlp=c0_BHlp*(2D0-yb)*bhkin1
+C c
+C caku      c11_BHlp=2D0*tau-xbd*del2q2m1*(1D0-xbd+xbd*del2q2)
+C       c11_BHlp=(2D0*tau-xbd*del2q2m1)*(1D0-xbd+xbd*del2q2)
+C caku      c12_BHlp=1D0+xbd-(3D0-2D0*xbd)*(1D0+xbd*del2q2)-xtau*(1D0-del2q4)
+C       c12_BHlp=1D0+xbd-(3D0-2D0*xbd)*(1D0+xbd*del2q2)-xtau*(1D0+del2q4)
+C       c1_BHlp=c11_BHlp*F1_P_F+c12_BHlp*F1_M_F
+C       c1_BHlp=-c1_BHlp*Kfac*bhkin1
+C c
+C c
+C c     BH-Tpol part
+C c
+C       c01_BHtpcos=-8D0*(2D0-yb)*yb*sqrt(q2d)/Mp*sqeps2*Kfac/sqy1eps
+C c
+C       c02_BHtpcos=xbd*(xbd*Mp)**2/q2d*del2q2m1*F1_P_F
+C       c03_BHtpcos=1D0-(1D0-xbd)*del2q2
+C       c04_BHtpcos=xtau/4D0*del2q2m1*F1+xbd/2D0*F2
+C       c0_BHtpcos=c01_BHtpcos*F1_P_F*(c02_BHtpcos+c03_BHtpcos*c04_BHtpcos)
+C c
+C       c11_BHtpcos=-16D0*xbd*yb*sqy1eps*Mp/sqrt(q2d)
+C       c11_BHtpcos= c11_BHtpcos*sqeps2*F1_P_F
+C       c12_BHtpcos=2D0*Kfac*Kfac*q2d/del2/y1eps
+C       c13_BHtpcos=xbd*del2q2m1*F1+tau*F2
+C       c14_BHtpcos=qeps2*xbd*del2q2m1*F1_M_F
+C       c1_BHtpcos=c11_BHtpcos*(c12_BHtpcos*c13_BHtpcos+c14_BHtpcos)
+C c
+C       s11_BHtpsin=16D0*yb*xbd*xbd*sqy1eps/sqrt(q2d)*Mp
+C       s12_BHtpsin=qeps2*sqeps2*del2q2m1*F1_P_F*F1_M_F
+C       s1_BHtpsin=s11_BHtpsin*s12_BHtpsin
+C c
+C        BHfact=ds/((xbd*yb*(1D0 + eps2))**2*del2d*P1*P2)
+C ccc       BHfact=ds/((xbd*yb*(1D0 + eps2))**2*del2d)
+C        hc0BH=c0_BH*BHfact
+C        hc1BH=c1_BH*BHfact
+C        hc2BH=c2_BH*BHfact
+
+C caku       write(*,11)BHfact,Jfac, 2D0*Kfac*cos(phip),EPS2,c0_BH,c1_BH,c2_BH
+C  11   format(3h++1 ,15G11.3)
+C c
+C        hc0BHlp=c0_BHlp*BHfact
+C        hc1BHlp=c1_BHlp*BHfact
+C c
+C        hc0BHtpcos=c0_BHtpcos*BHfact
+C        hc1BHtpcos=c1_BHtpcos*BHfact
+C        hs1BHtpsin=s1_BHtpsin*BHfact
+C c
+C         endif
+C c
+C         if( Ivar.eq.2 .or. Ivar.eq.3 ) then       
+C          call dvcsfun( IGPD, Ipn)
+C         endif
+C c
+
+        
+C c        write(*,*)hc0BHtpcos/BHfact,hc1BHtpcos/BHfact,hs1BHtpsin/BHfact,f1,f2,kfac
+C c        stop
+
+
+C       return
+C       end
+
+C       subroutine dvcsfun( IGPD, Ipn)
+C       implicit double precision (A-H,O-Z)
+C        include "dvcsmom.inc"
+C       double precision Kfac,Intfac
+C c      common/todvcs/ x, y,Q2,del2,del2min,phip,phipel,P1,P2,Kfac,ds
+C       common/todvcs/ x, y,Q2,del2,del2min,phip,P1,P2,Kfac,ds
+C       common/formfac/ F1pn(2), F2pn(2)
+C       double precision Mp, mele, pi
+C       common/myconst/ Mp, mele, pi
+C c
+C       real zskew,zF1,zF2,zHp,zEp,zHtp,zEtp,zCIim
+C       common /zgpds/zskew,zF1,zF2,zHp,zEp,zHtp,zEtp,zCIim
+C c
+C       skew = x/(2D0 - x)
+C       call amptab( IGPD, Ipn, skew, del2, 
+C      &             H1_RE, H1_IM, H1T_RE, H1T_IM,
+C      &             E1_RE, E1_IM, E1T_RE, E1T_IM )
+C *
+C c
+C c
+C C         proton/neutron
+C       F1 = F1pn(Ipn)
+C       F2 = F2pn(Ipn)
+C c
+C c
+C c      print *,skew,F1,F2,del2
+C       zskew=skew
+C       zF1=F1
+C       zF2=F2
+C       zHp=H1_IM
+C       zEp=E1_IM
+C       zHtp=H1T_IM
+C       zEtp=E1T_IM
+C c
+C *
+C       deldel    = 1D0 - del2min/del2
+C       deldel_sq = sqrt(deldel)
+C       del2m2    = -del2/Mp**2
+C       del2m4    = -del2m2/4D0
+C       delm2_sq  = sqrt(del2m2)
+C       cy2   = 2D0 - 2D0*y + y**2
+C       Intfac=ds/(x*y**3*P1*P2*(-del2))
+C c
+C c
+C C  DVCS
+C C     
+C       a1 = H1_RE**2 + H1_IM**2 + H1T_RE**2 + H1T_IM**2
+C       a2 = 2.*( H1_RE*E1_RE  +  H1_IM*E1_IM +
+C      &         H1T_RE*E1T_RE + H1T_IM*E1T_IM )
+C       a3 =  E1_RE**2 +  E1_IM**2
+C       a4 = E1T_RE**2 + E1T_IM**2 
+C       C_DVCS = ( 4D0*(1D0-x)*a1 - a2*x**2 - (x**2 + (2D0-x)**2*del2m4)*a3 
+C      &           - x**2*del2m4*a4 )/(2D0 - x)**2
+C       C_DVCS_eff = -x*C_DVCS
+C       c0_DVCS = 2D0*cy2*C_DVCS
+C       c1_DVCS = 8D0*((2D0 - y)/(2D0 - x))*C_DVCS_eff
+C       T_DVCS  = (c0_DVCS + Kfac*c1_DVCS*cos(phip))/(y**2*Q2)
+C       DVCSfac=ds/(y**2*Q2)
+C       hc0dvcs=c0_DVCS*DVCSfac
+C       hc1dvcs=Kfac*c1_DVCS*DVCSfac
+C C
+C C  INTERF
+C C
+C c
+C c
+C       C_I_re = F1*H1_RE + x/(2D0-x)*(F1+F2)*H1T_RE - del2m4*F2*E1_RE
+C       C_I_im1 = F1*H1_IM
+C       C_I_im2 = x/(2D0-x)*(F1+F2)*H1T_IM
+C       C_I_im3  = -del2m4*F2*E1_IM
+      
+C       C_I_im = C_I_im1 + C_I_im2 + C_I_im3
+C       zCIim=-C_I_im/F1 
+C       RE2    = x/(2D0-x)*(H1_RE + E1_RE) + H1T_RE
+C       C_I_re_eff = -x*C_I_re
+C       C_I_im_eff = -x*C_I_im
+C       b1 = (2D0 - x)*(1D0 - y) 
+C       b1= b1 + (2D0-y)**2/(1D0-y)*Kfac*Kfac/del2*Q2 ! old - (1D0 - x)*(2D0 - y)**2*deldel
+C       b2 = (1D0 - y)*x*(F1 + F2)
+C       c0_I = -8D0*(2D0 - y)*( b1*C_I_re - b2*RE2 )
+C       c1_I = -8D0*cy2*C_I_re
+C       s1_I =  8D0*y*(2D0 - y)*C_I_im
+C       c2_I = -16D0*((2D0 - y)/(2D0 - x))*C_I_re_eff
+C       s2_I =  16D0*(y/(2D0 - x))*C_I_im_eff
+C c
+C       hs2Iunp=Kfac*Kfac*s2_I*Intfac
+C       hs1Iunp=Kfac*s1_I*Intfac
+C       hc2Iunp=Kfac*Kfac*c2_I*Intfac
+C       hc1Iunp=Kfac*c1_I*Intfac
+C       hc0Iunp=del2/Q2*c0_I*Intfac
+C c
+C c      print *, 'vvv ',hs1Iunp/hc0BH,C_I_im2/C_I_im1,C_I_im3/C_I_im1
+C c
+C c      print *,'mysl-dvcs',hs1Iunp,hc1Iunp,hc0Iunp
+C C
+C C  LPOL
+C C
+C       C_LP_re = (F1+F2)*skew*(H1_RE+x/2D0*E1_RE)+
+C      6          F1*H1T_RE-skew*(x/2D0*F1+del2m4*F2)*E1T_RE
+C c
+C c
+C       C_LP_im = (F1+F2)*skew*(H1_IM+x/2D0*E1_IM)+
+C      6          F1*H1T_IM-skew*(x/2D0*F1+del2m4*F2)*E1T_IM
+C c
+C       DC_LP_re=-skew*(F1+F2)*(H1_RE+x/2D0*E1_RE+skew
+C      6*(H1T_RE+x/2D0*E1T_RE))
+C       DC_LP_im=-skew*(F1+F2)*(H1_IM+x/2D0*E1_IM+skew
+C      6*(H1T_IM+x/2D0*E1T_IM))
+C c
+C       yf2=(2D0-y)**2/(1D0-y)+2
+C       c0lp_I =-8*y*(Kfac**2*yf2*C_LP_re+(1D0-y)*(2D0-x)*del2/Q2
+C      6        *(DC_LP_re+C_LP_re))
+C       s1lp_I = 8*Kfac*cy2*C_LP_im
+C       c1lp_I = -8*Kfac*y*(2D0-y)*C_LP_re
+
+C C
+C C  TPOL
+C C
+C       xb2=x*skew
+C       C_TPP_re_s = (F1+F2)*(xb2*(H1_RE+x/2D0*E1_RE)+x*del2m4*E1_RE)
+C      6          -xb2*F1*(H1T_RE+x/2D0*E1T_RE)
+C       C_TPP_re_b1 =del2m4*4D0*(1D0-x)/(2D0-x)*F2*H1T_RE
+C       C_TPP_re_b21 =-del2m4*x*F1*E1T_RE
+C       C_TPP_re_b22 =-del2m4*xb2*F2*E1T_RE
+C       C_TPP_re_b =C_TPP_re_b1+C_TPP_re_b21+C_TPP_re_b22
+C c
+C       C_TPP_im_s = (F1+F2)*(xb2*(H1_IM+x/2D0*E1_IM)+x*del2m4*E1_IM)
+C      6          -xb2*F1*(H1T_IM+x/2D0*E1T_IM)
+C       C_TPP_im_b =del2m4*(4D0*(1D0-x)/(2D0-x)*F2*H1T_IM
+C      6            -(x*F1+xb2*F2)*E1T_IM)
+C c
+C c
+C c
+C       C_TPM_re_s = 1D0/(2D0-x)*(x*x*F1-(1D0-x)*4D0*del2m4*F2)*H1_RE
+C      6          -xb2*(F1+F2)*(H1T_RE+del2m4*E1T_RE)
+C       C_TPM_re_b = (del2m4*((2D0-x)*F1+xb2*F2) +xb2*F1)*E1_RE
+C c
+C       C_TPM_im_s = 1D0/(2D0-x)*(x*x*F1-(1D0-x)*4D0*del2m4*F2)*H1_IM
+C      6          -xb2*(F1+F2)*(H1T_IM+del2m4*E1T_IM)
+C       C_TPM_im_b = (del2m4*((2D0-x)*F1+xb2*F2) +xb2*F1)*E1_IM
+C c
+C c
+C       C_TPM_re=C_TPM_re_s+C_TPM_re_b
+C       C_TPP_re=C_TPP_re_s+C_TPP_re_b
+C       C_TPM_im=C_TPM_im_s+C_TPM_im_b
+C       C_TPP_im=C_TPP_im_s+C_TPP_im_b
+C c
+C c
+C c
+C       DC_TPP_re=-4D0*del2m4*(F2*H1T_RE-x/(2D0-x)*(F1+x/2D0*F2)*E1T_RE)
+C       DC_TPM_re=4D0*del2m4*(F2*H1_RE-F1*E1_RE)
+C c
+C       DC_TPP_im=-4D0*del2m4*(F2*H1T_IM-x/(2D0-x)*(F1+x/2D0*F2)*E1T_IM)
+C       DC_TPM_im=4D0*del2m4*(F2*H1_IM-F1*E1_IM)
+C c
+C c
+C c
+C       qm8=8D0*Mp*sqrt(1D0-y)/sqrt(Q2)
+C       c0tpcos_I = -qm8*Kfac*y*(((2D0-y)**2/(1D0-y)+2D0)*C_TPP_re+DC_TPP_re)
+C       c0tpsin_I = qm8*Kfac*(2D0-y)*((2D0-y)**2/(1D0-y)*C_TPM_im+DC_TPM_im)
+C c
+C       c1tpcos_I = -qm8*y*(2D0-y)*C_TPP_re
+C       c1tpsin_I = qm8*cy2*C_TPM_im
+C c
+C       s1tpcos_I = qm8*cy2*C_TPP_im
+C       s1tpsin_I = -qm8*y*(2D0-y)*C_TPM_re
+
+C       hc0Itpcos = c0tpcos_I*Intfac
+C       hc0Itpsin = c0tpsin_I*Intfac
+C       hc1Itpcos = c1tpcos_I*Intfac
+C       hc1Itpsin = c1tpsin_I*Intfac
+C       hs1Itpcos = s1tpcos_I*Intfac
+C       hs1Itpsin = s1tpsin_I*Intfac
+C c
+C c 
+C       hs1Ilp = s1lp_I*Intfac
+C       hc1Ilp = c1lp_I*Intfac
+C       hc0Ilp = c0lp_I*Intfac
+C c
+C       return
+C       end
 
       subroutine amptab( IGPD, Ipn, skew, del2, 
      &                   H1_RE, H1_IM, H1T_RE, H1T_IM,
