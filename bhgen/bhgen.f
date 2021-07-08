@@ -400,9 +400,9 @@ c	      write(*,'(6g12.4)')sum1,sum2,sum1delta,sum2delta,sum1phi,sum2phi
 		  
 
 c          write(51,'(5f7.3,4f8.2,3g12.4)')delta*1d3,x,q2,t,phi
-          write(*,'(5f7.3,3g12.4)')delta*1d3,x,q2,t,phi
+          write(*,'(5f7.3,3g12.4)')delta*1d3,x,q2,t,phi, probn
 c	 6   ,1d2*siradtest/sborn
-     6   ,1d2*(sitottest/sborn-1)
+c     6   ,1d2*(sitottest/sborn-1)
 cc	 6   ,1d2*(sitottest_rad/sborn)
 cc	 6   ,1d2*(sitottest_non/sborn-1)
 c	 7   ,1d2*(exp(alpha/pi*LLog*log(deltaz1*deltaz2))-1d0-alpha/pi*LLog*log(deltaz1*deltaz2))
@@ -1954,7 +1954,58 @@ C       hc0Ilp = c0lp_I*Intfac
 C c
 C       return
 C       end
-
+      subroutine amptabgag(skew, del2, 
+     &                   H1_RE, H1_IM, H1T_RE, H1T_IM,
+     &                   E1_RE, E1_IM, E1T_RE, E1T_IM )
+#include "dvcs.inc"
+c
+      REAL xi
+      REAL mt
+      REAL cff_re
+      REAL cff_im
+      REAL v_re,v_im
+c
+      double precision skew, del2, H1_RE, H1_IM, H1T_RE, H1T_IM,
+     &                             E1_RE, E1_IM, E1T_RE, E1T_IM 
+      double precision F1pn(2), F2pn(2)
+      common/formfac/ F1pn, F2pn
+      real mpi/0.1396/
+      data init/1/
+c
+      SAVE
+c
+      if( init .eq. 1 ) then
+        init = 0
+        call GPD_Init(IGPD-100)
+      endif
+*
+      F1u = 2D0*F1pn(1) + F1pn(2)
+      F1d = 2D0*F1pn(2) + F1pn(1)
+      F2u = 2D0*F2pn(1) + F2pn(2)
+      F2d = 2D0*F2pn(2) + F2pn(1)
+c
+      xi=skew
+      mt=-del2
+      v_re = GPD_GET_CFF(xi,mt,0)
+      v_im = GPD_GET_CFF(xi,mt,3)
+      H1_RE=-v_re
+      H1_IM=-v_im
+      v_re = GPD_GET_CFF(xi,mt,1)
+      v_im = GPD_GET_CFF(xi,mt,4)
+      H1T_RE=-v_re
+      H1T_IM=-v_im
+      v_re = GPD_GET_CFF(xi,mt,2)
+      v_im = GPD_GET_CFF(xi,mt,5)
+      E1_RE=-v_re
+      E1_IM=-v_im
+      E1T_IM=0
+      E1T_RE=0
+c
+      return
+      end
+c
+c
+c
       subroutine amptab( IGPD, Ipn, skew, del2, 
      &                   H1_RE, H1_IM, H1T_RE, H1T_IM,
      &                   E1_RE, E1_IM, E1T_RE, E1T_IM )
@@ -2482,3 +2533,17 @@ c
       step=(b-a)/np
       call simps(a,b,step,ep,1d-18,func,ra,res,r2,r3)
       end
+
+       real function corraul(delt,dQ2)
+       double precision delt,dQ2
+       real t,Q2,qfac,tfac
+       t=-delt
+       Q2=dQ2
+       if(Q2.lt.1.5) Q2=1.5
+       if(Q2.gt.2.6) Q2=2.6
+       qfac=(0.69*t-1.04*t*t)*(q2-1.5)/1.1+1.0
+       tfac=(0.908-alog(t)/9.5)
+       corraul=1.0/qfac*tfac
+       return 
+       end
+c
