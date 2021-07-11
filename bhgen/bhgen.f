@@ -1,8 +1,7 @@
     	program main
       implicit real*8(a-h,k-m,o-z)
-	  parameter(nevent=1)
-	    real*8 ebeam,s,q2,x,t,phi,egamma(nevent),thetag(nevent),phig(nevent),stot,delta
-        integer*4 ipol,ikeygene,ich(nevent),iddd
+	    real*8 ebeam,s,q2,x,t,phi,egamma,thetag,phig,stot,delta
+        integer*4 ipol,ikeygene,ichnnel,iddd
 	integer*4 iappr,hel
         parameter(nxq2poi=1)
         parameter(ntpoi=4)
@@ -19,7 +18,7 @@
 
 	     pi=atan(1d0)*4d0
 		 
-         ebeam=5.75
+         ebeam=10.604
 
          ipol=0 !target polarization switch:0-unpolarized, 1-long, 2-trans along x-axis, 3-trans along y-axis
          iappr=2   !1-BH only, 2-BMK 
@@ -51,7 +50,7 @@ c		 do iddd=1,ndelta
          
 		 delta=ardelta(iddd)
 		 
-        call bhradgen(ebeam,x,q2,t,phi,vv2cut,delta,egamma,thetag,phig,ich,ipol,iappr,hel,nevent,ikeygene,stot)
+        call bhradgen(ebeam,x,q2,t,phi,vv2cut,delta,egamma,thetag,phig,ichnnel,ipol,iappr,hel,nevent,ikeygene,stot)
 
 		enddo
 		
@@ -67,15 +66,15 @@ c		 do iddd=1,ndelta
 
 
        	  subroutine bhradgen(ebeam,xff,q2ff,tff,phiff,vv2cut,delta,egamma,thetag,
-     +  phig,ich,ipolff,iapprff,helff,nevent,ikeygene,stot)
+     +  phig,ichnnel,ipolff,iapprff,helff,nevent,ikeygene,stot)
 !
 !         lab system; OZ is along \vec q, OXZ -- scattering plane
 !
 !          ebeam -- beam energy
 !          xff (or x), q2ff (or q2), tff (ot r) -- kinematic invariants   
 !          phiff (phi) -- phi of final proton
-!          egamma, thetag, phig -- variables of simulated (second) photon, if ich>1
-!          ich -- channel of scattering: 1-no second photon; 2-second photon along initial electron, 3-second photon along final electron
+!          egamma, thetag, phig -- variables of simulated (second) photon, if ichnnel>1
+!          ichnnel -- channel of scattering: 1-no second photon; 2-second photon along initial electron, 3-second photon along final electron
 !          ipolff (or ipol) -- target polarization parameter (0-unpolarized, 1-longitudinally polarized alog \vec q)  
 !          iapprff (or iappr) --  1-BH only, 2-BMK
 !          helff (or hel) --  hel=1(0) to (not) include polarized part   
@@ -83,7 +82,7 @@ c		 do iddd=1,ndelta
 !
         implicit none
         integer*4 nevent,ikeygene,iacc
-        integer*4 nzd,nzdphi,isimu,nsimu,ich(nevent),ipolff,iapprff,helff,iaddcontr_p,iaddcontr_s
+        integer*4 nzd,nzdphi,ichnnel,ipolff,iapprff,helff,iaddcontr_p,iaddcontr_s
 	real*8 ebeam,s,q2,x,t,phi,sx,xx,mp,mp2,ml,ml2,pi,alpha,barn,
      +	sborn,siborn,sig0,sirad,siradtest,xi,z1m,z2m,z2cur,z1,z2,lll,be,bb,tcol,
      +  tmin,stot,vv2cut,vmax,vv2calc,vv2min_s,vv2min_p
@@ -96,8 +95,8 @@ c		 do iddd=1,ndelta
         real*8 sirad0,sirad000,siradsin,siradsin2,siradcos,siradcos2,
      +	siradcos3,sibor0,sibor000,siborsin,siborsin2,siborcos,siborcos2,
      +  siborcos3,siradadd,llog,sum1phi,sum2phi,sum1test,sum2test
-        real*8 sum1add,sum2add,sum1tde,sum2tde,egamma(nevent),random1,random2,
-     +	thetag(nevent),phig(nevent)
+        real*8 sum1add,sum2add,sum1tde,sum2tde,egamma,random1,random2,
+     +	thetag,phig
 	 real*8 fracacc_s,naccev_s,ntotev_s,fracacc_p,naccev_p,ntotev_p
 
         real*8 xff,q2ff,phiff,tff
@@ -348,18 +347,6 @@ ccc     +	    *(xsp/x)**2*sig0p/z2-sborn)/(1d0-z2)
      &  	+alpha/2d0/pi*LLog*(sum1+sum2+sum1delta+sum2delta+sum1phi+sum2phi+
      &   (3d0+2.d0*log(deltaz1)+2d0*log(deltaz2)-2d0*deltaz1+0.5d0*deltaz1**2-2d0*deltaz2+0.5d0*deltaz2**2)*sborn)
 
-		   call stest(sum1test,sum2test,sum1tde,sum2tde,z1m,z2m,deltaz1,deltaz2,zspeak,zppeak,iaddcontr_s,iaddcontr_p,sborn)
-		   siradtest=alpha    /Pi*vacpol(-t)*sborn
-     &  	+alpha/2d0/pi*LLog*(sum1test+sum2test+sum1tde+sum2tde+
-     &   (3d0+2.d0*log(deltaz1)+2d0*log(deltaz2)-2d0*deltaz1+0.5d0*deltaz1**2-2d0*deltaz2+0.5d0*deltaz2**2)*sborn)
-         sitottest=	 sborn*exp(alpha/pi*LLog*log(deltaz1*deltaz2))/(1d0-alpha/Pi*vacpol(-t)/2d0)**2
-     &  	+alpha/2d0/pi*LLog*(sum1test+sum2test+sum1tde+sum2tde+
-     &   (3d0-2d0*deltaz1+0.5d0*deltaz1**2-2d0*deltaz2+0.5d0*deltaz2**2)*sborn)
-    	 sitottest_rad=	 alpha/2d0/pi*LLog*(sum1test+sum2test+sum1tde)
-
-    	 sitottest_non=	 sborn*exp(alpha/pi*LLog*log(deltaz1*deltaz2))/(1d0-alpha/Pi*vacpol(-t)/2d0)**2
-     &  	+alpha/2d0/pi*LLog*(    sum1tde+sum2tde+
-     &   (3d0-2d0*deltaz1+0.5d0*deltaz1**2-2d0*deltaz2+0.5d0*deltaz2**2)*sborn)
 	 
 c          sirad= 
 c     &  	+alpha/2d0/pi*(log(q2/ml2)    )
@@ -400,9 +387,9 @@ c	      write(*,'(6g12.4)')sum1,sum2,sum1delta,sum2delta,sum1phi,sum2phi
 		  
 
 c          write(51,'(5f7.3,4f8.2,3g12.4)')delta*1d3,x,q2,t,phi
-          write(*,'(5f7.3,3g12.4)')delta*1d3,x,q2,t,phi
+          write(*,'(5f7.3,3g12.4)')delta*1d3,x,q2,t,phi, probn, probp, probs
 c	 6   ,1d2*siradtest/sborn
-     6   ,1d2*(sitottest/sborn-1)
+c     6   ,1d2*(sitottest/sborn-1)
 cc	 6   ,1d2*(sitottest_rad/sborn)
 cc	 6   ,1d2*(sitottest_non/sborn-1)
 c	 7   ,1d2*(exp(alpha/pi*LLog*log(deltaz1*deltaz2))-1d0-alpha/pi*LLog*log(deltaz1*deltaz2))
@@ -414,15 +401,14 @@ c	 7   ,1d2*(exp(alpha/pi*LLog*log(deltaz1*deltaz2))-1d0-alpha/pi*LLog*log(delta
 		  ntotev_p=0.
 		  naccev_s=0.
 		  naccev_p=0.
-          do isimu=1,nevent
           random1=urand(iy)          
           if(random1.le.probn)then 
-             ich(isimu)=1
-             egamma(isimu)=0d0 
-             thetag(isimu)=0d0
-             phig(isimu)=0d0 
+             ichnnel=1
+             egamma=0d0 
+             thetag=0d0
+             phig=0d0 
           elseif(random1.le.probn+probs)then
-             ich(isimu)=2
+             ichnnel=2
              ran2=(random1-probn)/probs
 			 if(ran2.le.sum1/(sum1+sum1phi))then 
 			 random2=ran2*(sum1+sum1phi)   !*sum1/sum1
@@ -430,7 +416,7 @@ c	 7   ,1d2*(exp(alpha/pi*LLog*log(deltaz1*deltaz2))-1d0-alpha/pi*LLog*log(delta
                 if(random2.lt.fd1(izd).and.random2.ge.fd1(izd-1))then
                    z1=zd1(izd-1)+(zd1(izd)-zd1(izd-1))*(random2
      +		   -fd1(izd-1))/(fd1(izd)-fd1(izd-1))
-                   Egamma(isimu)=(1.-z1)*Ebeam 
+                   Egamma=(1.-z1)*Ebeam 
                 endif   
              enddo
              else
@@ -439,14 +425,14 @@ c	 7   ,1d2*(exp(alpha/pi*LLog*log(deltaz1*deltaz2))-1d0-alpha/pi*LLog*log(delta
                 if(random2.lt.fd1phi(izd).and.random2.ge.fd1phi(izd-1))then
                    z1=zd1phi(izd-1)+(zd1phi(izd)-zd1phi(izd-1))*(random2
      +		   -fd1phi(izd-1))/(fd1phi(izd)-fd1phi(izd-1))
-                   Egamma(isimu)=(1.-z1)*Ebeam 
+                   Egamma=(1.-z1)*Ebeam 
                 endif   
              enddo		 
 			 endif
-             phig(isimu)=0d0
-             thetag(isimu)=acos((s*sx+2*mp2*q2)/sqrt(lay)/s)
+             phig=0d0
+             thetag=acos((s*sx+2*mp2*q2)/sqrt(lay)/s)
 		  else
-             ich(isimu)=3
+             ichnnel=3
              ran2=(random1-probn-probs)/probs
 			 if(ran2.le.sum2/(sum2+sum2phi))then 
 			 random2=ran2*(sum2+sum2phi)   !*sum2/sum2
@@ -454,7 +440,7 @@ c	 7   ,1d2*(exp(alpha/pi*LLog*log(deltaz1*deltaz2))-1d0-alpha/pi*LLog*log(delta
                 if(random2.lt.fd2(izd).and.random2.ge.fd2(izd-1))then
                    z2=zd2(izd-1)+(zd2(izd)-zd2(izd-1))
      +		   *(random2-fd2(izd-1))/(fd2(izd)-fd2(izd-1))
-                   Egamma(isimu)=(1.-z2)/z2*Epr 
+                   Egamma=(1.-z2)/z2*Epr 
                 endif   
              enddo
              else
@@ -463,29 +449,29 @@ c	 7   ,1d2*(exp(alpha/pi*LLog*log(deltaz1*deltaz2))-1d0-alpha/pi*LLog*log(delta
                 if(random2.lt.fd2phi(izd).and.random2.ge.fd2phi(izd-1))then
                    z2=zd2phi(izd-1)+(zd2phi(izd)-zd2phi(izd-1))
      +		   *(random2-fd2phi(izd-1))/(fd2phi(izd)-fd2phi(izd-1))
-                   Egamma(isimu)=(1.-z2)/z2*Epr 
+                   Egamma=(1.-z2)/z2*Epr 
                 endif   
              enddo		 
 			 endif
-             phig(isimu)=0d0
-             thetag(isimu)=acos((xx*sx-2*mp2*q2)/sqrt(lay)/xx)
+             phig=0d0
+             thetag=acos((xx*sx-2*mp2*q2)/sqrt(lay)/xx)
           endif   
-c           write(71,*)ich(isimu),Egamma(isimu),thetag(isimu)
+c           write(71,*)ichnnel,Egamma,thetag
 
-          if(ich(isimu).gt.1)then
-		  call cutacc(s,xx,q2,phi,t,ich(isimu),egamma(isimu),iacc)
-		  if(ich(isimu).eq.2)then
+          if(ichnnel.gt.1)then
+		  call cutacc(s,xx,q2,phi,t,ichnnel,egamma,iacc)
+		  if(ichnnel.eq.2)then
 		  if(iacc.eq.1)naccev_s=naccev_s+1. 
 		  ntotev_s=ntotev_s+1.
 		  endif
-		  if(ich(isimu).eq.3)then
+		  if(ichnnel.eq.3)then
 		  if(iacc.eq.1)naccev_p=naccev_p+1. 
 		  ntotev_p=ntotev_p+1.
           endif
 
 		  endif
+      print *, ichnnel, thetag, egamma
 		  
-          enddo
 
 
 
@@ -494,16 +480,15 @@ c           write(71,*)ich(isimu),Egamma(isimu),thetag(isimu)
       fracacc_p=naccev_p/ntotev_p
 	stot=(sborn+sirad)*(probn+fracacc_s*probs+fracacc_p*probp)
 	  
-	  
 	end
       
 	  
-	  subroutine cutacc(s,xx,q2,phi,t,ich,egamma,iacc)
+	  subroutine cutacc(s,xx,q2,phi,t,ichnnel,egamma,iacc)
        implicit none
 	   real*8 s,xx,q2,phi,t,egamma,alpha,barn,mp,mp2,ml2,ml,pi	
 	   real*8 missingmass2,complanarity,complanarity0,ptfin,ang_m_c,ptfin2
 	   real*8 sx,aly,sqly,cos1,sin1,cos2,sin2,e1,e2,epr,ppr,costp,sintp,scalarpr
-	   Integer*4 ich,iacc,i,iacctt
+	   Integer*4 ichnnel,iacc,i,iacctt
 	   	  common/const/alpha,barn,mp,mp2,ml2,ml,pi	
 	   real*8 k1(0:3),k2(0:3),k(0:3),p1(0:3),p2(0:3),k_3kin(0:3),k_4kin(0:3),kgene(0:3),fin(0:3)
 
@@ -542,13 +527,13 @@ c           write(71,*)ich(isimu),Egamma(isimu),thetag(isimu)
 	   p2(3)=ppr*costp
 	   
 	   kgene(0)=egamma
-	   if(ich.eq.2)then
+	   if(ichnnel.eq.2)then
        kgene(1)=egamma*sin1
        kgene(2)=0.
        kgene(3)=egamma*cos1
 	   endif
 
-	   if(ich.eq.3)then
+	   if(ichnnel.eq.3)then
        kgene(1)=egamma*sin2
        kgene(2)=0.
        kgene(3)=egamma*cos2
@@ -582,7 +567,7 @@ c	   write(*,*)' test t   ',2.*mp2-2*scalarpr(p1,p2),t
 	   if(ang_m_c.gt.1.00133d0)iacctt=iacctt+1 
 	   if(iacctt.gt.10000)iacc=0
 	   
-c      write(*,'(i4,6f8.4,i7)')ich,egamma,missingmass2,complanarity,complanarity0,1000*ptfin2,ang_m_c,iacctt	   
+c      write(*,'(i4,6f8.4,i7)')ichnnel,egamma,missingmass2,complanarity,complanarity0,1000*ptfin2,ang_m_c,iacctt	   
 
 	   
 *here are the experimental cuts used in my analysis.
@@ -667,92 +652,9 @@ c      write(*,'(i4,6f8.4,i7)')ich,egamma,missingmass2,complanarity,complanarity
           endif
         
         
-        sx=q2/x
-	xx=s-sx
-	sp=s+xx
-	w2=sx-q2+mp2
-	lay=sx**2+4d0*mp2*q2
-        sqly=sqrt(lay)
-	tmin=-0.5d0*((sx-q2)*(sx+dsqrt(lay))+2d0*mp2*q2)/w2
-	tmax=-0.5d0*((sx-q2)*(sx-dsqrt(lay))+2d0*mp2*q2)/w2
-	call sffun(t,f1,f2,f3,f4)
-        lauw=4d0*q2*w2*(s*xx-mp2*q2-ml2*lay)*(tmax-t)*(t-tmin)
-	w0=-0.5d0*(q2+t)+0.5d0*sp/lay*(sx*(q2-t)+2d0*t*q2)
-     +	+sqrt(lauw)/lay*cphi	
-	u0=w0+q2+t
-c	if(ia.eq.1)alphar=alpha	
-caku	if(ia.eq.2)alphar=alpha/(1d0-alpha/2d0/pi*vacpol(q2))	
-c	if(ia.eq.2)alphar=alpha/(1d0-alpha    /pi*vacpol(q2))	
-	if(ia.eq.1)factorvac=1d0	
-	if(ia.eq.2)factorvac=1d0/(1d0-alpha/2d0/pi*vacpol(q2))**2	
-c        if(ipol.eq.0)then
-	 tt10=2d0*(u0**2+w0**2-2d0*q2*t)/u0/w0
-	 tt20=0.5d0*mp2*tt10+t*(s**2+xx**2-q2*sx-s*w0-xx*u0)/u0/w0
-         TT1m=2.d0*t*(1d0/u0**2+1d0/w0**2)
-         TT2m=mp2/2d0*TT1m+(s**2+s*t)/u0**2+(xx**2-xx*t)/W0**2
-          tt1=tt10+2d0*ml2*tt1m
-          tt2=tt20+2d0*ml2*tt2m
-	 siborn=-barn*factorvac*alpha**3*q2*(tt1*f1+tt2*f2)/4d0/pi
-     +	 /s**2/x**2/t/sqly	
-c        endif
-        if(ipol.gt.0)then
-          sqlsxq=sqrt(S*XX*Q2-mp2*q2**2)
-          etak1=-( sqlsxq/sqly*eta(1)+(S*Sx+2d0*mp2*Q2)/
-     +	  (2d0*mp*sqly)*eta(3) )
-          etak2=-( sqlsxq/sqly*eta(1)+(xx*Sx-2d0*mp2*Q2)/
-     +	  (2d0*mp*sqly)*eta(3) )
-          etap2=-( sqrt(lauw)/(2.*sqlsxq*sqly)*(eta(1)*cphi+eta(2)
-     +	  *sphi)+(-t*Sx+2d0*mp2*(Q2-t))/(2d0*mp*sqly)*eta(3) )
-          tt30=4d0*(2d0*xx*(u0-q2)-2d0*s*(w0+q2)+(w0+u0)*(q2-t))
-     +	  *etap2*mp/((t-4d0*mp**2)*u0*w0)
-          tt40=-Mp2*TT30+2d0*mp/(u0*w0)*((q2-u0)*(t*etak2+
-     +	  etap2*xx)+(q2+w0)*(t*etak1+etap2*s))
-           tt3m=4d0*((2d0*s+t)*(1d0/u0**2+Sx/s/w0**2)+1d0/w0**2
-     +	   *(-q2+1d0/s*(xx**2+(xx-t)**2)))*etap2*mp/(t-4d0*mp**2)
-           tt4m=-Mp2*TT3m+2*mp*((sx+t)/s/w0**2*(t*etak2+etap2*xx)
-     +	   -(1d0/u0**2+1d0/w0**2)*(t*etak1+etap2*s))
-            tt3=tt30+2d0*ml2*tt3m
-            tt4=tt40+2d0*ml	2*tt4m
-          siborn=siborn-barn*factorvac*alpha**3*Q2/(4*pi*S**2*x**2
-     +	  *t*sqly)*(TT3*F3+TT4*F4)
-        endif
-
 	return
 	end
       
-        subroutine stest(sum1,sum2,rez1d,rez2d,z1m,z2m,deltaz1,deltaz2,zspeak,zppeak,iaddcontr_s,iaddcontr_p,sborn)
-        implicit none
-        external peak,peaknew
-        real*8 sum1,sum2,rez1,rez2,rez2n,rez1n,rez1d,rez2d,z1m,z2m,zspeak,zppeak,si0,sborn
-        real*8 alpha,barn,mp,mp2,ml2,ml,pi,s,q2,t,phi,x,xx,ssborn,eta,deltaz1,deltaz2
-        integer*4 isp,ipol  ,iaddcontr_s,iaddcontr_p,isubs
-        common/test/isp,isubs
-         si0=sborn		
-
-         isubs=0
-		 
-         isp=1 
-         call simpxx(z1m+1d-7,1d0-deltaz1,1000,1d-4,peak,rez1)
-           rez1n=0d0
-         if(iaddcontr_s.eq.1)call simpxx(zspeak+1d-7,z1m,1000,1d-4,peaknew,rez1n)
-
-         isp=2 
-         call simpxx(z2m+1d-7,1d0-deltaz2,1000,1d-4,peak,rez2)
-           rez2n=0d0
-         if(iaddcontr_p.eq.1)call simpxx(zppeak+1d-7,z2m,1000,1d-4,peaknew,rez2n)
-
-         isubs=1
-         isp=1 
-         call simpxx(1d0-deltaz1,1d0-1d-16,1000,1d-4,peak,rez1d)
-         isp=2 
-         call simpxx(1d0+1d-11-deltaz2,1d0-1d-16,1000,1d-4,peak,rez2d)
-
-		 sum1=rez1+rez1n    !+rez1d
-		 sum2=rez2+rez2n    ! +rez2d
-
-c		 write(*,'(6g12.4)')rez1,rez2,rez1d,rez2d,rez1n,rez2n
-		 
-        end 
 
         double precision function peak(z)
         implicit none
@@ -887,89 +789,6 @@ c
 c        vacpol=0.
 c      print *,t,vacpol,suml,sumh,-(aaa+bbb*log(1.+ccc*t)) *2*pi/alpha,aaa,bbb,ccc,pi,alpha  
 
-      end
-
-      subroutine sffun(t,f1,f2,f3,f4)
-      implicit real*8(a-h,l,m,o-z)
-	common/const/alpha,barn,mp,mp2,ml2,ml,pi
-c       call ffpro(-t,fd,fp)
-       call nuclff01(t,fd,fp)
-c       call nuclff(t,fd,fp)
-       f1=(fd+fp)**2
-       f2=4d0/t*(fd**2-t*fp**2/4d0/mp2)
-       f3=f1
-       f4=4d0/t*(Fd+Fp)*(Fd+t/(4*mp2)*Fp)
-c      write(*,*)' ff',fd,fp,f1,f2
-      end
-
-       subroutine ffpro(t,fd,fp)
-
-      implicit real*8(a-h,l,m,o-z)
-	common/const/alpha,barn,mp,mp2,ml2,ml,pi
-      gep=1.2742/(1.+t/0.6394**2)-.2742/(1.+t/1.582**2)
-      gmp=(1.3262/(1.+t/0.6397**2)-.3262/(1.+t/1.3137**2))*2.7921
-c     gep=1./((1.+.61*t)*(1.+2.31*t)*(1.+.04*t))
-c     gmp=amm*gep
-	tap=t/4d0/mp2
-	fd=(gep+tap*gmp)/(1d0+tap)
-	fp=(gmp-gep)/(1d0+tap)
- 
-      end
-
-      subroutine nuclFF( del2,fd,fp )
-      implicit double precision (A-H,k,l,m,O-Z)
-      parameter (Mv = 0.843D0, kp = 1.79285D0, 
-     +      kn = -1.91D0, mp=0.938272d0)
-C
-      dipol = 1D0/(1D0 - del2/Mv**2)**2
-*
-      GE_p = dipol
-      GE_n = 0D0
-      GM_p = (1D0 + kp)*dipol
-      GM_n =        kn*dipol
-
-c	print*,'aku',GE_p,GM_p
-c==MICK
-		 P_MAGN=2.79
-		 Q = sqrt(-del2)		  
-		 GM_p =  P_MAGN
-     +                     /( 1. + 0.116 * Q + 2.874 *  Q**2
-     +			  + 0.241 * Q**3 + 1.006 * Q**4 
-     +			  + 0.345 * Q**5)
-		 ratio = 1. - 0.13 * ( -del2- 0.04)
-		 GE_p = GM_p  /P_MAGN * ratio
-c==MICK
-*
-c	print*,'mick',GE_p,GM_p
-      delm = del2/(2D0*Mp)**2
-*
-      Fd = (GE_p - delm*GM_p)/(1D0-delm)
-      Fp = (GM_p - GE_p)/(1D0-delm)         
-c        write(*,*)' ttf',fd,fp 
-c      F1pn(2) = (GE_n - delm*GM_n)/(1D0-delm)
-c      F2pn(2) = (GM_n - GE_n)/(1D0-delm)         
-      return
-      end
-
-      subroutine nuclff01( del2,fd,fp )
-      implicit double precision (A-H,k,l,m,O-Z)
-      parameter (Mv = 0.843D0, kp = 1.79285D0, kn = -1.91D0, mp=0.938272d0)
-C
-      dipol = 1D0/(1D0 - del2/Mv**2)**2
-*
-       GE_p = dipol
-      GE_n = 0D0
-      GM_p = (1D0 + kp)*dipol
-      GM_n =        kn*dipol
-*
-      delm = del2/(2D0*Mp)**2
-*
-      Fd = (GE_p - delm*GM_p)/(1D0-delm)
-      Fp = (GM_p - GE_p)/(1D0-delm)         
-c        write(*,*)' ttf',fd,fp 
-c      F1pn(2) = (GE_n - delm*GM_n)/(1D0-delm)
-c      F2pn(2) = (GM_n - GE_n)/(1D0-delm)         
-      return
       end
 
       subroutine bmkxsec(Ivar, IGPD, Ipn, Ich, uel, hel,   
@@ -1861,110 +1680,3 @@ C * * * * * * * * * * * * * * * * * * * * * * * * * * *
       IY=IAND(A*IY+C,Z'7FFFFFFF')
       URAND=FLOAT(IY)*S
       END
-
-      subroutine simps(a1,b1,h1,reps1,aeps1,funct,x,ai,aih,aiabs)
-c simps
-c a1,b1 -the limits of integration
-c h1 -an initial step of integration
-c reps1,aeps1 - relative and absolute precision of integration
-c funct -a name of function subprogram for calculation of integrand +
-c x - an argument of the integrand
-c ai - the value of integral
-c aih- the value of integral with the step of integration
-c aiabs- the value of integral for module of the integrand
-c this subrogram calculates the definite integral with the relative or
-c absolute precision by simpson+s method with the automatical choice
-c of the step of integration
-c if aeps1    is very small(like 1.e-17),then calculation of integral
-c with reps1,and if reps1 is very small (like 1.e-10),then calculation
-c of integral with aeps1
-c when aeps1=reps1=0. then calculation with the constant step h1
-c
-      implicit real*8(a-h,o-z)
-      dimension f(7),p(5)
-      h=dsign(h1,b1-a1)
-      s=dsign(1.d0,h)
-      a=a1
-      b=b1
-      ai=0.d0
-      aih=0.d0
-      aiabs=0.d0
-      p(2)=4.d0
-      p(4)=4.d0
-      p(3)=2.d0
-      p(5)=1.d0
-      if(b-a) 1,2,1
-    1 reps=dabs(reps1)
-      aeps=dabs(aeps1)
-      do 3 k=1,7
-  3   f(k)=10.d16
-      x=a
-      c=0.d0
-      f(1)=funct(x)/3.
-    4 x0=x
-      if((x0+4.*h-b)*s) 5,5,6
-    6 h=(b-x0)/4.
-      if(h) 7,2,7
-    7 do 8 k=2,7
-  8   f(k)=10.d16
-      c=1.d0
-    5 di2=f(1)
-      di3=dabs(f(1))
-      do 9 k=2,5
-      x=x+h
-      if((x-b)*s) 23,24,24
-   24 x=b
-   23 if(f(k)-10.d16) 10,11,10
-   11 f(k)=funct(x)/3.
-   10 di2=di2+p(k)*f(k)
-    9 di3=di3+p(k)*abs(f(k))
-      di1=(f(1)+4.*f(3)+f(5))*2.*h
-      di2=di2*h
-      di3=di3*h
-      if(reps) 12,13,12
-   13 if(aeps) 12,14,12
-   12 eps=dabs((aiabs+di3)*reps)
-      if(eps-aeps) 15,16,16
-   15 eps=aeps
-   16 delta=dabs(di2-di1)
-      if(delta-eps) 20,21,21
-   20 if(delta-eps/8.) 17,14,14
-   17 h=2.*h
-      f(1)=f(5)
-      f(2)=f(6)
-      f(3)=f(7)
-      do 19 k=4,7
-  19  f(k)=10.d16
-      go to 18
-   14 f(1)=f(5)
-      f(3)=f(6)
-      f(5)=f(7)
-      f(2)=10.d16
-      f(4)=10.d16
-      f(6)=10.d16
-      f(7)=10.d16
-   18 di1=di2+(di2-di1)/15.
-      ai=ai+di1
-      aih=aih+di2
-      aiabs=aiabs+di3
-      go to 22
-   21 h=h/2.
-      f(7)=f(5)
-      f(6)=f(4)
-      f(5)=f(3)
-      f(3)=f(2)
-      f(2)=10.d16
-      f(4)=10.d16
-      x=x0
-      c=0.d0
-      go to 5
-   22 if(c) 2,4,2
-    2 return
-      end
-
-      subroutine simpxx(a,b,np,ep,func,res)
-      implicit real*8 (a-h,o-z)
-      external func
-      step=(b-a)/np
-      call simps(a,b,step,ep,1d-18,func,ra,res,r2,r3)
-      end
