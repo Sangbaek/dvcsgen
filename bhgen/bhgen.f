@@ -699,53 +699,6 @@ c	    pause
 	    peak=(1d0+z**2)*(spr/sqdz*(xsp/x)**2*sigsp/z2-isubs*sborn)/(1d0-z)	
         end
 
-        double precision function peaknew(z)
-      implicit real*8(a-h,l,m,o-z)
-        real*8 z,lay,layz,az,cz,sz,sqdz,cpr,spr,sbr,cphbr,sphbr,cpr_,spr_,sbr_,cphbr_,sphbr_,xsp,sigp,z1,z2,lat
-        real*8 siborn,sigsp,sigsp_,s,q2,t,phi,x,xx,sborn,sx,alpha,barn,mp,mp2,ml2,ml,pi,eta,etaz(3)
-        integer*4 isp,ipol  ,isubs 
- 	common/const/alpha,barn,mp,mp2,ml2,ml,pi
-        common/kinpoi/s,q2,t,phi,x,xx,sborn,eta(3),ipol
-        common/test/isp,isubs
-         if(isp.eq.1)then
-          z1=z
-          z2=1d0
-         endif
-         if(isp.eq.2)then
-          z1=1d0
-          z2=z
-         endif
-            sx=s-xx 
- 	    lat=t*(t-4d0*mp2)
-            lay=sx**2+4d0*mp2*q2  
-	    layz=(z1*s-xx/z2)**2+4d0*mp2*z1*q2/z2
-	    az=-((z1*s-xx/z2)*t+2d0*mp2*(t-z1*q2/z2))/sqrt(lat*layz)
-	    cz=(sx*(z1*s-xx/z2)+2d0*(1d0/z2+z1)*mp2*q2)/sqrt(lay*layz)
-	    sz=2d0*(1d0/z2-z1)*mp*sqrt(q2*(s*xx-mp2*q2))/sqrt(lay*layz)
-	    if(cz**2+sz**2*cos(phi)**2-az**2.le.0d0) then
-	    peaknew=0d0
-	    return
-	    endif
-	    sqdz=sqrt(cz**2+sz**2*cos(phi)**2-az**2)
-	    cpr=(az*cz+sqdz*sz*cos(phi))/(cz**2+sz**2*cos(phi)**2)
-	    spr=(sqdz*cz-az*sz*cos(phi))/(cz**2+sz**2*cos(phi)**2)
-	    sbr=sqrt(1d0-(cpr*cz-spr*sz*cos(phi))**2)	
-	    cphbr=(cz*spr*cos(phi)+sz*cpr)/sbr
-            sphbr=spr*sin(phi)/sbr 
-	    cpr_=(az*cz-sqdz*sz*cos(phi))/(cz**2+sz**2*cos(phi)**2)
-	    spr_=(-sqdz*cz-az*sz*cos(phi))/(cz**2+sz**2*cos(phi)**2)
-	    sbr_=sqrt(1d0-(cpr_*cz-spr_*sz*cos(phi))**2)	
-	    cphbr_=(cz*spr_*cos(phi)+sz*cpr_)/sbr_
-            sphbr_=spr_*sin(phi)/sbr_ 
-            etaz(1)=cz*eta(1)+sz*eta(3)  
-            etaz(2)=eta(2)
-            etaz(3)=-sz*eta(1)+cz*eta(3)
-	    xsp=z1*q2/(z1*z2*s-xx)
-	    sigsp=siborn(z1*s,z1*q2/z2,xsp,t,cphbr,sphbr,1,ipol,etaz)
-	    sigsp_=siborn(z1*s,z1*q2/z2,xsp,t,cphbr_,sphbr_,1,ipol,etaz)
-	    peaknew=(1d0+z**2)*(spr/sqdz*(xsp/x)**2*sigsp/z2+spr_/sqdz*(xsp/x)**2*sigsp_/z2)/(1d0-z)	
-		end
-
 
 
 	
@@ -968,7 +921,7 @@ c
       phip = phigd 
 c      phipel = phield 
 *
-      call nuclFF00( del2d )
+      call nuclFF( del2d )
 *
       y1eps=1D0 - yb - yb*yb*eps2/4D0
       sqy1eps=sqrt(y1eps)
@@ -1508,14 +1461,13 @@ C
 
 	  
 	  
-      subroutine nuclFF00( del2 )
+      subroutine nuclFF( del2 )
 C
 C  Elastic nucleon's formfactors
 C
       implicit double precision (A-H,O-Z)
+#include "dvcs.inc"
       common/formfac/ F1pn(2), F2pn(2)
-      double precision Mp, mele, pi
-      common/myconst/ Mp, mele, pi
       double precision Mv, kp, kn
       parameter (Mv = 0.843D0, kp = 1.79285D0, kn = -1.91D0)
 C
