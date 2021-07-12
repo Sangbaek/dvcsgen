@@ -490,11 +490,12 @@ c           write(71,*)ichnnel,Egamma,thetag
 	  
 	  subroutine cutacc(s,xx,q2,phi,t,ichnnel,egamma,iacc)
        implicit none
-	   real*8 s,xx,q2,phi,t,egamma,alpha,barn,mp,mp2,ml2,ml,pi	
+#include "dvcs.inc"
+	   real*8 s,xx,q2,phi,t,egamma,alpha,barn,mp2,ml2,ml
 	   real*8 missingmass2,complanarity,complanarity0,ptfin,ang_m_c,ptfin2
 	   real*8 sx,aly,sqly,cos1,sin1,cos2,sin2,e1,e2,epr,ppr,costp,sintp,scalarpr
 	   Integer*4 ichnnel,iacc,i,iacctt
-	   	  common/const/alpha,barn,mp,mp2,ml2,ml,pi	
+	   	  common/const/alpha,barn,mp2,ml2,ml
 	   real*8 k1(0:3),k2(0:3),k(0:3),p1(0:3),p2(0:3),k_3kin(0:3),k_4kin(0:3),kgene(0:3),fin(0:3)
 
 	   sx=s-xx
@@ -593,7 +594,8 @@ c      write(*,'(i4,6f8.4,i7)')ichnnel,egamma,missingmass2,complanarity,complana
 	  
       subroutine dzsub(vv,q2,onmz,ipo,dzfun)
       implicit real*8(a-h,k-m,o-z)
-	common/const/alpha,barn,mp,mp2,ml2,ml,pi
+#include "dvcs.inc"
+	common/const/alpha,barn,mp2,ml2,ml
 
       lll=log(q2/ml2)
       be=2d0*alpha/pi*(LLL-1d0)
@@ -638,21 +640,22 @@ c      write(*,'(i4,6f8.4,i7)')ichnnel,egamma,missingmass2,complanarity,complana
 
 	double precision function siborn(s,q2,x,t,cphi,sphi,ia,ipol,eta)
         implicit none
-	real*8 s,q2,x,t,cphi,sphi,vacpol,alphar,alpha,barn,mp2,ml,mp,
-     +	ml2,pi,f1,f2,u0,w0,tt1,tt2,lauw,lay,xx,sx,sp,w2,tmin,tmax,
+#include "dvcs.inc"
+	real*8 s,q2,x,t,cphi,sphi,vacpol,alphar,alpha,barn,mp2,ml,
+     +	ml2,f1,f2,u0,w0,tt1,tt2,lauw,lay,xx,sx,sp,w2,tmin,tmax,
      +  factorvac
 	real*8 tt3,tt4,f3,f4,phis,etak1,etak2,etap2,eta(3),sqly,sqlsxq
         real*8 tt10,tt20,tt30,tt40,tt1m,tt2m,tt3m,tt4m
         real*8 phiphi
 	integer*4 ia,ipol
 	integer*4 iappr,hel
-	common/const/alpha,barn,mp,mp2,ml2,ml,pi
+	common/const/alpha,barn,mp2,ml2,ml
         common/iappr/iappr,hel
 
           if(iappr.eq.2)then
             if(sphi.ge.0d0)phiphi=acos(min(1d0,max(-1d0,cphi)))
             if(sphi.lt.0d0)phiphi=2.*pi-acos(min(1d0,max(-1d0,cphi)))
-            call bmkxsec(3, 3, 1, -1, 1,hel, s/2./mp, x, Q2, t,  pi-phiphi,siborn,eta,ipol,3)
+            call bmkxsec(1,hel, s/2./mp, x, Q2, t,  pi-phiphi,siborn,eta,ipol,3)
 c            call bmkxsec2(x, Q2, t, pi-phiphi,pi-phiphi,siborn)
             return   
           endif
@@ -664,10 +667,11 @@ c            call bmkxsec2(x, Q2, t, pi-phiphi,pi-phiphi,siborn)
 
         double precision function peak(z)
         implicit none
+#include "dvcs.inc"
         real*8 z,lay,layz,az,cz,sz,sqdz,cpr,spr,sbr,cphbr,sphbr,xsp,sigp,z1,z2,lat
-        real*8 siborn,sigsp,s,q2,t,phi,x,xx,sborn,sx,alpha,barn,mp,mp2,ml2,ml,pi,eta,etaz(3)
+        real*8 siborn,sigsp,s,q2,t,phi,x,xx,sborn,sx,alpha,barn,mp2,ml2,ml,eta,etaz(3)
         integer*4 isp,ipol  ,isubs
- 	common/const/alpha,barn,mp,mp2,ml2,ml,pi
+ 	common/const/alpha,barn,mp2,ml2,ml
         common/kinpoi/s,q2,t,phi,x,xx,sborn,eta(3),ipol
         common/test/isp,isubs
          if(isp.eq.1)then
@@ -714,7 +718,8 @@ c	    pause
       double precision function vacpol(t)
 c contribution from vacuum polarization by leptons (suml) and hadrons (sumh)
       implicit real*8(a-h,l,m,o-z)
-	common/const/alpha,barn,mp,mp2,ml2,ml,pi
+#include "dvcs.inc"
+	common/const/alpha,barn,mp2,ml2,ml
 c      common/cmp/pi,alpha,amp,amp2,aml,aml2,barn
 c      include 'const.inc'
       dimension am2(3)
@@ -750,29 +755,31 @@ c      print *,t,vacpol,suml,sumh,-(aaa+bbb*log(1.+ccc*t)) *2*pi/alpha,aaa,bbb,c
 
       end
 
-      subroutine bmkxsec(Ivar, IGPD, Ipn, Ich, uel, hel,   
+      subroutine bmkxsec(uel, hel,   
 c     &                 E, xb, Q2, del2, Phi_e, Phi_g,dsigma)
      &                 E, xb, Q2, del2, Phi_g,dsigma,eta,ipol,iborn)
         include "dvcsmom.inc"
+        include "dvcs.inc"
 c      double precision E, xb, Q2, del2,Phi_e,Phi_g,Phi_s,Phi_gb,dsigma
       double precision E, xb, Q2, del2,Phi_g,Phi_gb,dsigma
       double precision nu,W2,W,qmod,E1cm,P1cm,E2cm,P2cm,del2max,del2min
-      double precision Mp, mele, pi
-      real*8 alpha000,barn000,mp000,mp2000,ml2000,ml000,pi000
-      common/const/alpha000,barn000,mp000,mp2000,ml2000,ml000,pi000
-      common/myconst/ Mp, mele, pi
+c      double precision Mp, mele, pi
+      real*8 alpha000,barn000,mp2000,ml2000,ml000
+      common/const/alpha000,barn000,mp2000,ml2000,ml000
+c      common/myconst/ Mp, mele, pi
 c      data Mp/0.938D0/, mele/0.000511D0/, pi/3.1415926536D0/
-      integer istat,Ivar, IGPD, Ipn, Ich, hel, uel
+C       integer istatus,Ivar, IGPD, Ipn, Ich, hel, uel
+      integer Ivar_test, IGPD_test, Ipn_test, Ich_test, hel, uel
          integer*4 ipol
          real*8 eta(3)
       real corraul,rP1,rP2
 c      print *, pi000, ml000, mp000
-      pi=pi000
-      mele=ml000
-      mp=mp000
+c      pi=pi000
+c      mele=ml000
+c      mp=mp000
 c
 c
-      istat=0                    ! kinematic range OK
+      istatus=0                    ! kinematic range OK
       xmin1 = Q2/(2D0*Mp*E)
       xmax1 = 1D0
       nu  = Q2/(2D0*Mp*xb)
@@ -787,10 +794,10 @@ c
       del2max = 2D0*(Mp**2 - E1cm*E2cm - P1cm*P2cm)
       del2min = 2D0*(Mp**2 - E1cm*E2cm + P1cm*P2cm)
 c
-      if( xb.le.xmin1 .or. xb.gt.xmax1 ) istat=1           !    x  out of range
-      if( del2.ge.del2min .or. del2.le.del2max ) istat=2   ! delta out of range
+      if( xb.le.xmin1 .or. xb.gt.xmax1 ) istatus=1           !    x  out of range
+      if( del2.ge.del2min .or. del2.le.del2max ) istatus=2   ! delta out of range
 
-      if (istat.eq.0) then
+      if (istatus.eq.0) then
       call resetmom()
 !      call getphoton(E,  xb,  Q2,  del2,  Phi_e,Phi_g)
       call getphoton(E,  xb,  Q2,  del2,  Phi_g)
@@ -858,7 +865,7 @@ c       write(*,11) dsBH,hc0BH,hc1BH,cos(Phi_gb),hc2BH,cos(2D0*Phi_gb)
  11   format(3h+++ ,15G11.3)
       else
        dsigma=0
-c      print *,'out of limits ',xb,xmin1,xmax1,del2,del2min,del2max,istat      
+c      print *,'out of limits ',xb,xmin1,xmax1,del2,del2min,del2max,istatus      
       endif
       return
       end
