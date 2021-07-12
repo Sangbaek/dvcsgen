@@ -2,8 +2,8 @@
       implicit real*8(a-h,k-m,o-z)
 #include "dvcs.inc"
 	    real*8 ebeam,s,q2,x,t,phi,egamma,thetag,phig,stot,delta
-        integer*4 ipol,ikeygene,ichnnel,iddd
-	integer*4 iappr,hel
+        integer*4 ipol,ikeygene,ichannel,iddd
+	integer*4 iappr
         parameter(nxq2poi=1)
         parameter(ntpoi=4)
         parameter(nphipoi=10)		
@@ -20,16 +20,17 @@
 		 
          ebeam=10.604
 
-         ipol=0 !target polarization switch:0-unpolarized, 1-long, 2-trans along x-axis, 3-trans along y-axis
+         cl_pol=0 !target polarization switch:0-unpolarized, 1-long, 2-trans along x-axis, 3-trans along y-axis
          iappr=2   !1-BH only, 2-BMK 
          Ivar = 3
          Ich = -1
          IGPD = 3
          Ipn = 1
          Ed = ebeam
+         cl_beam_energy = ebeam
 
        if(iappr.eq.2)then
-         hel=1     !             hel=1(0) to (not) include polarized part   
+         heli=1     !             hel=1(0) to (not) include polarized part   
        endif
 
 c             vv2cut=.3d0    ! missing mass cut        
@@ -55,7 +56,7 @@ c		 do iddd=1,ndelta
          
 		 delta=ardelta(iddd)
 		 
-        call bhradgen(ebeam,x,q2,t,phi,vv2cut,delta,egamma,thetag,phig,ichnnel,ipol,iappr,hel,nevent,ikeygene,stot)
+        call bhradgen(ebeam,x,q2,t,phi,vv2cut,delta,egamma,thetag,phig,ichannel,ipol,iappr,nevent,ikeygene,stot)
 
 		enddo
 		
@@ -71,15 +72,15 @@ c		 do iddd=1,ndelta
 
 
        	  subroutine bhradgen(ebeam,xff,q2ff,tff,phiff,vv2cut,delta,egamma,thetag,
-     +  phig,ichnnel,ipolff,iapprff,helff,nevent,ikeygene,stot)
+     +  phig,ichannel,ipolff,iapprff,nevent,ikeygene,stot)
 !
 !         lab system; OZ is along \vec q, OXZ -- scattering plane
 !
 !          ebeam -- beam energy
 !          xff (or x), q2ff (or q2), tff (ot r) -- kinematic invariants   
 !          phiff (phi) -- phi of final proton
-!          egamma, thetag, phig -- variables of simulated (second) photon, if ichnnel>1
-!          ichnnel -- channel of scattering: 1-no second photon; 2-second photon along initial electron, 3-second photon along final electron
+!          egamma, thetag, phig -- variables of simulated (second) photon, if ichannel>1
+!          ichannel -- channel of scattering: 1-no second photon; 2-second photon along initial electron, 3-second photon along final electron
 !          ipolff (or ipol) -- target polarization parameter (0-unpolarized, 1-longitudinally polarized alog \vec q)  
 !          iapprff (or iappr) --  1-BH only, 2-BMK
 !          helff (or hel) --  hel=1(0) to (not) include polarized part   
@@ -87,7 +88,7 @@ c		 do iddd=1,ndelta
 !
         implicit none
         integer*4 nevent,ikeygene,iacc
-        integer*4 nzd,nzdphi,ichnnel,ipolff,iapprff,helff,iaddcontr_p,iaddcontr_s
+        integer*4 nzd,nzdphi,ichannel,ipolff,iapprff,iaddcontr_p,iaddcontr_s
 	real*8 ebeam,s,q2,x,t,phi,sx,xx,mp,mp2,ml,ml2,pi,alpha,barn,
      +	sborn,siborn,sig0,sirad,siradtest,xi,z1m,z2m,z2cur,z1,z2,lll,be,bb,tcol,
      +  tmin,stot,vv2cut,vmax,vv2calc,vv2min_s,vv2min_p
@@ -113,13 +114,13 @@ c		 do iddd=1,ndelta
 	integer*4 ipg,in,i,nev,iy,itkey,itpoi,iepoi,ixq2poi,nepoi,nxq2poi,
      +	ntpoi,nphipoi,
      +	ikeyphiint,isamp
-	integer*4 ikeydd,ikeyfo,ipol,iappr,hel,ntreg1,ntreg2,ntreg3,
+	integer*4 ikeydd,ikeyfo,ipol,iappr,ntreg1,ntreg2,ntreg3,
      +	nttot,nphipoi1,nphipoi2,izd
         real*8 v2p,v2m,a1,a2s,a2p,v2s1,v2s2,v2p1,v2p2,dds,ddp,sp  
      
 	common/const/alpha,barn,mp,mp2,ml2,ml,pi
         common/kinpoi/s,q2,t,phi,x,xx,sborn,eta(3),ipol
-        common/iappr/iappr,hel
+        common/iappr/iappr
         data alpha/0.729735d-2/,barn/0.389379d9/,ml2/0.261112d-6/,
      +	mp/0.938272d0/,iy/12/
 
@@ -131,7 +132,7 @@ c		 do iddd=1,ndelta
         phi=phiff      
         ipol=ipolff 
         iappr=iapprff
-        hel=helff
+c        hel=helff
         ml=0.000511D0!sqrt(ml2)
         mp2=mp**2
 	pi=3.1415926536D0!atan(1d0)*4d0
@@ -408,12 +409,12 @@ c	 7   ,1d2*(exp(alpha/pi*LLog*log(deltaz1*deltaz2))-1d0-alpha/pi*LLog*log(delta
 		  naccev_p=0.
           random1=urand(iy)          
           if(random1.le.probn)then 
-             ichnnel=1
+             ichannel=1
              egamma=0d0 
              thetag=0d0
              phig=0d0 
           elseif(random1.le.probn+probs)then
-             ichnnel=2
+             ichannel=2
              ran2=(random1-probn)/probs
 			 if(ran2.le.sum1/(sum1+sum1phi))then 
 			 random2=ran2*(sum1+sum1phi)   !*sum1/sum1
@@ -437,7 +438,7 @@ c	 7   ,1d2*(exp(alpha/pi*LLog*log(deltaz1*deltaz2))-1d0-alpha/pi*LLog*log(delta
              phig=0d0
              thetag=acos((s*sx+2*mp2*q2)/sqrt(lay)/s)
 		  else
-             ichnnel=3
+             ichannel=3
              ran2=(random1-probn-probs)/probs
 			 if(ran2.le.sum2/(sum2+sum2phi))then 
 			 random2=ran2*(sum2+sum2phi)   !*sum2/sum2
@@ -461,21 +462,21 @@ c	 7   ,1d2*(exp(alpha/pi*LLog*log(deltaz1*deltaz2))-1d0-alpha/pi*LLog*log(delta
              phig=0d0
              thetag=acos((xx*sx-2*mp2*q2)/sqrt(lay)/xx)
           endif   
-c           write(71,*)ichnnel,Egamma,thetag
+c           write(71,*)ichannel,Egamma,thetag
 
-          if(ichnnel.gt.1)then
-		  call cutacc(s,xx,q2,phi,t,ichnnel,egamma,iacc)
-		  if(ichnnel.eq.2)then
+          if(ichannel.gt.1)then
+		  call cutacc(s,xx,q2,phi,t,ichannel,egamma,iacc)
+		  if(ichannel.eq.2)then
 		  if(iacc.eq.1)naccev_s=naccev_s+1. 
 		  ntotev_s=ntotev_s+1.
 		  endif
-		  if(ichnnel.eq.3)then
+		  if(ichannel.eq.3)then
 		  if(iacc.eq.1)naccev_p=naccev_p+1. 
 		  ntotev_p=ntotev_p+1.
           endif
 
 		  endif
-      print *, ichnnel, thetag, egamma
+      print *, ichannel, thetag, egamma, probn, probs, probp
 		  
 
 
@@ -488,13 +489,13 @@ c           write(71,*)ichnnel,Egamma,thetag
 	end
       
 	  
-	  subroutine cutacc(s,xx,q2,phi,t,ichnnel,egamma,iacc)
+	  subroutine cutacc(s,xx,q2,phi,t,ichannel,egamma,iacc)
        implicit none
 #include "dvcs.inc"
 	   real*8 s,xx,q2,phi,t,egamma,alpha,barn,mp2,ml2,ml
 	   real*8 missingmass2,complanarity,complanarity0,ptfin,ang_m_c,ptfin2
 	   real*8 sx,aly,sqly,cos1,sin1,cos2,sin2,e1,e2,epr,ppr,costp,sintp,scalarpr
-	   Integer*4 ichnnel,iacc,i,iacctt
+	   Integer*4 ichannel,iacc,i,iacctt
 	   	  common/const/alpha,barn,mp2,ml2,ml
 	   real*8 k1(0:3),k2(0:3),k(0:3),p1(0:3),p2(0:3),k_3kin(0:3),k_4kin(0:3),kgene(0:3),fin(0:3)
 
@@ -533,13 +534,13 @@ c           write(71,*)ichnnel,Egamma,thetag
 	   p2(3)=ppr*costp
 	   
 	   kgene(0)=egamma
-	   if(ichnnel.eq.2)then
+	   if(ichannel.eq.2)then
        kgene(1)=egamma*sin1
        kgene(2)=0.
        kgene(3)=egamma*cos1
 	   endif
 
-	   if(ichnnel.eq.3)then
+	   if(ichannel.eq.3)then
        kgene(1)=egamma*sin2
        kgene(2)=0.
        kgene(3)=egamma*cos2
@@ -573,7 +574,7 @@ c	   write(*,*)' test t   ',2.*mp2-2*scalarpr(p1,p2),t
 	   if(ang_m_c.gt.1.00133d0)iacctt=iacctt+1 
 	   if(iacctt.gt.10000)iacc=0
 	   
-c      write(*,'(i4,6f8.4,i7)')ichnnel,egamma,missingmass2,complanarity,complanarity0,1000*ptfin2,ang_m_c,iacctt	   
+c      write(*,'(i4,6f8.4,i7)')ichannel,egamma,missingmass2,complanarity,complanarity0,1000*ptfin2,ang_m_c,iacctt	   
 
 	   
 *here are the experimental cuts used in my analysis.
@@ -648,14 +649,16 @@ c      write(*,'(i4,6f8.4,i7)')ichnnel,egamma,missingmass2,complanarity,complana
         real*8 tt10,tt20,tt30,tt40,tt1m,tt2m,tt3m,tt4m
         real*8 phiphi
 	integer*4 ia,ipol
-	integer*4 iappr,hel
+	integer*4 iappr
 	common/const/alpha,barn,mp2,ml2,ml
-        common/iappr/iappr,hel
+        common/iappr/iappr
 
           if(iappr.eq.2)then
             if(sphi.ge.0d0)phiphi=acos(min(1d0,max(-1d0,cphi)))
             if(sphi.lt.0d0)phiphi=2.*pi-acos(min(1d0,max(-1d0,cphi)))
-            call bmkxsec(1,hel, s/2./mp, x, Q2, t,  pi-phiphi,siborn,eta,ipol,3)
+            Ed = s/2./mp
+            call bmkxsec(x, Q2, t,  phiphi, pi-phiphi,siborn,eta)
+            Ed = cl_beam_energy
 c            call bmkxsec2(x, Q2, t, pi-phiphi,pi-phiphi,siborn)
             return   
           endif
@@ -755,13 +758,11 @@ c      print *,t,vacpol,suml,sumh,-(aaa+bbb*log(1.+ccc*t)) *2*pi/alpha,aaa,bbb,c
 
       end
 
-      subroutine bmkxsec(uel, hel,   
-c     &                 E, xb, Q2, del2, Phi_e, Phi_g,dsigma)
-     &                 E, xb, Q2, del2, Phi_g,dsigma,eta,ipol,iborn)
-        include "dvcsmom.inc"
-        include "dvcs.inc"
+      subroutine bmkxsec(xb, Q2, del2, Phi_e, Phi_g,dsigma)
+#include "dvcsmom.inc"
+#include "dvcs.inc"
 c      double precision E, xb, Q2, del2,Phi_e,Phi_g,Phi_s,Phi_gb,dsigma
-      double precision E, xb, Q2, del2,Phi_g,Phi_gb,dsigma
+      double precision xb, Q2, del2,Phi_g,Phi_gb,dsigma
       double precision nu,W2,W,qmod,E1cm,P1cm,E2cm,P2cm,del2max,del2min
 c      double precision Mp, mele, pi
       real*8 alpha000,barn000,mp2000,ml2000,ml000
@@ -769,7 +770,6 @@ c      double precision Mp, mele, pi
 c      common/myconst/ Mp, mele, pi
 c      data Mp/0.938D0/, mele/0.000511D0/, pi/3.1415926536D0/
 C       integer istatus,Ivar, IGPD, Ipn, Ich, hel, uel
-      integer Ivar_test, IGPD_test, Ipn_test, Ich_test, hel, uel
          integer*4 ipol
          real*8 eta(3)
       real corraul,rP1,rP2
@@ -780,7 +780,7 @@ c      mp=mp000
 c
 c
       istatus=0                    ! kinematic range OK
-      xmin1 = Q2/(2D0*Mp*E)
+      xmin1 = Q2/(2D0*Mp*Ed)
       xmax1 = 1D0
       nu  = Q2/(2D0*Mp*xb)
       W2  = Mp**2 + 2D0*Mp*nu - Q2
@@ -800,11 +800,12 @@ c
       if (istatus.eq.0) then
       call resetmom()
 !      call getphoton(E,  xb,  Q2,  del2,  Phi_e,Phi_g)
-      call getphoton(E,  xb,  Q2,  del2,  Phi_g)
+      call getphoton(xb,  Q2,  del2,  Phi_g)
       Phi_gb=pi - Phi_g
 c      Phi_s=Phi_e
 c      call bhdvcs(E,  xb,  Q2,  del2,  Phi_gb) 
-      call bhdvcs(E, xb,  Q2,  del2,  Phi_s,Phi_gb,rP1,rP2) 
+      
+      call bhdvcs(xb,  Q2,  del2,  Phi_s,Phi_gb,rP1,rP2)
 c
 c      dsBH =hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb)
 c      dsBHlp =hel*help*(hc0BHlp +hc1BHlp*cos(Phi_gb))
@@ -823,17 +824,17 @@ c     6     +hel*hs1Itpsin*sin(Phi_gb)*sin(Phi_s)+hs1Itpcos*sin(Phi_gb)*cos(Phi_
        sinphis=eta(2)*cos(Phi_gb)-eta(1)*sin(Phi_gb)
        eta3bmk=-eta(3)
 
-      dsBH =uel*(hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb))
-      dsBHlp =hel*eta3bmk*(hc0BHlp +hc1BHlp*cos(Phi_gb))
-      dsBHtp =hel*cosphis*(hc0BHtpcos +hc1BHtpcos*cos(Phi_gb)) 
-     6       +hel*sinphis*hs1BHtpsin*sin(Phi_gb)
+      dsBH =(hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb))
+      dsBHlp =heli*eta3bmk*(hc0BHlp +hc1BHlp*cos(Phi_gb))
+      dsBHtp =heli*cosphis*(hc0BHtpcos +hc1BHtpcos*cos(Phi_gb)) 
+     6       +heli*sinphis*hs1BHtpsin*sin(Phi_gb)
 c      dsDVCS=hc0dvcs+hc1dvcs*cos(Phi_gb)+hs1dvcs*sin(Phi_gb)+hs2dvcs*sin(2*Phi_gb)
-      dsIunp=uel*hc0Iunp +hel*hs1Iunp*sin(Phi_gb)+uel*hc1Iunp*cos(Phi_gb) 
-     6     +hel*hs2Iunp*sin(2*Phi_gb)+uel*hc2Iunp*cos(2*Phi_gb)
-      dsIlp=eta3bmk*(hel*hc0Ilp+hel*hc1Ilp*cos(Phi_gb)+uel*hs1Ilp*sin(Phi_gb))
-      dsItp=hel*hc0Itpcos*cosphis+uel*hc0Itpsin*sinphis
-     6     +uel*hc1Itpsin*cos(Phi_gb)*sinphis+hel*hc1Itpcos*cos(Phi_gb)*cosphis
-     6     +hel*hs1Itpsin*sin(Phi_gb)*sinphis+uel*hs1Itpcos*sin(Phi_gb)*cosphis
+      dsIunp=hc0Iunp +heli*hs1Iunp*sin(Phi_gb)+hc1Iunp*cos(Phi_gb) 
+     6     +heli*hs2Iunp*sin(2*Phi_gb)+hc2Iunp*cos(2*Phi_gb)
+      dsIlp=eta3bmk*(heli*hc0Ilp+heli*hc1Ilp*cos(Phi_gb)+hs1Ilp*sin(Phi_gb))
+      dsItp=heli*hc0Itpcos*cosphis+hc0Itpsin*sinphis
+     6     +hc1Itpsin*cos(Phi_gb)*sinphis+heli*hc1Itpcos*cos(Phi_gb)*cosphis
+     6     +heli*hs1Itpsin*sin(Phi_gb)*sinphis+hs1Itpcos*sin(Phi_gb)*cosphis
 
 *	     write(61,'(8g11.3)')phi_gb,hc0Iunp,hc1Iunp,hc2Iunp,hs1Iunp,hs2Iunp
 c	     write(*,'(8g11.3)')xb,q2,del2,Phi_g ,hc0Iunp,hs1Iunp,hc1Iunp,hs2Iunp,hc2Iunp
@@ -843,12 +844,12 @@ c		 stop
 c      
 CC       dsigma=dsBH +dsDVCS-Ich*dsIunp !+dsBHlp -Ich*dsIlp !-Ich*dsItp
 
-      if(iborn.eq.1.and.ipol.eq.0) dsigma=2.*pi*dsBH
-      if(iborn.eq.1.and.ipol.gt.0) dsigma=2.*pi*(dsBHlp + dsBHtp)
-      if(iborn.eq.2.and.ipol.eq.0) dsigma=2.*pi*(-Ich*dsIunp)
-      if(iborn.eq.2.and.ipol.gt.0) dsigma=2.*pi*(-Ich*dsIlp-Ich*dsItp)
-      if(iborn.eq.3.and.ipol.eq.0) dsigma=2.*pi*(dsBH-Ich*dsIunp)
-      if(iborn.eq.3.and.ipol.gt.0) dsigma=2.*pi*(dsBHlp + dsBHtp-Ich*dsIlp-Ich*dsItp)
+      if(Ivar.eq.1.and.cl_pol.eq.0) dsigma=2.*pi*dsBH
+      if(Ivar.eq.1.and.cl_pol.gt.0) dsigma=2.*pi*(dsBHlp + dsBHtp)
+      if(Ivar.eq.2.and.cl_pol.eq.0) dsigma=2.*pi*(-Ich*dsIunp)
+      if(Ivar.eq.2.and.cl_pol.gt.0) dsigma=2.*pi*(-Ich*dsIlp-Ich*dsItp)
+      if(Ivar.eq.3.and.cl_pol.eq.0) dsigma=2.*pi*(dsBH-Ich*dsIunp)
+      if(Ivar.eq.3.and.cl_pol.gt.0) dsigma=2.*pi*(dsBHlp + dsBHtp-Ich*dsIlp-Ich*dsItp)
 
 c      write(*,*)dsigma,eta(1),eta(2),eta(3),dsBHlp,dsBHtp,cos(Phi_gb),sin(Phi_gb)
 c      stop
@@ -870,150 +871,7 @@ c      print *,'out of limits ',xb,xmin1,xmax1,del2,del2min,del2max,istatus
       return
       end
 c
-
-C        Ich  -  positron(electron) = +1(-1)
-C int   hel  -  lepton beam polarization
-C int   help -  target polarization
-C double  dsigma   d^5\sig / dx dQ^2 d|\Delta^2| d\phi_e d\phi_\gamma
-C                  (pb GeV^{-4})
-c
-      subroutine bmkxsec2(xb, Q2, del2, Phi_e, Phi_g,dsigma)
-      implicit none
-#include "dvcsmom.inc"
-#include "dvcs.inc"
-#include "ntupgdvcs.inc"
-      double precision E, xb, Q2, del2,Phi_e,Phi_g,Phi_s,Phi_gb,dsigma
-      double precision nu,W2,W,qmod,E1cm,P1cm,E2cm,P2cm,del2max,del2min
-      double precision yb,ymax,ycol
-      double precision  xmin1,xmax1
-      double precision dsIunp,dsBHlp, dsIlp,dsBHtp,dsItp
-      real corraul,rP1,rP2
-C       Ivar = 3
-C       Ich = -1
-C       IGPD = 3
-C       Ipn = 1
-c
-c
-      istatus=0                    ! kinematic range OK
-      Ed=cl_be
-      E=Ed
-      xmin1 = Q2/(2D0*Mp*E)
-      xmax1 = 1D0
-      nu  = Q2/(2D0*Mp*xb)
-      W2  = Mp**2 + 2D0*Mp*nu - Q2
-      W   = sqrt(W2)
-      qmod = sqrt(nu**2 + Q2)
-c
-      E1cm = Mp*(Mp + nu)/W
-      P1cm = Mp*qmod/W
-      E2cm = (W2 + Mp**2)/(2D0*W)
-      P2cm = (W2 - Mp**2)/(2D0*W)
-      del2max = 2D0*(Mp**2 - E1cm*E2cm - P1cm*P2cm)
-      del2min = 2D0*(Mp**2 - E1cm*E2cm + P1cm*P2cm)
-c
-      if( xb.le.xmin1 .or. xb.gt.xmax1 ) istatus=1           !    x  out of range
-      if( del2.ge.del2min .or. del2.le.del2max ) istatus=2   ! delta out of range
-      yb=nu/Ed
-      if(yb.gt.cl_ymax) istatus=3                               ! y<ymax
-      call dvcsycol(del2,xb,Q2,ycol)
-
-      Phi_gb=pi - Phi_g
-      Phi_s=Phi_e
-      call bhdvcs(xb,  Q2,  del2,  Phi_s,Phi_gb,rP1,rP2) 
-      call bhdvcs(3,3,Ipn,E,  xb,  Q2,  del2, Phi_gb) 
-c
-      if(abs(rP1).le.cl_ycol ) istatus=4                   ! y-too big
-c      if((ycol-yb).le.cl_ycol ) istatus=4                   ! y-too big
-
-      if (istatus.eq.0) then
-c
-      dsBH =hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb)
-      dsDVCS=hc0dvcs+hc1dvcs*cos(Phi_gb)+hs1dvcs*sin(Phi_gb)+hs2dvcs*sin(2*Phi_gb)
-      dsIunp=hc0Iunp +heli*hs1Iunp*sin(Phi_gb)+hc1Iunp*cos(Phi_gb) 
-     6     +heli*hs2Iunp*sin(2*Phi_gb)+hc2Iunp*cos(2*Phi_gb)
-c      
-c
-c      scale the sin\phi moment
-       dsIunp=dsIunp*cl_scale
-c
-       if(cl_ktcor) then
-         dsIunp=dsIunp*corraul(del2,Q2)     ! correct~20% of A_LU at small t
-       endif
-c
-       dsigma=dsBH
-       if(cl_bh.gt.1)  dsigma=dsigma+dsDVCS-Ich*dsIunp 
-
-c
-c      L-POL
-c
-       if(cl_pol.eq.1) then 
-         dsBHlp =heli*helpi*(hc0BHlp +hc1BHlp*cos(Phi_gb))
-         dsIlp=heli*helpi*hc0Ilp+heli*helpi*hc1Ilp*cos(Phi_gb)
-     +         +helpi*hs1Ilp*sin(Phi_gb)
-         dsigma=dsigma+dsBHlp -Ich*dsIlp
-       endif
-c
-c      T-POL
-c 
-       if(cl_pol.eq.2) then 
-         dsBHtp =heli*helpi*cos(Phi_s)*(hc0BHtpcos +hc1BHtpcos*cos(Phi_gb)) 
-     6       +heli*hs1BHtpsin*sin(Phi_s)*sin(Phi_gb)
-         dsItp=heli*hc0Itpcos*cos(Phi_s)+hc0Itpsin*sin(Phi_s)
-     6     +hc1Itpsin*cos(Phi_gb)*sin(Phi_s)+heli*hc1Itpcos*cos(Phi_gb)*cos(Phi_s)
-     6     +heli*hs1Itpsin*sin(Phi_gb)*sin(Phi_s)+hs1Itpcos*sin(Phi_gb)*cos(Phi_s)
-         dsigma=dsigma+dsBHtp -Ich*dsItp
-       endif
-c
-c
-c
-      else
-        dsigma=0
-c       print *,'out of limits ',xb,xmin1,xmax1,del2,del2min,del2max,istat      
-      endif
-       gwbh=dsBH
-       gwdvcs=dsDVCS
-       gvint=dsIunp
-c       gsin=hs1Iunp/(hc0BH+hc0dvcs+hc0Iunp)
-       gsin=hs1Iunp/hc0BH
-       gsin2=dsigma
-        gproh=helpi
-        ghp1=hcp1
-        ghp2=hcp2
-        ghccb=hccb
-        ghcci=hcci
-        gh0bh=hc0BH
-        gh1bh=hc1BH
-        gh2bh=hc2BH
-        gh0dvcs=hc0dvcs
-        gh1dvcs=hc1dvcs
-        ghs1dvcs=hs1dvcs
-        gh0iunp=hc0Iunp
-        gh1iunp=hc1Iunp
-        ghs1iunp=hs1Iunp
-        ghs2iunp=hs2Iunp
-       if(cl_pol.eq.1) then
-        gh0bhlp=hc0bhlp
-        gh1bhlp=hc1bhlp
-        ghs1ilp=hs1ilp
-        gh1ilp=hc1ilp
-        gh0ilp=hc0ilp
-       else if(cl_pol.eq.2) then
-        gh0bhtpcos = hc0BHtpcos
-        gh1bhtpcos = hc1BHtpcos
-        ghs1bhtpsin= hs1BHtpsin
-        ghs1itpcos = hs1Itpcos
-        ghs1itpsin = hs1Itpsin
-        gh1itpcos  = hc1Itpcos
-        gh1itpsin  = hc1Itpsin
-        gh0itpcos  = hc0Itpcos
-        gh0itpsin  = hc0Itpsin
-      endif
-c      print *,'bhdvcs rP1= ',rP1,rP2,dsigma,cl_ycol,ycol-yb,xb,Q2,del2
-      return
-      end
-c
-
-      subroutine bhdvcs(E, xbd, Q2d, del2d, phield, phigd,rP1,rP2)
+      subroutine bhdvcs(xbd, Q2d, del2d, phield, phigd,rP1,rP2)
       implicit double precision (A-H,O-Z)
 #include "dvcsmom.inc"
 #include "dvcs.inc"
@@ -1052,8 +910,8 @@ c
 *
       nu  = Q2d/(2D0*Mp*xbd)
       qmod = sqrt(nu**2 + Q2d)
-      yb = nu/E
-      Esc = E - nu
+      yb = nu/Ed
+      Esc = Ed - nu
 
 c
       eps = 2D0*xbd*Mp/sqrt(Q2)
@@ -1349,184 +1207,6 @@ c
 c
       return
       end
-c
-C       implicit double precision (A-H,O-Z)
-C #include "dvcs.inc"
-C #include "dvcsmom.inc"
-C       double precision Kfac,Jfac,Intfac
-C       common/todvcs/ x, y,Q2,del2,del2min,phip,phipel,P1,P2,Kfac,Jfac,ds
-C       common/formfac/ F1pn(2), F2pn(2)
-C c
-C       real zskew,zF1,zF2,zHp,zEp,zHtp,zEtp,zCIim
-C       common /zgpds/zskew,zF1,zF2,zHp,zEp,zHtp,zEtp,zCIim
-C c
-C       skew = x/(2D0 - x)
-C       call amptab( IGPD, Ipn, skew, del2, 
-C      &             H1_RE, H1_IM, H1T_RE, H1T_IM,
-C      &             E1_RE, E1_IM, E1T_RE, E1T_IM )
-C *
-C c
-C c
-C C         proton/neutron
-C       F1 = F1pn(Ipn)
-C       F2 = F2pn(Ipn)
-C c
-C c
-C c      print *,skew,F1,F2,del2
-C       zskew=skew
-C       zF1=F1
-C       zF2=F2
-C       zHp=H1_IM
-C       zEp=E1_IM
-C       zHtp=H1T_IM
-C       zEtp=E1T_IM
-C c
-C *
-C       deldel    = 1D0 - del2min/del2
-C       deldel_sq = sqrt(deldel)
-C       del2m2    = -del2/Mp**2
-C       del2m4    = -del2m2/4D0
-C       delm2_sq  = sqrt(del2m2)
-C       cy2   = 2D0 - 2D0*y + y**2
-C       Intfac=ds/(x*y**3*P1*P2*(-del2))
-C c
-C c
-C C  DVCS
-C C     
-C       a1 = H1_RE**2 + H1_IM**2 + H1T_RE**2 + H1T_IM**2
-C       a2 = 2.*( H1_RE*E1_RE  +  H1_IM*E1_IM +
-C      &         H1T_RE*E1T_RE + H1T_IM*E1T_IM )
-C       a3 =  E1_RE**2 +  E1_IM**2
-C       a4 = E1T_RE**2 + E1T_IM**2 
-C       C_DVCS = ( 4D0*(1D0-x)*a1 - a2*x**2 - (x**2 + (2D0-x)**2*del2m4)*a3 
-C      &           - x**2*del2m4*a4 )/(2D0 - x)**2
-C       C_DVCS_eff = -x*C_DVCS
-C       c0_DVCS = 2D0*cy2*C_DVCS
-C       c1_DVCS = 8D0*((2D0 - y)/(2D0 - x))*C_DVCS_eff
-C       T_DVCS  = (c0_DVCS + Kfac*c1_DVCS*cos(phip))/(y**2*Q2)
-C       DVCSfac=ds/(y**2*Q2)
-C       hc0dvcs=c0_DVCS*DVCSfac
-C       hc1dvcs=Kfac*c1_DVCS*DVCSfac
-C C
-C C  INTERF
-C C
-C c
-C c
-C       C_I_re = F1*H1_RE + x/(2D0-x)*(F1+F2)*H1T_RE - del2m4*F2*E1_RE
-C       C_I_im1 = F1*H1_IM
-C       C_I_im2 = x/(2D0-x)*(F1+F2)*H1T_IM
-C       C_I_im3  = -del2m4*F2*E1_IM
-      
-C       C_I_im = C_I_im1 + C_I_im2 + C_I_im3
-C       zCIim=-C_I_im/F1 
-C       RE2    = x/(2D0-x)*(H1_RE + E1_RE) + H1T_RE
-C       C_I_re_eff = -x*C_I_re
-C       C_I_im_eff = -x*C_I_im
-C       b1 = (2D0 - x)*(1D0 - y) 
-C       b1= b1 + (2D0-y)**2/(1D0-y)*Kfac*Kfac/del2*Q2 ! old - (1D0 - x)*(2D0 - y)**2*deldel
-C       b2 = (1D0 - y)*x*(F1 + F2)
-C       c0_I = -8D0*(2D0 - y)*( b1*C_I_re - b2*RE2 )
-C       c1_I = -8D0*cy2*C_I_re
-C       s1_I =  8D0*y*(2D0 - y)*C_I_im
-C       c2_I = -16D0*((2D0 - y)/(2D0 - x))*C_I_re_eff
-C       s2_I =  16D0*(y/(2D0 - x))*C_I_im_eff
-C c
-C       hs2Iunp=Kfac*Kfac*s2_I*Intfac
-C       hs1Iunp=Kfac*s1_I*Intfac
-C       hc2Iunp=Kfac*Kfac*c2_I*Intfac
-C       hc1Iunp=Kfac*c1_I*Intfac
-C       hc0Iunp=del2/Q2*c0_I*Intfac
-C c
-C c      print *, 'vvv ',hs1Iunp/hc0BH,C_I_im2/C_I_im1,C_I_im3/C_I_im1
-C c
-C c      print *,'mysl-dvcs',hs1Iunp,hc1Iunp,hc0Iunp
-C C
-C C  LPOL
-C C
-C       C_LP_re = (F1+F2)*skew*(H1_RE+x/2D0*E1_RE)+
-C      6          F1*H1T_RE-skew*(x/2D0*F1+del2m4*F2)*E1T_RE
-C c
-C c
-C       C_LP_im = (F1+F2)*skew*(H1_IM+x/2D0*E1_IM)+
-C      6          F1*H1T_IM-skew*(x/2D0*F1+del2m4*F2)*E1T_IM
-C c
-C       DC_LP_re=-skew*(F1+F2)*(H1_RE+x/2D0*E1_RE+skew
-C      6*(H1T_RE+x/2D0*E1T_RE))
-C       DC_LP_im=-skew*(F1+F2)*(H1_IM+x/2D0*E1_IM+skew
-C      6*(H1T_IM+x/2D0*E1T_IM))
-C c
-C       yf2=(2D0-y)**2/(1D0-y)+2
-C       c0lp_I =-8*y*(Kfac**2*yf2*C_LP_re+(1D0-y)*(2D0-x)*del2/Q2
-C      6        *(DC_LP_re+C_LP_re))
-C       s1lp_I = 8*Kfac*cy2*C_LP_im
-C       c1lp_I = -8*Kfac*y*(2D0-y)*C_LP_re
-
-C C
-C C  TPOL
-C C
-C       xb2=x*skew
-C       C_TPP_re_s = (F1+F2)*(xb2*(H1_RE+x/2D0*E1_RE)+x*del2m4*E1_RE)
-C      6          -xb2*F1*(H1T_RE+x/2D0*E1T_RE)
-C       C_TPP_re_b1 =del2m4*4D0*(1D0-x)/(2D0-x)*F2*H1T_RE
-C       C_TPP_re_b21 =-del2m4*x*F1*E1T_RE
-C       C_TPP_re_b22 =-del2m4*xb2*F2*E1T_RE
-C       C_TPP_re_b =C_TPP_re_b1+C_TPP_re_b21+C_TPP_re_b22
-C c
-C       C_TPP_im_s = (F1+F2)*(xb2*(H1_IM+x/2D0*E1_IM)+x*del2m4*E1_IM)
-C      6          -xb2*F1*(H1T_IM+x/2D0*E1T_IM)
-C       C_TPP_im_b =del2m4*(4D0*(1D0-x)/(2D0-x)*F2*H1T_IM
-C      6            -(x*F1+xb2*F2)*E1T_IM)
-C c
-C c
-C c
-C       C_TPM_re_s = 1D0/(2D0-x)*(x*x*F1-(1D0-x)*4D0*del2m4*F2)*H1_RE
-C      6          -xb2*(F1+F2)*(H1T_RE+del2m4*E1T_RE)
-C       C_TPM_re_b = (del2m4*((2D0-x)*F1+xb2*F2) +xb2*F1)*E1_RE
-C c
-C       C_TPM_im_s = 1D0/(2D0-x)*(x*x*F1-(1D0-x)*4D0*del2m4*F2)*H1_IM
-C      6          -xb2*(F1+F2)*(H1T_IM+del2m4*E1T_IM)
-C       C_TPM_im_b = (del2m4*((2D0-x)*F1+xb2*F2) +xb2*F1)*E1_IM
-C c
-C c
-C       C_TPM_re=C_TPM_re_s+C_TPM_re_b
-C       C_TPP_re=C_TPP_re_s+C_TPP_re_b
-C       C_TPM_im=C_TPM_im_s+C_TPM_im_b
-C       C_TPP_im=C_TPP_im_s+C_TPP_im_b
-C c
-C c
-C c
-C       DC_TPP_re=-4D0*del2m4*(F2*H1T_RE-x/(2D0-x)*(F1+x/2D0*F2)*E1T_RE)
-C       DC_TPM_re=4D0*del2m4*(F2*H1_RE-F1*E1_RE)
-C c
-C       DC_TPP_im=-4D0*del2m4*(F2*H1T_IM-x/(2D0-x)*(F1+x/2D0*F2)*E1T_IM)
-C       DC_TPM_im=4D0*del2m4*(F2*H1_IM-F1*E1_IM)
-C c
-C c
-C c
-C       qm8=8D0*Mp*sqrt(1D0-y)/sqrt(Q2)
-C       c0tpcos_I = -qm8*Kfac*y*(((2D0-y)**2/(1D0-y)+2D0)*C_TPP_re+DC_TPP_re)
-C       c0tpsin_I = qm8*Kfac*(2D0-y)*((2D0-y)**2/(1D0-y)*C_TPM_im+DC_TPM_im)
-C c
-C       c1tpcos_I = -qm8*y*(2D0-y)*C_TPP_re
-C       c1tpsin_I = qm8*cy2*C_TPM_im
-C c
-C       s1tpcos_I = qm8*cy2*C_TPP_im
-C       s1tpsin_I = -qm8*y*(2D0-y)*C_TPM_re
-
-C       hc0Itpcos = c0tpcos_I*Intfac
-C       hc0Itpsin = c0tpsin_I*Intfac
-C       hc1Itpcos = c1tpcos_I*Intfac
-C       hc1Itpsin = c1tpsin_I*Intfac
-C       hs1Itpcos = s1tpcos_I*Intfac
-C       hs1Itpsin = s1tpsin_I*Intfac
-C c
-C c 
-C       hs1Ilp = s1lp_I*Intfac
-C       hc1Ilp = c1lp_I*Intfac
-C       hc0Ilp = c0lp_I*Intfac
-C c
-C       return
-C       end
 
       subroutine amptabgag(skew, del2, 
      &                   H1_RE, H1_IM, H1T_RE, H1T_IM,
@@ -1926,25 +1606,35 @@ c
          return
          end
 c
-!      subroutine getphoton(Ed,xbd,Q2d,del2d,phield,phigd)
-      subroutine getphoton(Ed,xbd,Q2d,del2d,phigd)
+      subroutine getphoton(xbd,Q2d,del2d,phield,phigd)
 c
 C     set to 0 all moments
       implicit none
+#include "dvcs.inc"
+#include "ludat1234.inc"
 *
-      double precision Mp, mele, pi
-      common/myconst/ Mp, mele, pi
-      dimension V3k1(3), V3k2(3), V3gam(3), V3q(3)
-      dimension  V3p1(3), V3p2(3), V3plus(3)
-      double precision V3k1,V3k2,V3gam,V3q,V3p1, V3p2,V3plus
-!      double precision Ed,xbd,Q2d,del2d,phield,phigd
-      double precision Ed,xbd,Q2d,del2d,phigd
+      dimension V3k1(3), V3q(3)
+      dimension  V3p1(3), V3plus(3)
+      double precision V3k1,V3q,V3p1,V3plus
+      double precision xbd,Q2d,del2d,phield,phigd
       double precision yb,nu,Esc,sintel,costel,costVq,sintVq,qmod
       double precision Ep,Egam,costgg,sintgg,Vgx,Vgy,Vgz
       double precision costeg,teteg,coste1g,tete1g,V3dotd
+      double precision cosphe,sinphe
+      integer j
+ccc- Hyon-Suk
+      common/radmick/PhRAD
+      real PhRAD(4)
+      common/radhs/radtheta
+      real radtheta
+ccc- Hyon-Suk
 c
       nu  = Q2d/(2D0*Mp*xbd)
       qmod = sqrt(nu**2 + Q2d)
+ccc- Hyon-Suk
+c      if(Ed.ne.cl_beam_energy) print *,'dans getphoton : Ed=',Ed
+      if((PhRAD(4).gt.0.).and.(radtheta.le.0.15)) Ed=cl_beam_energy-PhRAD(4)
+ccc- Hyon-Suk
       yb = nu/Ed
       Esc = Ed - nu
       costel = 1D0 - Q2d/(2D0*Ed*Esc)
@@ -1956,13 +1646,15 @@ c
       V3k1(1) = 0D0
       V3k1(2) = 0D0
       V3k1(3) = Ed
-      V3k2(1) = Esc*sintel
-      V3k2(2) = 0D0
+      cosphe=cos(phield)
+      sinphe=sin(phield)
+      V3k2(1) = Esc*sintel*cosphe
+      V3k2(2) = Esc*sintel*sinphe   !0D0
       V3k2(3) = Esc*costel
-*
+
       call V3subd( V3k1, V3k2, V3q)
       costVq = V3q(3)/qmod
-      sintVq = sqrt(1. - costVq**2)
+      sintVq = sqrt(1D0 - costVq**2)
 *
       costgg = (2D0*Egam*(Mp + nu) + Q2d - 2D0*Mp*nu)/(2D0*Egam*qmod)
       sintgg = sqrt(1D0 - costgg**2)
@@ -1970,15 +1662,46 @@ c
       Vgy = Egam*sintgg*sin(phigd)
       Vgz = Egam*costgg
 *
-      V3gam(1) =  Vgx*costVq - Vgz*sintVq
-      V3gam(2) =  Vgy
-      V3gam(3) =  Vgx*sintVq + Vgz*costVq
+      V3gam(1) = Vgx*costVq*cosphe - Vgz*sintVq*cosphe - Vgy*sinphe ! Vgx*costVq - Vgz*sintVq
+      V3gam(2) = Vgx*costVq*sinphe - Vgz*sintVq*sinphe + Vgy*cosphe ! Vgy
+      V3gam(3) = Vgx*sintVq        + Vgz*costVq                     ! Vgx*sintVq + Vgz*costVq
 *
       call V3subd( V3q, V3gam, V3p2)
-      costeg = V3dotd( V3k1, V3gam)/(Ed*Egam)
-      teteg  = acos( costeg )
-      coste1g = V3dotd( V3k2, V3gam)/(Esc*Egam)
-      tete1g  = acos( coste1g )
+ccc- Hyon-Suk
+      if(cl_radgen) then
+       if (PhRAD(4).gt.0.) then
+c        print *,'getphoton : radtheta=',radtheta
+c        print *,'!!!!dans getphoton: PhRAD = ',PhRAD
+        if(radtheta.gt.0.15) then
+         PhRAD(1) = PhRAD(4)*sintel*cosphe
+         PhRAD(2) = PhRAD(4)*sintel*sinphe
+         PhRAD(3) = PhRAD(4)*costel
+         V3k2(1)=V3k2(1)-PhRAD(1)
+         V3k2(2)=V3k2(2)-PhRAD(2)
+         V3k2(3)=V3k2(3)-PhRAD(3)
+        else
+         PhRAD(1) = 0.
+         PhRAD(2) = 0.
+         PhRAD(3) = PhRAD(4)
+        endif
+       endif
+      endif
+ccc- Hyon-Suk
+      N=2
+c
+c
+        p(2,4)=0.0      ! gamma_E
+        p(2,5)=0.0      ! gamma_M
+       DO j=1,3
+        p(2,j)=V3gam(j)
+        p(2,4)=p(2,4)+V3gam(j)*V3gam(j)
+       enddo
+        if( p(2,4).gt.0) p(2,4)=sqrt(p(2,4))
+c
+        k(2,2)=22   ! photon
+        k(2,1)=1    ! final
+      
+*
       return
       end
       
