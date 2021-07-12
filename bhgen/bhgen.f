@@ -27,8 +27,62 @@
          IGPD = 3
          Ipn = 1
          Ed = ebeam
-         cl_beam_energy = ebeam
-
+      cl_dvcs=.TRUE.         ! default dvcs on
+      cl_pi0 =.FALSE.        ! default no pi0
+      cl_eta =.FALSE.        ! default no etta
+      cl_bh=3                ! full x-section 1-only BH
+      cl_gpd=3               ! gpd model
+      cl_scale=1.0           ! gpd model
+      cl_bpi0=1.3            ! b=1.7
+      cl_ycol=0.005          ! default min for P1
+      cl_xpos=0              ! x-position
+      cl_ypos=0              ! y-position
+      cl_zpos=0              ! z-position
+      cl_rast=0.0           ! raster diameter in cm
+      cl_zwidth=0            ! z-width ( zpos+/-zwidth)
+      cl_pol=0               ! unpolarized target
+      cl_beam_energy=10.604    ! def clas12
+      cl_wmin=4.0            ! def w2min
+      cl_ymin=0.05           ! def ymin -> Emax=(1-ymin)*E
+      cl_ymax=0.9            ! def ymax
+      cl_thmin=0.09           ! def e'tmin
+      cl_thmax=1.57            ! def e'tmax
+      cl_tmax=1.0             ! def tmax
+      cl_tmin=0.0             ! def tmin
+      cl_q2max=15.0            ! def Q2 max
+      cl_q2min=1.0            ! def Q2 min
+      cl_xmax=0.75             ! def Q2 max
+      cl_xmin=0.05             ! def Q2 min
+      cl_target='proton'     ! (def proton target)
+c
+      cl_proloss=0            ! no proton loss by default
+      cl_smear=0            ! no smearing by default
+      cl_sma=0.006          ! A
+      cl_smb=0.001         ! B
+      cl_smc=0.0008         ! C
+      cl_smd=0.001         ! D
+      cl_sme=0.11          ! photon E
+      cl_smf=0.003         ! F
+      cl_smg=0.015         ! G
+c
+      cl_seed=0
+      cl_verblev=0
+      cl_writef=0            ! 0-clas12 1-gsim lund format
+      cl_nprint=1000         ! print every cl_nprint event
+      cl_triggers = 10000  
+      cl_nmax = 2000         ! max number of events in the file
+      cl_printgpd=.FALSE.
+      cl_mom=.FALSE.
+      cl_ktcor=.FALSE.
+      cl_radgen=.FALSE.
+      cl_mod=0              ! write all, otherwise filter
+      datfileOK=.TRUE.      ! write a data file
+      weightOK=.FALSE.
+      acce16=.FALSE.
+      acceg1=.FALSE.
+      acc12=.FALSE.
+      ntOK=.TRUE.
+      cl_docker=.FALSE.
        if(iappr.eq.2)then
          heli=1     !             hel=1(0) to (not) include polarized part   
        endif
@@ -759,28 +813,22 @@ c      print *,t,vacpol,suml,sumh,-(aaa+bbb*log(1.+ccc*t)) *2*pi/alpha,aaa,bbb,c
       end
 
       subroutine bmkxsec(xb, Q2, del2, Phi_e, Phi_g,dsigma)
+      implicit none
 #include "dvcsmom.inc"
 #include "dvcs.inc"
-c      double precision E, xb, Q2, del2,Phi_e,Phi_g,Phi_s,Phi_gb,dsigma
-      double precision xb, Q2, del2,Phi_g,Phi_gb,dsigma
+#include "ntupgdvcs.inc"
+      double precision E, xb, Q2, del2,Phi_e,Phi_g,Phi_s,Phi_gb,dsigma
       double precision nu,W2,W,qmod,E1cm,P1cm,E2cm,P2cm,del2max,del2min
-c      double precision Mp, mele, pi
-      real*8 alpha000,barn000,mp2000,ml2000,ml000
-      common/const/alpha000,barn000,mp2000,ml2000,ml000
-c      common/myconst/ Mp, mele, pi
-c      data Mp/0.938D0/, mele/0.000511D0/, pi/3.1415926536D0/
-C       integer istatus,Ivar, IGPD, Ipn, Ich, hel, uel
-         integer*4 ipol
-         real*8 eta(3)
+      double precision yb,ymax,ycol
+      double precision  xmin1,xmax1
+      double precision dsIunp,dsBHlp, dsIlp,dsBHtp,dsItp
       real corraul,rP1,rP2
-c      print *, pi000, ml000, mp000
-c      pi=pi000
-c      mele=ml000
-c      mp=mp000
 c
 c
       istatus=0                    ! kinematic range OK
-      xmin1 = Q2/(2D0*Mp*Ed)
+c      Ed=cl_be
+      E=Ed
+      xmin1 = Q2/(2D0*Mp*E)
       xmax1 = 1D0
       nu  = Q2/(2D0*Mp*xb)
       W2  = Mp**2 + 2D0*Mp*nu - Q2
@@ -796,78 +844,100 @@ c
 c
       if( xb.le.xmin1 .or. xb.gt.xmax1 ) istatus=1           !    x  out of range
       if( del2.ge.del2min .or. del2.le.del2max ) istatus=2   ! delta out of range
+      yb=nu/Ed
+      if(yb.gt.cl_ymax) istatus=3                               ! y<ymax
+      call dvcsycol(del2,xb,Q2,ycol)
+
+      Phi_gb=pi - Phi_g
+      Phi_s=Phi_e
+      call bhdvcs(xb,  Q2,  del2,  Phi_s,Phi_gb,rP1,rP2) 
+c
+      if(abs(rP1).le.cl_ycol ) istatus=4                   ! y-too big
+c      if((ycol-yb).le.cl_ycol ) istatus=4                   ! y-too big
 
       if (istatus.eq.0) then
-      call resetmom()
-!      call getphoton(E,  xb,  Q2,  del2,  Phi_e,Phi_g)
-      call getphoton(xb,  Q2,  del2,  Phi_g)
-      Phi_gb=pi - Phi_g
-c      Phi_s=Phi_e
-c      call bhdvcs(E,  xb,  Q2,  del2,  Phi_gb) 
-      
-      call bhdvcs(xb,  Q2,  del2,  Phi_s,Phi_gb,rP1,rP2)
 c
-c      dsBH =hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb)
-c      dsBHlp =hel*help*(hc0BHlp +hc1BHlp*cos(Phi_gb))
-c      dsBHtp =hel*help*cos(Phi_s)*(hc0BHtpcos +hc1BHtpcos*cos(Phi_gb)) 
-c     6       +hel*hs1BHtpsin*sin(Phi_s)*sin(Phi_gb)
-c      dsDVCS=hc0dvcs+hc1dvcs*cos(Phi_gb)+hs1dvcs*sin(Phi_gb)+hs2dvcs*sin(2*Phi_gb)
-c      dsIunp=hc0Iunp +hel*hs1Iunp*sin(Phi_gb)+hc1Iunp*cos(Phi_gb) 
-c     6     +hel*hs2Iunp*sin(2*Phi_gb)+hc2Iunp*cos(2*Phi_gb)
-c      dsIlp=hel*help*hc0Ilp+hel*help*hc1Ilp*cos(Phi_gb)+help*hs1Ilp*sin(Phi_gb)
-c      dsItp=hel*hc0Itpcos*cos(Phi_s)+hc0Itpsin*sin(Phi_s)
-c     6     +hc1Itpsin*cos(Phi_gb)*sin(Phi_s)+hel*hc1Itpcos*cos(Phi_gb)*cos(Phi_s)
-c     6     +hel*hs1Itpsin*sin(Phi_gb)*sin(Phi_s)+hs1Itpcos*sin(Phi_gb)*cos(Phi_s)
-
-
-       cosphis=eta(1)*cos(Phi_gb)+eta(2)*sin(Phi_gb)
-       sinphis=eta(2)*cos(Phi_gb)-eta(1)*sin(Phi_gb)
-       eta3bmk=-eta(3)
-
-      dsBH =(hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb))
-      dsBHlp =heli*eta3bmk*(hc0BHlp +hc1BHlp*cos(Phi_gb))
-      dsBHtp =heli*cosphis*(hc0BHtpcos +hc1BHtpcos*cos(Phi_gb)) 
-     6       +heli*sinphis*hs1BHtpsin*sin(Phi_gb)
-c      dsDVCS=hc0dvcs+hc1dvcs*cos(Phi_gb)+hs1dvcs*sin(Phi_gb)+hs2dvcs*sin(2*Phi_gb)
+      dsBH =hc0BH +hc1BH*cos(Phi_gb)+hc2BH*cos(2D0*Phi_gb)
+      dsDVCS=hc0dvcs+hc1dvcs*cos(Phi_gb)+hs1dvcs*sin(Phi_gb)+hs2dvcs*sin(2*Phi_gb)
       dsIunp=hc0Iunp +heli*hs1Iunp*sin(Phi_gb)+hc1Iunp*cos(Phi_gb) 
      6     +heli*hs2Iunp*sin(2*Phi_gb)+hc2Iunp*cos(2*Phi_gb)
-      dsIlp=eta3bmk*(heli*hc0Ilp+heli*hc1Ilp*cos(Phi_gb)+hs1Ilp*sin(Phi_gb))
-      dsItp=heli*hc0Itpcos*cosphis+hc0Itpsin*sinphis
-     6     +hc1Itpsin*cos(Phi_gb)*sinphis+heli*hc1Itpcos*cos(Phi_gb)*cosphis
-     6     +heli*hs1Itpsin*sin(Phi_gb)*sinphis+hs1Itpcos*sin(Phi_gb)*cosphis
-
-*	     write(61,'(8g11.3)')phi_gb,hc0Iunp,hc1Iunp,hc2Iunp,hs1Iunp,hs2Iunp
-c	     write(*,'(8g11.3)')xb,q2,del2,Phi_g ,hc0Iunp,hs1Iunp,hc1Iunp,hs2Iunp,hc2Iunp
-c		 stop
-
-	 
 c      
-CC       dsigma=dsBH +dsDVCS-Ich*dsIunp !+dsBHlp -Ich*dsIlp !-Ich*dsItp
-
-      if(Ivar.eq.1.and.cl_pol.eq.0) dsigma=2.*pi*dsBH
-      if(Ivar.eq.1.and.cl_pol.gt.0) dsigma=2.*pi*(dsBHlp + dsBHtp)
-      if(Ivar.eq.2.and.cl_pol.eq.0) dsigma=2.*pi*(-Ich*dsIunp)
-      if(Ivar.eq.2.and.cl_pol.gt.0) dsigma=2.*pi*(-Ich*dsIlp-Ich*dsItp)
-      if(Ivar.eq.3.and.cl_pol.eq.0) dsigma=2.*pi*(dsBH-Ich*dsIunp)
-      if(Ivar.eq.3.and.cl_pol.gt.0) dsigma=2.*pi*(dsBHlp + dsBHtp-Ich*dsIlp-Ich*dsItp)
-
-c      write(*,*)dsigma,eta(1),eta(2),eta(3),dsBHlp,dsBHtp,cos(Phi_gb),sin(Phi_gb)
-c      stop
-
-cc       dsigma=2.*pi*dsBH !+dsDVCS-Ich*dsIunp !+dsBHlp -Ich*dsIlp !-Ich*dsItp
-c       dsigma=2.*pi*dsIunp
-c      dsigma=2.*pi*dsBH
-       
-c       write(*,'(6f8.3,g16.5)')E, xb, Q2, del2, Phi_e, Phi_g,dsigma
-
-
-c       write(*,11) dsBH,hc0BH,hc1BH,cos(Phi_gb),hc2BH,cos(2D0*Phi_gb)
-!xb,del2,Phi_g ,hc0BH,hc1BH/hc0BH,hc0BHlp/hc0BH,hc1BHlp/hc0BH,dsIunp
- 11   format(3h+++ ,15G11.3)
+c
+c      scale the sin\phi moment
+       dsIunp=dsIunp*cl_scale
+c
+       if(cl_ktcor) then
+         dsIunp=dsIunp*corraul(del2,Q2)     ! correct~20% of A_LU at small t
+       endif
+c
+       dsigma=dsBH
+       if(cl_bh.gt.1)  dsigma=dsigma+dsDVCS-Ich*dsIunp 
+c
+c      L-POL
+c
+       if(cl_pol.eq.1) then 
+         dsBHlp =heli*helpi*(hc0BHlp +hc1BHlp*cos(Phi_gb))
+         dsIlp=heli*helpi*hc0Ilp+heli*helpi*hc1Ilp*cos(Phi_gb)
+     +         +helpi*hs1Ilp*sin(Phi_gb)
+         dsigma=dsigma+dsBHlp -Ich*dsIlp
+       endif
+c
+c      T-POL
+c 
+       if(cl_pol.eq.2) then 
+         dsBHtp =heli*helpi*cos(Phi_s)*(hc0BHtpcos +hc1BHtpcos*cos(Phi_gb)) 
+     6       +heli*hs1BHtpsin*sin(Phi_s)*sin(Phi_gb)
+         dsItp=heli*hc0Itpcos*cos(Phi_s)+hc0Itpsin*sin(Phi_s)
+     6     +hc1Itpsin*cos(Phi_gb)*sin(Phi_s)+heli*hc1Itpcos*cos(Phi_gb)*cos(Phi_s)
+     6     +heli*hs1Itpsin*sin(Phi_gb)*sin(Phi_s)+hs1Itpcos*sin(Phi_gb)*cos(Phi_s)
+         dsigma=dsigma+dsBHtp -Ich*dsItp
+       endif
+c
+c
+c
       else
-       dsigma=0
-c      print *,'out of limits ',xb,xmin1,xmax1,del2,del2min,del2max,istatus      
+        dsigma=0
+c       print *,'out of limits ',xb,xmin1,xmax1,del2,del2min,del2max,istat      
       endif
+       gwbh=dsBH
+       gwdvcs=dsDVCS
+       gvint=dsIunp
+c       gsin=hs1Iunp/(hc0BH+hc0dvcs+hc0Iunp)
+       gsin=hs1Iunp/hc0BH
+       gsin2=dsigma
+        gproh=helpi
+        ghp1=hcp1
+        ghp2=hcp2
+        ghccb=hccb
+        ghcci=hcci
+        gh0bh=hc0BH
+        gh1bh=hc1BH
+        gh2bh=hc2BH
+        gh0dvcs=hc0dvcs
+        gh1dvcs=hc1dvcs
+        ghs1dvcs=hs1dvcs
+        gh0iunp=hc0Iunp
+        gh1iunp=hc1Iunp
+        ghs1iunp=hs1Iunp
+        ghs2iunp=hs2Iunp
+       if(cl_pol.eq.1) then
+        gh0bhlp=hc0bhlp
+        gh1bhlp=hc1bhlp
+        ghs1ilp=hs1ilp
+        gh1ilp=hc1ilp
+        gh0ilp=hc0ilp
+       else if(cl_pol.eq.2) then
+        gh0bhtpcos = hc0BHtpcos
+        gh1bhtpcos = hc1BHtpcos
+        ghs1bhtpsin= hs1BHtpsin
+        ghs1itpcos = hs1Itpcos
+        ghs1itpsin = hs1Itpsin
+        gh1itpcos  = hc1Itpcos
+        gh1itpsin  = hc1Itpsin
+        gh0itpcos  = hc0Itpcos
+        gh0itpsin  = hc0Itpsin
+      endif
+c      print *,'bhdvcs rP1= ',rP1,rP2,dsigma,cl_ycol,ycol-yb,xb,Q2,del2
       return
       end
 c
