@@ -110,7 +110,7 @@ c		 do iddd=1,ndelta
          
 		 delta=ardelta(iddd)
 		 
-        call bhradgen(ebeam,x,q2,t,phi,vv2cut,delta,egamma,thetag,phig,ichannel,ipol,iappr,nevent,ikeygene,stot)
+        call bhradgen(ebeam,x,q2,t,phi,vv2cut,delta,egamma,thetag,phig,ichannel,ipol,nevent,ikeygene,stot)
 
 		enddo
 		
@@ -120,13 +120,12 @@ c		 do iddd=1,ndelta
          enddo
 111		 continue
 		 
-		 
         end
 
 
 
        	  subroutine bhradgen(ebeam,xff,q2ff,tff,phiff,vv2cut,delta,egamma,thetag,
-     +  phig,ichannel,ipolff,iapprff,nevent,ikeygene,stot)
+     +  phig,ichannel,ipolff,nevent,ikeygene,stot)
 !
 !         lab system; OZ is along \vec q, OXZ -- scattering plane
 !
@@ -141,9 +140,12 @@ c		 do iddd=1,ndelta
 !          nevent -- the required number of simulated events for given kinematical point (i.e., for fixed x,q2,t,phi)  
 !
         implicit none
+#include "dvcs.inc"
+#include "dvcsmom.inc"
+#include "ntupgdvcs.inc"
         integer*4 nevent,ikeygene,iacc
         integer*4 nzd,nzdphi,ichannel,ipolff,iapprff,iaddcontr_p,iaddcontr_s
-	real*8 ebeam,s,q2,x,t,phi,sx,xx,mp,mp2,ml,ml2,pi,alpha,barn,
+	real*8 ebeam,s,q2,x,t,phi,sx,xx,mp2,ml,ml2,alpha,barn,
      +	sborn,siborn,sig0,sirad,siradtest,xi,z1m,z2m,z2cur,z1,z2,lll,be,bb,tcol,
      +  tmin,stot,vv2cut,vmax,vv2calc,vv2min_s,vv2min_p
      +  ,sitottest,sitottest_rad,sitottest_non
@@ -172,11 +174,10 @@ c		 do iddd=1,ndelta
      +	nttot,nphipoi1,nphipoi2,izd
         real*8 v2p,v2m,a1,a2s,a2p,v2s1,v2s2,v2p1,v2p2,dds,ddp,sp  
      
-	common/const/alpha,barn,mp,mp2,ml2,ml,pi
+	common/const/alpha,barn,mp2,ml2,ml
         common/kinpoi/s,q2,t,phi,x,xx,sborn,eta(3),ipol
         common/iappr/iappr
-        data alpha/0.729735d-2/,barn/0.389379d9/,ml2/0.261112d-6/,
-     +	mp/0.938272d0/,iy/12/
+        data alpha/0.729735d-2/,barn/0.389379d9/,iy/12/
 
         ikeyfo=ikeygene
 
@@ -187,9 +188,9 @@ c		 do iddd=1,ndelta
         ipol=ipolff 
         iappr=iapprff
 c        hel=helff
-        ml=0.000511D0!sqrt(ml2)
+        ml=mele!sqrt(ml2)
+        ml2=ml**2
         mp2=mp**2
-	pi=3.1415926536D0!atan(1d0)*4d0
 
 	 s=2d0*mp*ebeam
 
@@ -227,7 +228,7 @@ c        hel=helff
            eta(3)=0d0
          endif
 
-	 sborn=siborn(s,q2,x,t,cos(phi),sin(phi),1,ipol,eta)
+	 sborn=siborn(s,q2,x,t,cos(phi),sin(phi))
 
 	  vmax=(sqrt(lay*lat)+sx*t)/2d0/mp2-q2+t
 
@@ -295,7 +296,7 @@ c        hel=helff
       sum2delta=0d0
 	  sum1phi=0d0
       sum2phi=0d0
-            sborn=siborn(s,q2,x,t,cos(phi),sin(phi),1,ipol,eta) 
+            sborn=siborn(s,q2,x,t,cos(phi),sin(phi)) 
 	 do in=1,nev
 c 	  z1=z1mc+(1d0-deltaz1-z1mc)*urand(iy)
  	  z1=z1mc+(1d0-1e-16-z1mc)*urand(iy)
@@ -337,7 +338,7 @@ ccc     +	    *(spr/sqdz*(xsp/x)**2*sig0s-sborn)/(1d0-z1)
 	    sbr=sqrt(1d0-(cpr*cz-spr*sz*cos(phi))**2)	
 	    cphbr=(cz*spr*cos(phi)+sz*cpr)/sbr
         sphbr=spr*sin(phi)/sbr 
-		sig0s=siborn(z1*s,z1*q2,xsp,t,cphbr,sphbr,1,ipol,etaz)
+		sig0s=siborn(z1*s,z1*q2,xsp,t,cphbr,sphbr)
 	    sum1add=(1d0-z1mc)*(1d0+z1**2)*(spr/sqdz*(xsp/x)**2*sig0s    )/(1d0-z1)		
 	    sum1phi=sum1phi+sum1add/dble(nev) 
             do izd=1,nzdphi
@@ -364,7 +365,7 @@ c	  z2=z2mc+(1d0-deltaz2-z2mc)*urand(iy)
             etaz(3)=-sz*eta(1)+cz*eta(3)
 	    xsp=z1*q2/(z1*z2*s-xx)
 c	    xb2=1d0/(1d0/xb-(1d0-z2)*s/Q2)
-            sig0p=siborn(s,q2/z2,xsp,t,cphbr,sphbr,1,ipol,etaz)
+            sig0p=siborn(s,q2/z2,xsp,t,cphbr,sphbr)
 		if(z2.le.1d0-deltaz2)then
             sum2add=(1d0-z2mc)*(1d0+z2**2)*(spr/sqdz
      +	    *(xsp/x)**2*sig0p/z2      )/(1d0-z2)		
@@ -385,7 +386,7 @@ ccc     +	    *(xsp/x)**2*sig0p/z2-sborn)/(1d0-z2)
 	      sbr=sqrt(1d0-(cpr*cz-spr*sz*cos(phi))**2)	
 	      cphbr=(cz*spr*cos(phi)+sz*cpr)/sbr
           sphbr=spr*sin(phi)/sbr 
-          sig0p=siborn(s,q2/z2,xsp,t,cphbr,sphbr,1,ipol,etaz)
+          sig0p=siborn(s,q2/z2,xsp,t,cphbr,sphbr)
           sum2add=(1d0-z2mc)*(1d0+z2**2)*(spr/sqdz*(xsp/x)**2*sig0p/z2      )/(1d0-z2)		
    	      sum2phi=sum2phi+sum2add/dble(nev)
             do izd=1,nzdphi
@@ -693,32 +694,18 @@ c      write(*,'(i4,6f8.4,i7)')ichannel,egamma,missingmass2,complanarity,complan
       end
 
 
-	double precision function siborn(s,q2,x,t,cphi,sphi,ia,ipol,eta)
+	double precision function siborn(s,q2,x,t,cphi,sphi)
         implicit none
 #include "dvcs.inc"
-	real*8 s,q2,x,t,cphi,sphi,vacpol,alphar,alpha,barn,mp2,ml,
-     +	ml2,f1,f2,u0,w0,tt1,tt2,lauw,lay,xx,sx,sp,w2,tmin,tmax,
-     +  factorvac
-	real*8 tt3,tt4,f3,f4,phis,etak1,etak2,etap2,eta(3),sqly,sqlsxq
-        real*8 tt10,tt20,tt30,tt40,tt1m,tt2m,tt3m,tt4m
-        real*8 phiphi
-	integer*4 ia,ipol
-	integer*4 iappr
-	common/const/alpha,barn,mp2,ml2,ml
-        common/iappr/iappr
-
-          if(iappr.eq.2)then
-            if(sphi.ge.0d0)phiphi=acos(min(1d0,max(-1d0,cphi)))
-            if(sphi.lt.0d0)phiphi=2.*pi-acos(min(1d0,max(-1d0,cphi)))
-            Ed = s/2./mp
-            call bmkxsec(x, Q2, t,  phiphi, pi-phiphi,siborn,eta)
-            Ed = cl_beam_energy
-c            call bmkxsec2(x, Q2, t, pi-phiphi,pi-phiphi,siborn)
-            return   
-          endif
-        
-        
-	return
+	   real*8 s,q2,x,t,cphi,sphi
+      real*8 phiphi
+      if(sphi.ge.0d0)phiphi=acos(min(1d0,max(-1d0,cphi)))
+      if(sphi.lt.0d0)phiphi=2.*pi-acos(min(1d0,max(-1d0,cphi)))
+      Ed = s/2./mp
+      call bmkxsec(x, Q2, t,  phiphi, pi-phiphi,siborn)
+      siborn = siborn*2.0*pi
+      Ed = cl_beam_energy
+ 	return
 	end
       
 
@@ -762,7 +749,7 @@ c	    pause
             etaz(2)=eta(2)
             etaz(3)=-sz*eta(1)+cz*eta(3)
 	    xsp=z1*q2/(z1*z2*s-xx)
-	    sigsp=siborn(z1*s,z1*q2/z2,xsp,t,cphbr,sphbr,1,ipol,etaz)
+	    sigsp=siborn(z1*s,z1*q2/z2,xsp,t,cphbr,sphbr)
 	    peak=(1d0+z**2)*(spr/sqdz*(xsp/x)**2*sigsp/z2-isubs*sborn)/(1d0-z)	
         end
 
@@ -812,6 +799,12 @@ c      print *,t,vacpol,suml,sumh,-(aaa+bbb*log(1.+ccc*t)) *2*pi/alpha,aaa,bbb,c
 
       end
 
+C        Ich  -  positron(electron) = +1(-1)
+C int   hel  -  lepton beam polarization
+C int   help -  target polarization
+C double  dsigma   d^5\sig / dx dQ^2 d|\Delta^2| d\phi_e d\phi_\gamma
+C                  (pb GeV^{-4})
+c
       subroutine bmkxsec(xb, Q2, del2, Phi_e, Phi_g,dsigma)
       implicit none
 #include "dvcsmom.inc"
@@ -871,7 +864,8 @@ c
        endif
 c
        dsigma=dsBH
-       if(cl_bh.gt.1)  dsigma=dsigma+dsDVCS-Ich*dsIunp 
+       if(cl_bh.gt.1)  dsigma=dsigma-Ich*dsIunp !dsigma=dsigma+dsDVCS-Ich*dsIunp 
+
 c
 c      L-POL
 c
