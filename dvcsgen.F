@@ -187,6 +187,8 @@ c
       cl_q2min=1.0            ! def Q2 min
       cl_xmax=0.75             ! def Q2 max
       cl_xmin=0.05             ! def Q2 min
+      cl_delta=1d-1             ! def delta (minimum rad photon energy)
+      cl_vv2cut=999999999.3d0     ! def vv2cut (minimum missing mass)
       cl_target='proton'     ! (def proton target)
 c
       cl_proloss=0            ! no proton loss by default
@@ -594,6 +596,8 @@ c
         print *,'nmax-events       :   ',cl_nmax
         print *,'write form      :   ',cl_writef
         print *,'write mod       :   ',cl_mod
+        print *,'Minimum rad photon energy:  ',cl_delta
+        print *,'cuts on missing mass (rad):  ',cl_vv2cut
         print *,'write file_name  :   ',bosout
         if(cl_mom) print *,'include moments in the ntuple:   ', cl_mom 
         if(cl_smear.eq.1) 
@@ -625,10 +629,12 @@ C..
 c
           CHARACTER*2 CTARGET
           integer lst40
-          real  beam_energy
+          real*8  beam_energy
 c
 C..
-        real  elmax,elmin,ttmax,ttmin 
+        real  elmax,elmin,ttmax,ttmin
+        real*8 egamma, thetag, phig, stot
+        integer*4 ipol,ikeygene,ichannel,iddd
 C..
         Ifl=1   !dsigma/dx/dq/dt/dphiel/dpigam
         Ivar=cl_bh  ! BH+DVCS if 3
@@ -686,12 +692,25 @@ C
         stop
         endif
         print *,'CALL getSCALE-->',Ipn,xmax,xmin,tmax,tmin
-        CALL getSCALE
+c        CALL getSCALE
 c
         if(cl_radgen) then
-         lst40=0  ! unpolarized case
+c         lst40=0  ! unpolarized case
          beam_energy=cl_beam_energy
-         call radgen_init(ctarget,beam_energy,lst40)
+c         call radgen_init(ctarget,beam_energy,lst40)
+         ikeygene = 4
+         heli=1
+         call bhradgen(beam_energy,0.543043D0, 4.056052D0, -0.501308D0, 338.935203D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
+         call bhradgen(beam_energy,0.357544D0, 3.151697D0, -0.648033D0, 77.712917D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
+         call bhradgen(beam_energy,0.432362D0, 6.380003D0, -0.928382D0, 189.833008D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
+         call bhradgen(beam_energy,0.420626D0, 4.306198D0, -0.277672D0, 43.643282D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
+         call bhradgen(beam_energy,0.198823D0, 1.554304D0, -0.739323D0, 213.062872D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
+         call bhradgen(beam_energy,0.277638D0, 3.089442D0, -0.473606D0, 158.849563D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
+         call bhradgen(beam_energy,0.345160D0, 2.831824D0, -0.242395D0, 43.589943D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
+         call bhradgen(beam_energy,0.281186D0, 1.958487D0, -0.803439D0, 141.222340D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
+         STOP
+
+
         endif 
 c
         RETURN
@@ -845,8 +864,8 @@ ccc- Hyon-Suk
      6print *,'stuck before radgen:',itry,istatus,xbd,q2d
           goto 10 
          endif
-         call getgammastar(xbd,Q2d,phield,VPGEN)
- 	 call RADGEN(beam_energy,VPGEN,VPRAD,PhRAD,q2tr,utr,weight)
+ !        call getgammastar(xbd,Q2d,phield,VPGEN)
+ !	 call RADGEN(beam_energy,VPGEN,VPRAD,PhRAD,q2tr,utr,weight)
          Q2d=q2tr
          xbd=Q2d/2.0/Mp/utr
          if( outoflimits(xbd,Q2d) ) then
@@ -1644,7 +1663,7 @@ c
 c
 c
       istatus=0                    ! kinematic range OK
-      Ed=cl_be
+c      Ed=cl_be
       E=Ed
       xmin1 = Q2/(2D0*Mp*E)
       xmax1 = 1D0
