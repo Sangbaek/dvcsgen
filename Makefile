@@ -1,4 +1,4 @@
-OBJ=  dvcsgen.o aac.o daccepte16emcgen.o  daccepte16prmcgen.o  accep11.o dvcsycol.o jetset.o vpkutil.o accepteg1.o  elacc_newnew.o   radgen.o mycernlib.o
+OBJ=  dvcsgen.o aac.o daccepte16emcgen.o  daccepte16prmcgen.o  accep11.o dvcsycol.o jetset.o vpkutil.o accepteg1.o  elacc_newnew.o  mycernlib.o bhradgen.o
 OBJC=  dvcs_grid_pack.o 
 
 # -lstdc++ for Gagik's stuff
