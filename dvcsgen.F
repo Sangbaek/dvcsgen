@@ -629,12 +629,9 @@ C..
 c
           CHARACTER*2 CTARGET
           integer lst40
-          real*8  beam_energy
 c
 C..
         real  elmax,elmin,ttmax,ttmin
-        real*8 egamma, thetag, phig, stot
-        integer*4 ipol,ikeygene,ichannel,iddd
 C..
         Ifl=1   !dsigma/dx/dq/dt/dphiel/dpigam
         Ivar=cl_bh  ! BH+DVCS if 3
@@ -645,7 +642,11 @@ C..
         nx=40
         nq=20
         nt=40
-        nfe=36
+        if(cl_pol.eq.2) then 
+            nfe=36
+        else
+            nfe=1
+        endif
         nfg=36 
 C.. $x$ min cut  
        xmin=cl_xmin
@@ -692,23 +693,13 @@ C
         stop
         endif
         print *,'CALL getSCALE-->',Ipn,xmax,xmin,tmax,tmin
-c        CALL getSCALE
+        CALL getSCALE
 c
         if(cl_radgen) then
 c         lst40=0  ! unpolarized case
-         beam_energy=cl_beam_energy
+c         beam_energy=cl_beam_energy
 c         call radgen_init(ctarget,beam_energy,lst40)
          ikeygene = 4
-         heli=1
-         call bhradgen(beam_energy,0.543043D0, 4.056052D0, -0.501308D0, 338.935203D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
-         call bhradgen(beam_energy,0.357544D0, 3.151697D0, -0.648033D0, 77.712917D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
-         call bhradgen(beam_energy,0.432362D0, 6.380003D0, -0.928382D0, 189.833008D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
-         call bhradgen(beam_energy,0.420626D0, 4.306198D0, -0.277672D0, 43.643282D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
-         call bhradgen(beam_energy,0.198823D0, 1.554304D0, -0.739323D0, 213.062872D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
-         call bhradgen(beam_energy,0.277638D0, 3.089442D0, -0.473606D0, 158.849563D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
-         call bhradgen(beam_energy,0.345160D0, 2.831824D0, -0.242395D0, 43.589943D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
-         call bhradgen(beam_energy,0.281186D0, 1.958487D0, -0.803439D0, 141.222340D0,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,stot)
-         STOP
 
 
         endif 
@@ -774,7 +765,21 @@ c
                 if(ifg.eq.1.or.ifg.eq.nx) cifg=0.5
 c
              if(cl_dvcs) then
-              CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
+                if(cl_radgen) then
+                    xff = xbd
+                    q2ff = Q2d
+                    tff = del2d
+                    phiff = pi-phigd
+                    ebeamff = cl_beam_energy
+                    ikeygene = 4
+                    CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot)
+                    dstot = dstot/2.0/pi
+                    print *, ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot
+                    print *, ix, nx, iq, nq, it, nt, ife, nfe, ifg, nfg
+
+                else
+                    CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
+                endif
              else if(cl_pi0.or.cl_eta) then
               CALL excpi0(xbd, Q2d, del2d, phield,phigd,dstot)
              else
@@ -819,7 +824,7 @@ ccc-Mick
 	common/radmick/PhRAD
 ccc-Mick
 ccc- Hyon-Suk
-        common/radhs/radtheta
+        common/radhs/radtheta, ichannel
         real radtheta
 ccc- Hyon-Suk
 
@@ -850,63 +855,63 @@ c
         xbd=xmin+(xmax-xmin)*VEC(1)
         Q2d=q2min+(q2max-q2min)*VEC(2)
 
-        if(cl_radgen) then
-ccc- Hyon-Suk
-         PhRAD(1)=0.
-         PhRAD(2)=0.
-         PhRAD(3)=0.
-         PhRAD(4)=0.
-ccc- Hyon-Suk         
-         radq2=Q2d
-         radnu=Q2d/2.0/Mp/xbd
-         if( outoflimits(xbd,Q2d) ) then
-          if(itry .gt.10000.and.cl_verblev.eq.1000) 
-     6print *,'stuck before radgen:',itry,istatus,xbd,q2d
-          goto 10 
-         endif
- !        call getgammastar(xbd,Q2d,phield,VPGEN)
- !	 call RADGEN(beam_energy,VPGEN,VPRAD,PhRAD,q2tr,utr,weight)
-         Q2d=q2tr
-         xbd=Q2d/2.0/Mp/utr
-         if( outoflimits(xbd,Q2d) ) then
-          if(itry .gt.10000.and.cl_verblev.eq.1000) 
-     6print *,'stuck after radgen:',itry,istatus,xbd,q2d
-          goto 10 
-         endif
-c
-         ggam2p=PhRAD(1)**2+PhRAD(2)**2+PhRAD(3)**2
-         PhRAD(4)=sqrt(ggam2p)
-         if(ggam2p.gt.0) then
-           gradt=PolarTheta(PhRAD(1),PhRAD(2),PhRAD(3))
-           gradf=Azimuthalphi(PhRAD(1),PhRAD(2))
-           grade=PhRAD(4)
-          else 
-           gradt=0
-           gradf=0
-           grade=0
-         endif   
-           radweight=weight !del2d
-           gelebits=ita
-ccc- Hyon-Suk
-         radtheta=gradt
-ccc- Hyon-Suk
-        endif
+C         if(cl_radgen) then
+C ccc- Hyon-Suk
+C          PhRAD(1)=0.
+C          PhRAD(2)=0.
+C          PhRAD(3)=0.
+C          PhRAD(4)=0.
+C ccc- Hyon-Suk         
+C          radq2=Q2d
+C          radnu=Q2d/2.0/Mp/xbd
+C          if( outoflimits(xbd,Q2d) ) then
+C           if(itry .gt.10000.and.cl_verblev.eq.1000) 
+C      6print *,'stuck before radgen:',itry,istatus,xbd,q2d
+C           goto 10 
+C          endif
+C          call getgammastar(xbd,Q2d,phield,VPGEN)
+C  !	 call RADGEN(beam_energy,VPGEN,VPRAD,PhRAD,q2tr,utr,weight)
+C          Q2d=q2tr
+C          xbd=Q2d/2.0/Mp/utr
+C          if( outoflimits(xbd,Q2d) ) then
+C           if(itry .gt.10000.and.cl_verblev.eq.1000) 
+C      6print *,'stuck after radgen:',itry,istatus,xbd,q2d
+C           goto 10 
+C          endif
+C c
+C          ggam2p=PhRAD(1)**2+PhRAD(2)**2+PhRAD(3)**2
+C          PhRAD(4)=sqrt(ggam2p)
+C          if(ggam2p.gt.0) then
+C            gradt=PolarTheta(PhRAD(1),PhRAD(2),PhRAD(3))
+C            gradf=Azimuthalphi(PhRAD(1),PhRAD(2))
+C            grade=PhRAD(4)
+C           else 
+C            gradt=0
+C            gradf=0
+C            grade=0
+C          endif   
+C            radweight=weight !del2d
+C            gelebits=ita
+C ccc- Hyon-Suk
+C          radtheta=gradt
+C ccc- Hyon-Suk
+C         endif
 
 
 
         del2d=tmin+(tmax-tmin)*VEC(3)
         phield=2*pi*VEC(4)
         phigd=2*pi*VEC(5)
-c        yb=Q2d/(2D0*Mp*xbd*cl_be)
-c        w2=Mp*Mp+2.0*Mp*cl_be*yb-Q2d
+        yb=Q2d/(2D0*Mp*xbd*cl_beam_energy)
+        w2=Mp*Mp+2.0*Mp*cl_beam_energy*yb-Q2d
 ccc- Hyon-Suk
-        if(radtheta.gt.0.15) then
-         yb=Q2d/(2D0*Mp*xbd*cl_beam_energy)
-         w2=Mp*Mp+2.0*Mp*cl_beam_energy*yb-Q2d
-        else
-         yb=Q2d/(2D0*Mp*xbd*(cl_beam_energy-PhRAD(4)))
-         w2=Mp*Mp+2.0*Mp*(cl_beam_energy-PhRAD(4))*yb-Q2d
-        endif
+C         if(radtheta.gt.0.15) then
+C          yb=Q2d/(2D0*Mp*xbd*cl_beam_energy)
+C          w2=Mp*Mp+2.0*Mp*cl_beam_energy*yb-Q2d
+C         else
+C          yb=Q2d/(2D0*Mp*xbd*(cl_beam_energy-PhRAD(4)))
+C          w2=Mp*Mp+2.0*Mp*(cl_beam_energy-PhRAD(4))*yb-Q2d
+C         endif
 ccc- Hyon-Suk
         if(yb.gt.cl_ymax.or.w2.lt.cl_wmin) then 
              goto 10
@@ -925,7 +930,20 @@ c
 c
         if(cl_dvcs) then
 C..     Generation of an event in GENDVCS 
-        CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
+            if (cl_radgen) then
+                    xff = xbd
+                    q2ff = Q2d
+                    tff = del2d
+                    phiff = pi-phigd
+                    ebeamff = cl_beam_energy
+                    ikeygene = 4
+                    CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot)
+                    dstot = dstot/2.0/pi
+                    PhRAD(4) = egamma
+            else
+                CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
+            endif
+            STOP
         else
         CALL excpi0(xbd, Q2d, del2d, phield,phigd,dstot)
         endif
@@ -2935,7 +2953,7 @@ C     set to 0 all moments
 ccc- Hyon-Suk
       common/radmick/PhRAD
       real PhRAD(4)
-      common/radhs/radtheta
+      common/radhs/radtheta, ichannel
       real radtheta
 ccc- Hyon-Suk
 c
@@ -2943,7 +2961,7 @@ c
       qmod = sqrt(nu**2 + Q2d)
 ccc- Hyon-Suk
 c      if(Ed.ne.cl_beam_energy) print *,'dans getphoton : Ed=',Ed
-      if((PhRAD(4).gt.0.).and.(radtheta.le.0.15)) Ed=cl_beam_energy-PhRAD(4)
+c      if((PhRAD(4).gt.0.).and.(radtheta.le.0.15)) Ed=cl_beam_energy-PhRAD(4)
 ccc- Hyon-Suk
       yb = nu/Ed
       Esc = Ed - nu
@@ -2982,7 +3000,7 @@ ccc- Hyon-Suk
        if (PhRAD(4).gt.0.) then
 c        print *,'getphoton : radtheta=',radtheta
 c        print *,'!!!!dans getphoton: PhRAD = ',PhRAD
-        if(radtheta.gt.0.15) then
+        if(ichannel.gt.2) then
          PhRAD(1) = PhRAD(4)*sintel*cosphe
          PhRAD(2) = PhRAD(4)*sintel*sinphe
          PhRAD(3) = PhRAD(4)*costel

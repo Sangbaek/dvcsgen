@@ -25,8 +25,8 @@
 #include "dvcs.inc"
 #include "dvcsmom.inc"
 #include "ntupgdvcs.inc"
-        integer*4 ikeygene,iacc
-        integer*4 nzd,nzdphi,ichannel,ipolff,iapprff,iaddcontr_p,iaddcontr_s
+        integer*4 iacc
+        integer*4 nzd,nzdphi,ipolff,iapprff,iaddcontr_p,iaddcontr_s
 	real*8 ebeam,s,q2,x,t,phi,sx,xx,mp2,ml,ml2,alpha,barn,
      +	sborn,siborn,sig0,sirad,siradtest,xi,z1m,z2m,z2cur,z1,z2,lll,be,bb,tcol,
      +  tmin,stot,vv2cut,vmax,vv2calc,vv2min_s,vv2min_p
@@ -39,11 +39,9 @@
         real*8 sirad0,sirad000,siradsin,siradsin2,siradcos,siradcos2,
      +	siradcos3,sibor0,sibor000,siborsin,siborsin2,siborcos,siborcos2,
      +  siborcos3,siradadd,llog,sum1phi,sum2phi,sum1test,sum2test
-        real*8 sum1add,sum2add,sum1tde,sum2tde,egamma,random1,random2,
-     +	thetag,phig
+        real*8 sum1add,sum2add,sum1tde,sum2tde,random1,random2
 	 real*8 fracacc_s,naccev_s,ntotev_s,fracacc_p,naccev_p,ntotev_p
 
-        real*8 xff,q2ff,phiff,tff
         parameter(nzd=55)
         parameter(nzdphi=5)
         real*8 deltaz1,deltaz2,ikeymc,delta,fd1(0:nzd),fd2(0:nzd),fd1phi(0:nzdphi),fd2phi(0:nzdphi),
@@ -318,18 +316,18 @@ c	 2   ,1d2*(1.d0/(1d0-0.5*alpha/Pi*vacpol(-t))**2-1d0)
 c	      write(*,'(6g12.4)')sum1,sum2,sum1delta,sum2delta,sum1phi,sum2phi
 	 
 	 
-          write(66,'(g8.1,4f7.3,3f8.2,2f10.2,2f8.2)')delta,x,q2,t,phi,
-     1	  1d2*alpha/2d0/pi*LLog*3d0
-     2	 ,1d2*alpha/Pi*vacpol(-t)
-     3   ,1d2*alpha/2d0/pi*LLog*(2.d0*log(deltaz1)+2d0*log(deltaz2)-2d0*deltaz1+0.5d0*deltaz1**2-2d0*deltaz2+0.5d0*deltaz2**2)
-     4   ,1d2*alpha/2d0/pi*LLog*(sum1+sum2+sum1phi+sum2phi)/sborn
-     5   ,1d2*alpha/2d0/pi*LLog*(sum1delta+sum2delta)/sborn
-     6   ,1d2*sirad/sborn
-     6   ,1d2*siradtest/sborn
+C           write(66,'(g8.1,4f7.3,3f8.2,2f10.2,2f8.2)')delta,x,q2,t,phi,
+C      1	  1d2*alpha/2d0/pi*LLog*3d0
+C      2	 ,1d2*alpha/Pi*vacpol(-t)
+C      3   ,1d2*alpha/2d0/pi*LLog*(2.d0*log(deltaz1)+2d0*log(deltaz2)-2d0*deltaz1+0.5d0*deltaz1**2-2d0*deltaz2+0.5d0*deltaz2**2)
+C      4   ,1d2*alpha/2d0/pi*LLog*(sum1+sum2+sum1phi+sum2phi)/sborn
+C      5   ,1d2*alpha/2d0/pi*LLog*(sum1delta+sum2delta)/sborn
+C      6   ,1d2*sirad/sborn
+C      6   ,1d2*siradtest/sborn
 		  
 
 c          write(51,'(5f7.3,4f8.2,3g12.4)')delta*1d3,x,q2,t,phi
-          write(*,'(5f7.3,3g12.4)')delta*1d3,x,q2,t,phi, probn, probp, probs
+C            write(*,'(5f7.3,3g12.4)')delta*1d3,x,q2,t,phi, probn, probp, probs
 c	 6   ,1d2*siradtest/sborn
 c     6   ,1d2*(sitottest/sborn-1)
 cc	 6   ,1d2*(sitottest_rad/sborn)
@@ -398,40 +396,42 @@ c	 7   ,1d2*(exp(alpha/pi*LLog*log(deltaz1*deltaz2))-1d0-alpha/pi*LLog*log(delta
              phig=0d0
              thetag=acos((xx*sx-2*mp2*q2)/sqrt(lay)/xx)
           endif   
+
 c           write(71,*)ichannel,Egamma,thetag
 
-          if(ichannel.gt.1)then
-		  call cutacc(s,xx,q2,phi,t,ichannel,egamma,iacc)
-		  if(ichannel.eq.2)then
-		  if(iacc.eq.1)naccev_s=naccev_s+1. 
-		  ntotev_s=ntotev_s+1.
-		  endif
-		  if(ichannel.eq.3)then
-		  if(iacc.eq.1)naccev_p=naccev_p+1. 
-		  ntotev_p=ntotev_p+1.
-          endif
+C           if(ichannel.gt.1)then
+C 		  call cutacc(s,xx,q2,phi,t,ichannel,egamma,iacc)
+C 		  if(ichannel.eq.2)then
+C 		  if(iacc.eq.1)naccev_s=naccev_s+1. 
+C 		  ntotev_s=ntotev_s+1.
+C 		  endif
+C 		  if(ichannel.eq.3)then
+C 		  if(iacc.eq.1)naccev_p=naccev_p+1. 
+C 		  ntotev_p=ntotev_p+1.
+C           endif
 
-		  endif
-      print *, ichannel, thetag, egamma, probn, probs, probp
+C 		  endif
+C        print *, ichannel, thetag, egamma, probn, probs, probp
 		  
 
 
 
 
-      fracacc_s=naccev_s/ntotev_s
-      fracacc_p=naccev_p/ntotev_p
-	stot=(sborn+sirad)*(probn+fracacc_s*probs+fracacc_p*probp)
-	  
+C       fracacc_s=naccev_s/ntotev_s
+C       fracacc_p=naccev_p/ntotev_p
+C 	stot=(sborn+sirad)*(probn+fracacc_s*probs+fracacc_p*probp)
+       stot=sborn+sirad
+	
 	end
       
 	  
 	  subroutine cutacc(s,xx,q2,phi,t,ichannel,egamma,iacc)
        implicit none
 #include "dvcs.inc"
-	   real*8 s,xx,q2,phi,t,egamma,alpha,barn,mp2,ml2,ml
+	   real*8 s,xx,q2,phi,t,alpha,barn,mp2,ml2,ml
 	   real*8 missingmass2,complanarity,complanarity0,ptfin,ang_m_c,ptfin2
 	   real*8 sx,aly,sqly,cos1,sin1,cos2,sin2,e1,e2,epr,ppr,costp,sintp,scalarpr
-	   Integer*4 ichannel,iacc,i,iacctt
+	   Integer*4 iacc,i,iacctt
 	   	  common/const/alpha,barn,mp2,ml2,ml
 	   real*8 k1(0:3),k2(0:3),k(0:3),p1(0:3),p2(0:3),k_3kin(0:3),k_4kin(0:3),kgene(0:3),fin(0:3)
 
