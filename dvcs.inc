@@ -50,4 +50,6 @@ C..
         integer  Ifl, Ivar, IGPD
         common /igpd/ Ifl, Ivar, IGPD 
 
-
+        integer*4 ichannel, ikeygene
+        real*8 egamma,thetag, phig
+        real*8  ebeamff,xff,q2ff,tff,phiff
