@@ -725,12 +725,12 @@ c
         integer ix,iq,it,ife,ifg,la0
         logical outoflimits
         real altime,alltime(2)
+        real*8 t1lim, t2lim
 c
         smax=0.0
         la0=0
         dx=(xmax-xmin)/nx
         dq=(q2max-q2min)/nq
-        dt=(tmax-tmin)/nt
         dfe=2*pi/nfe
         dfg=2*pi/nfg
         if(cl_pol.ge.1) la0=-1
@@ -752,6 +752,14 @@ c
          if( .not.outoflimits(xbd,Q2d) ) then
 c
              DO it=1,nt
+                 t2lim=-0.5d0*((q2d/xbd-q2d)*(q2d/xbd+sqrt((q2d/xbd)**2+4d0*Mp*Mp*q2d))+2d0*Mp*Mp*q2d)/w2
+                 t1lim=-0.5d0*((q2d/xbd-q2d)*(q2d/xbd-sqrt((q2d/xbd)**2+4d0*Mp*Mp*q2d))+2d0*Mp*Mp*q2d)/w2
+                 tmax = min(tmax, t1lim)
+                 tmin = max(tmin, t2lim)
+                 if (tmax<tmin) then
+                    continue
+                 endif
+              dt=(tmax-tmin)/nt
               del2d=tmin+it*dt
               cit=1.0
              if(it.eq.1.or.it.eq.nx) cit=0.5
@@ -772,6 +780,8 @@ c
                     phiff = pi-phigd
                     ebeamff = cl_beam_energy
                     ikeygene = 4
+
+                    print *, ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot
                     CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot)
                     dstot = dstot/2.0/pi
                     print *, ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot
@@ -943,7 +953,6 @@ C..     Generation of an event in GENDVCS
             else
                 CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
             endif
-            STOP
         else
         CALL excpi0(xbd, Q2d, del2d, phield,phigd,dstot)
         endif
