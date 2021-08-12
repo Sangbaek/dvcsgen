@@ -187,8 +187,8 @@ c
       cl_q2min=1.0            ! def Q2 min
       cl_xmax=0.75             ! def Q2 max
       cl_xmin=0.05             ! def Q2 min
-      cl_delta=1d-1             ! def delta (minimum rad photon energy)
-      cl_vv2cut=999999999.3d0     ! def vv2cut (minimum missing mass)
+      cl_delta=1d-2             ! def delta (minimum rad photon energy)
+      cl_vv2cut=0.1     ! def vv2cut (minimum missing mass)
       cl_target='proton'     ! (def proton target)
 c
       cl_proloss=0            ! no proton loss by default
@@ -351,6 +351,14 @@ c
         elseif(cnumber.eq.'--file'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,bosout)
+        elseif(cnumber.eq.'--delta'.and.i.lt.numopts) then
+           i=i+1
+           CALL GETARG(i,cnumber)
+        elseif(cnumber.eq.'--vv2cut'.and.i.lt.numopts) then
+           i=i+1
+           CALL GETARG(i,cnumber)
+        print *,'Minimum rad photon energy:  ',cl_delta
+        print *,'cuts on missing mass (rad):  ',cl_vv2cut
         elseif(cnumber.eq.'--targ'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cl_target)
@@ -562,6 +570,8 @@ c
         print *,'     --nmax   value     2000  maximum events per file'
         print *,'     --print nprint     1000   print ev nprint event '
         print *,'     --bh  value      3 BH status:3-All, 1-only BH  ' 
+        print *,'     --delta  value      0.01 Minimum rad photon energy (GeV)'
+        print *,'     --vv2cut value      0.1 cuts on missing mass (GeV^2)'
         return
         end
 c
@@ -754,8 +764,8 @@ c
              DO it=1,nt
                  t2lim=-0.5d0*((q2d/xbd-q2d)*(q2d/xbd+sqrt((q2d/xbd)**2+4d0*Mp*Mp*q2d))+2d0*Mp*Mp*q2d)/w2
                  t1lim=-0.5d0*((q2d/xbd-q2d)*(q2d/xbd-sqrt((q2d/xbd)**2+4d0*Mp*Mp*q2d))+2d0*Mp*Mp*q2d)/w2
-                 tmax = min(tmax, t1lim)
-                 tmin = max(tmin, t2lim)
+                 tmax = min(-cl_tmin, t1lim)
+                 tmin = max(-cl_tmax, t2lim)
                  if (tmax<tmin) then
                     continue
                  endif
@@ -781,12 +791,8 @@ c
                     ebeamff = cl_beam_energy
                     ikeygene = 4
 
-                    print *, ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot
                     CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot)
                     dstot = dstot/2.0/pi
-                    print *, ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot
-                    print *, ix, nx, iq, nq, it, nt, ife, nfe, ifg, nfg
-
                 else
                     CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
                 endif
@@ -856,6 +862,7 @@ c
         INTEGER I,ITRY,LEN
         logical outoflimits
         real  beam_energy
+        real*8 t1lim, t2lim
 c
         beam_energy=cl_beam_energy
         LEN=8
@@ -908,12 +915,16 @@ C ccc- Hyon-Suk
 C         endif
 
 
-
-        del2d=tmin+(tmax-tmin)*VEC(3)
         phield=2*pi*VEC(4)
         phigd=2*pi*VEC(5)
         yb=Q2d/(2D0*Mp*xbd*cl_beam_energy)
         w2=Mp*Mp+2.0*Mp*cl_beam_energy*yb-Q2d
+                 t2lim=-0.5d0*((Q2d/xbd-Q2d)*(Q2d/xbd+sqrt((Q2d/xbd)**2+4d0*Mp*Mp*Q2d))+2d0*Mp*Mp*Q2d)/w2
+                 t1lim=-0.5d0*((Q2d/xbd-Q2d)*(Q2d/xbd-sqrt((Q2d/xbd)**2+4d0*Mp*Mp*Q2d))+2d0*Mp*Mp*Q2d)/w2
+                 tmax = min(-cl_tmin, t1lim)
+                 tmin = max(-cl_tmax, t2lim)
+
+        del2d=tmin+(tmax-tmin)*VEC(3)
 ccc- Hyon-Suk
 C         if(radtheta.gt.0.15) then
 C          yb=Q2d/(2D0*Mp*xbd*cl_beam_energy)

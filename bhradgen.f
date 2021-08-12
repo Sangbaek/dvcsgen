@@ -14,7 +14,7 @@
 
 !           comment added by Sangbaek Lee, 2021
 !           according to I. Akushevich and A. Ilyichev, PHYS. REV. D 98, 013005 (2018),
-!           vv2cut: cuts on V. V = missing mass squared in the experimental design
+!           vv2cut: cuts on V. V = missing mass squared in the experimental design (GeV^2)
 !           when only charge particles (electron and proton) are detected
 !           and/or used for reconstruction of kinematical variables
 !           delta: " a minimal energy of the photon we want to generate (i.e., calorimeter resolution)"
@@ -108,7 +108,10 @@ c        hel=helff
          endif
 
 	 sborn=siborn(s,q2,x,t,cos(phi),sin(phi))
-
+       if (sborn.eq.0) then
+         stot = 0D0
+         return
+       endif
 	  vmax=(sqrt(lay*lat)+sx*t)/2d0/mp2-q2+t
 
       vv2calc=min(vv2cut,vmax)
