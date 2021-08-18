@@ -357,8 +357,8 @@ c
         elseif(cnumber.eq.'--vv2cut'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cnumber)
-        print *,'Minimum rad photon energy:  ',cl_delta
-        print *,'cuts on missing mass (rad):  ',cl_vv2cut
+        print *,'Minimum rad photon energy (GeV):  ',cl_delta
+        print *,'cuts on missing mass (GeV^2):  ',cl_vv2cut
         elseif(cnumber.eq.'--targ'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cl_target)
@@ -2965,6 +2965,7 @@ C     set to 0 all moments
       dimension  V3p1(3), V3plus(3)
       double precision V3k1,V3q,V3p1,V3plus
       double precision xbd,Q2d,del2d,phield,phigd
+      double precision Q2dtrue,nutrue, qmodtrue
       double precision yb,nu,Esc,sintel,costel,costVq,sintVq,qmod
       double precision Ep,Egam,costgg,sintgg,Vgx,Vgy,Vgz
       double precision costeg,teteg,coste1g,tete1g,V3dotd
@@ -2981,15 +2982,28 @@ c
       qmod = sqrt(nu**2 + Q2d)
 ccc- Hyon-Suk
 c      if(Ed.ne.cl_beam_energy) print *,'dans getphoton : Ed=',Ed
-c      if((PhRAD(4).gt.0.).and.(radtheta.le.0.15)) Ed=cl_beam_energy-PhRAD(4)
+c      if((PhRAD(4).gt.0.).and.(ichannel.eq.2)) Ed=cl_beam_energy-PhRAD(4)
 ccc- Hyon-Suk
       yb = nu/Ed
       Esc = Ed - nu
       costel = 1D0 - Q2d/(2D0*Ed*Esc)
       sintel = sqrt(1D0 - costel**2)
 c
-      Ep   = Mp - del2d/(2D0*Mp)
-      Egam = nu + del2d/(2D0*Mp)
+      if(cl_radgen) then
+         if (PhRAD(4).gt.0.) then
+            if (ichannel.gt.2) then
+               PhRAD(1) = PhRAD(4)*sintel*cosphe
+               PhRAD(2) = PhRAD(4)*sintel*sinphe
+               PhRAD(3) = PhRAD(4)*costel
+            else
+               PhRAD(1) = 0.
+               PhRAD(2) = 0.
+               PhRAD(3) = PhRAD(4)
+               Ed=cl_beam_energy-PhRAD(4)
+            endif
+         endif
+      endif
+
 c
       V3k1(1) = 0D0
       V3k1(2) = 0D0
@@ -3000,7 +3014,33 @@ c
       V3k2(2) = Esc*sintel*sinphe   !0D0
       V3k2(3) = Esc*costel
 
-      call V3subd( V3k1, V3k2, V3q)
+      if(cl_radgen) then
+         if (PhRAD(4).gt.0.) then
+            if (ichannel.gt.2) then
+               V3plus(4) = Esc + PhRad(4)
+               V3plus(1) = V3plus(4)*sintel*cosphe
+               V3plus(2) = V3plus(4)*sintel*sinphe
+               V3plus(3) = V3plus(4)*costel
+               call V3subd( V3k1, V3plus, V3q)
+               Q2d = -(Ed-Esc-PhRad(4))**2 + V3q(1)**2 + V3q(2)**2 + V3q(3)**2
+               nu = Ed-V3plus(4)
+               qmod =  sqrt(V3q(1)**2 + V3q(2)**2 + V3q(3)**2)
+            else
+               call V3subd( V3k1, V3k2, V3q)
+               Q2d = -(Ed-Esc)**2 + V3q(1)**2 + V3q(2)**2 + V3q(3)**2
+               nu = Ed-Esc
+               qmod =  sqrt(V3q(1)**2 + V3q(2)**2 + V3q(3)**2)
+            endif
+         else
+            call V3subd( V3k1, V3k2, V3q)
+         endif
+      else
+            call V3subd( V3k1, V3k2, V3q)
+      endif
+
+      Ep   = Mp - del2d/(2D0*Mp)
+      Egam = nu + del2d/(2D0*Mp)
+
       costVq = V3q(3)/qmod
       sintVq = sqrt(1D0 - costVq**2)
 *
@@ -3016,24 +3056,6 @@ c
 *
       call V3subd( V3q, V3gam, V3p2)
 ccc- Hyon-Suk
-      if(cl_radgen) then
-       if (PhRAD(4).gt.0.) then
-c        print *,'getphoton : radtheta=',radtheta
-c        print *,'!!!!dans getphoton: PhRAD = ',PhRAD
-        if(ichannel.gt.2) then
-         PhRAD(1) = PhRAD(4)*sintel*cosphe
-         PhRAD(2) = PhRAD(4)*sintel*sinphe
-         PhRAD(3) = PhRAD(4)*costel
-         V3k2(1)=V3k2(1)-PhRAD(1)
-         V3k2(2)=V3k2(2)-PhRAD(2)
-         V3k2(3)=V3k2(3)-PhRAD(3)
-        else
-         PhRAD(1) = 0.
-         PhRAD(2) = 0.
-         PhRAD(3) = PhRAD(4)
-        endif
-       endif
-      endif
 ccc- Hyon-Suk
       N=2
 c
