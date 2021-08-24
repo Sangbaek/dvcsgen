@@ -188,7 +188,7 @@ c
       cl_xmax=0.75             ! def Q2 max
       cl_xmin=0.05             ! def Q2 min
       cl_delta=1d-2             ! def delta (minimum rad photon energy)
-      cl_vv2cut=0.1     ! def vv2cut (minimum missing mass)
+      cl_vv2cut=0.1     ! def vv2cut (minimum missing mass_ep squared)
       cl_target='proton'     ! (def proton target)
 c
       cl_proloss=0            ! no proton loss by default
@@ -354,11 +354,11 @@ c
         elseif(cnumber.eq.'--delta'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cnumber)
+           cl_delta=valnum(cnumber)           
         elseif(cnumber.eq.'--vv2cut'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cnumber)
-        print *,'Minimum rad photon energy (GeV):  ',cl_delta
-        print *,'cuts on missing mass (GeV^2):  ',cl_vv2cut
+           cl_vv2cut=valnum(cnumber)           
         elseif(cnumber.eq.'--targ'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cl_target)
@@ -571,7 +571,7 @@ c
         print *,'     --print nprint     1000   print ev nprint event '
         print *,'     --bh  value      3 BH status:3-All, 1-only BH  ' 
         print *,'     --delta  value      0.01 Minimum rad photon energy (GeV)'
-        print *,'     --vv2cut value      0.1 cuts on missing mass (GeV^2)'
+        print *,'     --vv2cut value      0.1 cuts on missing mass ep squared (GeV^2)'
         return
         end
 c
