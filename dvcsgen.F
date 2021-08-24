@@ -607,7 +607,7 @@ c
         print *,'write form      :   ',cl_writef
         print *,'write mod       :   ',cl_mod
         print *,'Minimum rad photon energy:  ',cl_delta
-        print *,'cuts on missing mass (rad):  ',cl_vv2cut
+        print *,'cuts on missing mass ep (GeV^2):  ',cl_vv2cut
         print *,'write file_name  :   ',bosout
         if(cl_mom) print *,'include moments in the ntuple:   ', cl_mom 
         if(cl_smear.eq.1) 
