@@ -68,3 +68,6 @@ will write `gemc lund type` single data file dvcs.dat with 10K events
       --nmax   value     2000  maximum events per file
       --print nprint     1000   print ev nprint event
       --bh  value      3 BH status:3-All, 1-only BH
+      --delta  value      0.01 Minimum rad photon energy (GeV)'
+      --vv2cut value      0.1 cuts on missing mass ep squared (GeV^2)'
+
