@@ -2967,7 +2967,7 @@ C     set to 0 all moments
       double precision xbd,Q2d,del2d,phield,phigd
       double precision Q2dtrue,nutrue, qmodtrue
       double precision yb,nu,Esc,sintel,costel,costVq,sintVq,qmod
-      double precision Ep,Egam,costgg,sintgg,Vgx,Vgy,Vgz
+      double precision Ep,Egam,Eele_inner,costgg,sintgg,Vgx,Vgy,Vgz
       double precision costeg,teteg,coste1g,tete1g,V3dotd
       double precision cosphe,sinphe
       integer j
@@ -3017,13 +3017,13 @@ c
       if(cl_radgen) then
          if (PhRAD(4).gt.0.) then
             if (ichannel.gt.2) then
-               V3plus(4) = Esc + PhRad(4)
-               V3plus(1) = V3plus(4)*sintel*cosphe
-               V3plus(2) = V3plus(4)*sintel*sinphe
-               V3plus(3) = V3plus(4)*costel
+               Eele_inner = Esc + PhRad(4)
+               V3plus(1) = Eele_inner*sintel*cosphe
+               V3plus(2) = Eele_inner*sintel*sinphe
+               V3plus(3) = Eele_inner*costel
                call V3subd( V3k1, V3plus, V3q)
                Q2d = -(Ed-Esc-PhRad(4))**2 + V3q(1)**2 + V3q(2)**2 + V3q(3)**2
-               nu = Ed-V3plus(4)
+               nu = Ed-Eele_inner
                qmod =  sqrt(V3q(1)**2 + V3q(2)**2 + V3q(3)**2)
             else
                call V3subd( V3k1, V3k2, V3q)
