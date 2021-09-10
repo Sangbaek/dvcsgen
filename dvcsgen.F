@@ -1206,7 +1206,7 @@ c101      FORMAT(2x,I10,2I6,2F11.2,I5,F10.3,2I5,2E14.7,2F6.2)
          else if(cl_writef.eq.2) then                  ! variation of lund12 format
                 write(41,111) jj,iparl1,iparl2,bornweight,rheli,11,
      6                   cl_beam_energy,1,1,radweight
-                 write (41,112) 1,radxb,1,(k(1,jl),jl=2,4),(P(1,jl),jl=1,3),radq2,radt
+                 write (41,112) 1,radxb,1,(k(1,jl),jl=2,4),(P(1,jl),jl=1,3),radq2,-radt
      6                                                   ,(V(jl),jl=1,3)
                  write (41,112) 2,radphi,1,(k(2,jl),jl=2,4),(P(2,jl),jl=1,3),radxb_true,radq2_true
      6                                                   ,(V(jl),jl=1,3)
