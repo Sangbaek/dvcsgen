@@ -141,7 +141,7 @@ c
 c
       if (cl_radgen) then    
        call HBNAME(NTID_OUT,'radgen',iproctype,
-     +'iproctype:I,radq2:R,radnu:R,radweight:R,'//
+     +'iproctype:I,radxb:R,radxb_true:R,radq2:R,radq2_true:R,radphi:R,radt:R,radnu:R,bornweight:R,radweight:R,'//
      +'grade:R,gradt:R,gradf:R')
       endif
       end
@@ -958,8 +958,15 @@ C..     Generation of an event in GENDVCS
                     phiff = pi-phigd
                     ebeamff = cl_beam_energy
                     ikeygene = 4
+                    CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
+                    bornweight = dstot
                     CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot)
                     dstot = dstot/2.0/pi
+                    radweight = dstot
+                    radq2 = Q2d
+                    radxb = xbd
+                    radt = del2d
+                    radphi = pi - phigd
                     PhRAD(4) = egamma
             else
                 CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
@@ -1195,14 +1202,27 @@ c101      FORMAT(2x,I10,2I6,2F11.2,I5,F10.3,2I5,2E14.7,2F6.2)
               write(41,103) (p(j,jl),jl=1,5) 
               write(41,103) v(1),v(2),v(3),0.0,0.0 
             enddo
+
+         else if(cl_writef.eq.2) then                  ! variation of lund12 format
+                write(41,111) jj,iparl1,iparl2,bornweight,rheli,11,
+     6                   cl_beam_energy,1,1,radweight
+                 write (41,112) 1,radxb,1,(k(1,jl),jl=2,4),(P(1,jl),jl=1,3),radq2,radt
+     6                                                   ,(V(jl),jl=1,3)
+                 write (41,112) 2,radphi,1,(k(2,jl),jl=2,4),(P(2,jl),jl=1,3),radxb_true,radq2_true
+     6                                                   ,(V(jl),jl=1,3)
+            do  j=3,jj
+                 P(j,4)=sqrt(P(j,1)**2+P(j,2)**2+P(j,3)**2+P(j,5)**2)
+                 write (41,112) j,plu(j),1,(k(j,jl),jl=2,4),(P(j,jl),jl=1,5)
+     6                                                   ,(V(jl),jl=1,3)
+            enddo
          else
             print *,'ERROR: unknown write format'
-            stop
+            stop            
          endif
 c
  111      FORMAT(2x,I10,2I6,2F11.2,I5,F10.3,2I5,E14.7)
 c 111      FORMAT(2x,I10,2F4.0,2I3,5F7.3)
- 112      FORMAT(2x,I3,F4.0,2I5,2I3,5F10.4,2X,5F10.4)
+ 112      FORMAT(2x,I3,2x,F10.4,2I5,2I3,5F10.4,2X,5F10.4)
  101      FORMAT(2x,10I10)
  102      FORMAT(2x,I5,10F10.4)
  103      FORMAT(2x,10F10.4)
@@ -2960,12 +2980,12 @@ C     set to 0 all moments
       implicit none
 #include "dvcs.inc"
 #include "ludat1234.inc"
+#include "ntupgdvcs.inc"
 *
       dimension V3k1(3), V3q(3)
       dimension  V3p1(3), V3plus(3)
       double precision V3k1,V3q,V3p1,V3plus
       double precision xbd,Q2d,del2d,phield,phigd
-      double precision Q2dtrue,nutrue, qmodtrue
       double precision yb,nu,Esc,sintel,costel,costVq,sintVq,qmod
       double precision Ep,Egam,Eele_inner,costgg,sintgg,Vgx,Vgy,Vgz
       double precision costeg,teteg,coste1g,tete1g,V3dotd
@@ -3037,6 +3057,9 @@ c
       else
             call V3subd( V3k1, V3k2, V3q)
       endif
+
+      radxb_true = Q2d/2/nu/Mp
+      radq2_true = Q2d
 
       Ep   = Mp - del2d/(2D0*Mp)
       Egam = nu + del2d/(2D0*Mp)

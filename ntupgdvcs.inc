@@ -45,6 +45,6 @@ c
 
 c
         integer iproctype
-        real radq2,radnu,radweight,grade,gradt,gradf
-       COMMON /RADISTUFF/iproctype,radq2,radnu,radweight,
+        real radxb,radxb_true,radq2,radq2_true,radphi,radt,radnu,bornweight,radweight,grade,gradt,gradf
+       COMMON /RADISTUFF/iproctype,radxb,radxb_true,radq2,radq2_true,radphi,radt,radnu,bornweight,radweight,
      + grade,gradt,gradf
