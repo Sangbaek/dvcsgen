@@ -84,5 +84,5 @@ The header's event weight is still the radiative cross section (weight of MC::He
 The lund particles have three user-defined values that are not used by the dvcsgen and the gemc.
 These are (2) lifetime, (10) energy, (11) mass, and will be saved in MC::Lund.
 
-The electron: (2) xB, (10) Q2, (11) -t.
+The electron: (2) xB, (6) radiation mode (1: nonrad, 2:s-peak, 3:p-peak), (10) Q2, (11) -t.
 The proton: (2) phi (radians), (10) shifted xB of the virtual photon, (11) shifted Q2 of the virtual photon.
