@@ -211,6 +211,7 @@ c
       cl_mom=.FALSE.
       cl_ktcor=.FALSE.
       cl_radgen=.FALSE.
+      cl_radstable=.FALSE.
       cl_mod=0              ! write all, otherwise filter
       datfileOK=.TRUE.      ! write a data file
       weightOK=.FALSE.
@@ -259,6 +260,8 @@ c
            cl_pol=2
         elseif(cnumber.eq.'--radgen') then
            cl_radgen=.TRUE.
+        elseif(cnumber.eq.'--radstable') then
+           cl_radstable=.TRUE.
         elseif(cnumber.eq.'--mom') then
            cl_mom=.TRUE.
         elseif(cnumber.eq.'--pi0') then
@@ -557,7 +560,8 @@ c
         print *,'     --mom                include moments in ntuple'
         print *,'     --proloss                  add proton loss'
         print *,'     --ktcor          FALSE   turn on k_t cor for A_LU'
-        print *,'     --radgen                   include radgen'
+        print *,'     --radgen                   include bhradgen'
+        print *,'     --radstable                use born cross sections for rejection sampling'
         print *,'     --nodat               do not write a data file'
         print *,'     --acce16            include e16 acceptance for e-'
         print *,'     --acceg1           include eg1 acceptance for e-'
@@ -600,7 +604,8 @@ c
         print *,'Tpol (0-U,1-L,2-T):   ', cl_pol 
         print *,'GPD model A,B,C,D:   ', cl_gpd 
         print *,'GPD sinphi scale:   ', cl_scale 
-        print *,'RADGEN ON        :   ', cl_radgen 
+        print *,'BHRADGEN ON        :   ', cl_radgen 
+        print *,'Use Born Cross sections when bhradgen on :   ', cl_radstable
         print *,'y_col cut        :   ', cl_ycol 
         print *,'acceptance       :   ',acceg1,acce16,acc12
         print *,'nmax-events       :   ',cl_nmax
@@ -783,14 +788,13 @@ c
                 if(ifg.eq.1.or.ifg.eq.nx) cifg=0.5
 c
              if(cl_dvcs) then
-                if(cl_radgen) then
+                if(cl_radgen.and.(.not.cl_radstable)) then
                     xff = xbd
                     q2ff = Q2d
                     tff = del2d
                     phiff = pi-phigd
                     ebeamff = cl_beam_energy
                     ikeygene = 4
-
                     CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot)
                     dstot = dstot/2.0/pi
                 else
@@ -1221,7 +1225,7 @@ c101      FORMAT(2x,I10,2I6,2F11.2,I5,F10.3,2I5,2E14.7,2F6.2)
             stop            
          endif
 c
- 111      FORMAT(2x,I10,2I6,F10.4,2x,F3.0,I5,F10.3,2I5,E14.7)
+ 111      FORMAT(2x,I10,2I6,E14.7,2x,F3.0,I5,F10.3,2I5,E14.7)
 c 111      FORMAT(2x,I10,2F4.0,2I3,5F7.3)
  112      FORMAT(2x,I3,2x,F10.4,2I5,2I3,5F10.4,2X,5F10.4)
  101      FORMAT(2x,10I10)

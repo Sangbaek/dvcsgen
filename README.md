@@ -56,6 +56,7 @@ will write `gemc lund type` single data file dvcs.dat with 10K events
       --proloss                  add proton loss
       --ktcor          FALSE   turn on k_t cor for A_LU
       --radgen                   include radgen
+      --radstable                use born cross sections for rejection sampling
       --nodat               do not write a data file
       --acce16            include e16 acceptance for e-
       --acceg1           include eg1 acceptance for e-
