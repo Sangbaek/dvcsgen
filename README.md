@@ -79,11 +79,13 @@ For the writef 2 option, the file format is still lund, [https://gemc.jlab.org/g
 But the contents are changed for the radiative corrections.
 So, --writef 2 is only useful when --radgen is on.
 
-The header's target polarization is changed to born cross section (ptarget of MC::Header).
 The header's event weight is still the radiative cross section (weight of MC::Header).
 
 The lund particles have three user-defined values that are not used by the dvcsgen and the gemc.
 These are (2) lifetime, (10) energy, (11) mass, and will be saved in MC::Lund.
 
 The electron: (2) xB, (6) radiation mode (1: nonrad, 2:s-peak, 3:p-peak), (10) Q2, (11) -t.
+
 The proton: (2) phi (radians), (10) shifted xB of the virtual photon, (11) shifted Q2 of the virtual photon.
+
+The photon: (11) born cross section.

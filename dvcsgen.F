@@ -1213,13 +1213,17 @@ c101      FORMAT(2x,I10,2I6,2F11.2,I5,F10.3,2I5,2E14.7,2F6.2)
      6                   cl_beam_energy,1,1,radweight
                  write (41,112) 1,radxb,1,(k(1,jl),jl=2,3),iproctype,(P(1,jl),jl=1,3),radq2,-radt
      6                                                   ,(V(jl),jl=1,3)
-                 write (41,113) 2,radphi,1,(k(2,jl),jl=2,3),bornweight,(P(2,jl),jl=1,3),radxb_true,radq2_true
+                 write (41,112) 2,radphi,1,(k(2,jl),jl=2,4),(P(2,jl),jl=1,3),radxb_true,radq2_true
      6                                                   ,(V(jl),jl=1,3)
-            do  j=3,jj
-                 P(j,4)=sqrt(P(j,1)**2+P(j,2)**2+P(j,3)**2+P(j,5)**2)
-                 write (41,112) j,plu(j),1,(k(j,jl),jl=2,4),(P(j,jl),jl=1,5)
+                 write (41,113) 3,plu(3),1,(k(3,jl),jl=2,4),(P(3,jl),jl=1,4),bornweight
      6                                                   ,(V(jl),jl=1,3)
-            enddo
+
+                 if (jj.eq.4.) then
+                 P(jj,4)=sqrt(P(jj,1)**2+P(jj,2)**2+P(jj,3)**2+P(jj,5)**2)
+                 write (41,112) jj,plu(j),1,(k(jj,jl),jl=2,4),(P(jj,jl),jl=1,5)
+     6                                                   ,(V(jl),jl=1,3)
+                 endif
+
          else
             print *,'ERROR: unknown write format'
             stop            
@@ -1228,7 +1232,7 @@ c
  111      FORMAT(2x,I10,2I6,F3.0,2x,F3.0,I5,F10.3,2I5,E14.7)
 c 111      FORMAT(2x,I10,2F4.0,2I3,5F7.3)
  112      FORMAT(2x,I3,2x,F10.4,2I5,2I3,5F10.4,2X,5F10.4)
- 113      FORMAT(2x,I3,2x,F10.4,2I5,I3,2x,E14.7,2x,5F10.4,2X,5F10.4)
+ 113      FORMAT(2x,I3,2x,F10.4,2I5,2I3,4F10.4,E14.7,2X,5F10.4)
  101      FORMAT(2x,10I10)
  102      FORMAT(2x,I5,10F10.4)
  103      FORMAT(2x,10F10.4)
