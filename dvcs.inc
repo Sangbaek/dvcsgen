@@ -10,7 +10,7 @@
       real  cl_sma,cl_smb,cl_smc,cl_smd
       real  cl_sme,cl_smf,cl_smg,cl_rast
       logical dvcsgenOK,bosOK,ntOK,weightOK,cl_mom,cl_dvcs,cl_pi0,cl_eta
-      logical bossmearOK,dalOK,cl_radgen,datfileOK,acce16,acceg1,acc12
+      logical bossmearOK,dalOK,cl_radgen,cl_radstable,datfileOK,acce16,acceg1,acc12
       logical cl_ktcor,cl_printgpd,cl_docker
       character*7 bosout
       common /OUT_NAMES/ bosout
@@ -24,7 +24,7 @@
       common /clasdvcs8/ cl_smear,cl_sma,cl_smb,cl_smc,cl_smd
       common /clasdvcs9/ cl_sme,cl_smf,cl_smg,cl_rast,cl_delta,cl_vv2cut
       common /dvcsgencont/ dvcsgenOK,bosOK,ntOK,weightOK,bossmearOK,
-     6cl_mom,cl_dvcs,cl_pi0,cl_eta,cl_radgen,cl_mod,
+     6cl_mom,cl_dvcs,cl_pi0,cl_eta,cl_radgen,cl_radstable,cl_mod,
      6datfileOK,acce16,acceg1,acc12,cl_ktcor,cl_printgpd,cl_docker
 C..
       double precision Mp, mele, pi,mpi0,metta
