@@ -177,6 +177,7 @@ c
       cl_pol=0               ! unpolarized target
       cl_beam_energy=10.6    ! def clas12
       cl_wmin=4.0            ! def w2min
+      cl_wmax=4.0            ! def w2min
       cl_ymin=0.05           ! def ymin -> Emax=(1-ymin)*E
       cl_ymax=0.9            ! def ymax
       cl_thmin=0.09           ! def e'tmin
@@ -938,7 +939,7 @@ C          yb=Q2d/(2D0*Mp*xbd*(cl_beam_energy-PhRAD(4)))
 C          w2=Mp*Mp+2.0*Mp*(cl_beam_energy-PhRAD(4))*yb-Q2d
 C         endif
 ccc- Hyon-Suk
-        if(yb.gt.cl_ymax.or.w2.lt.cl_wmin) then 
+        if(yb.gt.cl_ymax.or.w2.lt.cl_wmin.or.w2.gt.cl_wmax) then 
              goto 10
          endif
 c
@@ -1699,7 +1700,7 @@ c
       if( Q2.lt.cl_q2min .or. Q2.gt. cl_q2max) istatus=2  !    Q2  out of range
       yb=nu/Ed
       if(yb.gt.cl_ymax .or. yb.lt.cl_ymin) istatus=3        ! ymin<y<ymax
-      if(W2.lt.cl_wmin) istatus=4
+      if(W2.lt.cl_wmin.or.W2.gt.cl_wmax) istatus=4
 c$$$      call dvcsycol(del2,xb,Q2,ycol)
 c$$$      if( (ycol-yb).le.cl_ycol ) istatus=4                   ! y-too big
       if(istatus.gt.0) then
@@ -1882,7 +1883,7 @@ c
       if( xb.le.xmin1 .or. xb.gt.xmax1 ) istatus=1           !    x  out of range
       if( del2.ge.del2min .or. del2.le.del2max ) istatus=2   ! delta out of range
       yb=nu/Ed
-      if(W2.lt.cl_wmin) print *,'Debiles lriv!!!!!!!!!',W2
+      if(W2.lt.cl_wmin.or.W2.gt.cl_wmax) print *,'Debiles lriv!!!!!!!!!',W2
       if (istatus.eq.0) then
 c
        sinpi0=2*xb*(1-xb)**5
