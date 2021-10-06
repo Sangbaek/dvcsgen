@@ -177,7 +177,7 @@ c
       cl_pol=0               ! unpolarized target
       cl_beam_energy=10.6    ! def clas12
       cl_wmin=4.0            ! def w2min
-      cl_wmax=4.0            ! def w2min
+      cl_wmax=25.0            ! def w2max
       cl_ymin=0.05           ! def ymin -> Emax=(1-ymin)*E
       cl_ymax=0.9            ! def ymax
       cl_thmin=0.09           ! def e'tmin
@@ -317,6 +317,10 @@ c
            i=i+1
            CALL GETARG(i,cnumber)
            cl_wmin=valnum(cnumber)
+        elseif(cnumber.eq.'--wmax'.and.i.lt.numopts) then
+           i=i+1
+           CALL GETARG(i,cnumber)
+           cl_wmax=valnum(cnumber)
         elseif(cnumber.eq.'--y'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cnumber)
@@ -540,6 +544,7 @@ c
         print *,'     --q2 Q2-min Q2-max 1.0  10. min max Q2 in GeV^2 '
         print *,'     --y y-min y-max 0.05 0.9    min max for y=nu/E'
         print *,'     --w w^2-min         4.0 min for w^2=M^2+2MyE-Q^2'
+        print *,'     --wmax w^2-max         25.0 max for w^2=M^2+2MyE-Q^2'
         print *,'     --t tmin tmax  0 1.0      t  min/max in GeV^2 '
         print *,'     --th thmin thmax  0.2 1 theta min/max \theta rad'
         print *,'     --xpos x-position      0 beam x position in cm '
