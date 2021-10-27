@@ -1,5 +1,5 @@
        	  subroutine bhradgen(ebeam,xff,q2ff,tff,phiff,vv2cut,delta,egamma,thetag,
-     +  phig,ichannel,ipolff,ikeygene,stot)
+     +  phig,ichannel,ipolff,ikeygene,stot,probn,probp,probs)
 !
 !         lab system; OZ is along \vec q, OXZ -- scattering plane
 !
@@ -45,7 +45,7 @@
         parameter(nzd=55)
         parameter(nzdphi=5)
         real*8 deltaz1,deltaz2,ikeymc,delta,fd1(0:nzd),fd2(0:nzd),fd1phi(0:nzdphi),fd2phi(0:nzdphi),
-     +	zd1(0:nzd),zd2(0:nzd),zd1phi(0:nzdphi),zd2phi(0:nzdphi),probn,probs,probp
+     +	zd1(0:nzd),zd2(0:nzd),zd1phi(0:nzdphi),zd2phi(0:nzdphi)
 	real*4 random_num
 	integer*4 ipg,in,i,nev,itkey,itpoi,iepoi,ixq2poi,nepoi,nxq2poi,
      +	ntpoi,nphipoi,
