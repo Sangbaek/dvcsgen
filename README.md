@@ -94,15 +94,15 @@ The photon: (11) born cross section.
 ## printing rc factors
 
 ```
-./dvcsgen --beam 10.604 --x 0.3 0.3 --q2 2 2 --w 2 --t 0.29 0.29  --gpd 101 --y 0 1 --phi 1.57 --vv2cut 0.3 --delta 0.1 --printrad
+./dvcsgen --beam 10.604 --x 0.3 0.3 --q2 2 2 --t 0.29 0.29  --gpd 101 --y 0 1 --phi 1.5708 --vv2cut 0.3 --delta 0.1 --printrad
 ```
-will print out the related RC factors for all iterations.
+will print out the related RC factors for all iterations at xB = 0.3, Q2 = 2, -t = 0.29, and phi = pi/2 (in rad.).
 
 The RC code is MC integrating 5 dimensional cross sections over the kinematics of radiative photons.
 Thus, the RC cross section is intrinsically probablistic and fluctuating.
 To stabilize, the 'printrad' module runs 10 iterations of rc factor calculations, each of which consists of 100 times of cross section calculations.
 Finally, the line above is quite verbose. A useful command is 
 ```
-./dvcsgen --beam 10.604 --x 0.3 0.3 --q2 2 2 --w 2 --t 0.29 0.29  --gpd 101 --y 0 1 --phi 1.57 --vv2cut 0.3 --delta 0.1 --printrad: grep averaged:
+./dvcsgen --beam 10.604 --x 0.3 0.3 --q2 2 2 --t 0.29 0.29  --gpd 101 --y 0 1 --phi 1.57 --vv2cut 0.3 --delta 0.1 --printrad: grep averaged:
 ```
 to only print out the final result of A_born, A_obs, delta_u, delta_p, delta_A.
