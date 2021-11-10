@@ -851,7 +851,7 @@ c
 c         lst40=0  ! unpolarized case
 c         beam_energy=cl_beam_energy
 c         call radgen_init(ctarget,beam_energy,lst40)
-         ikeygene = 10
+         ikeygene = 4
 
 
         endif 
@@ -931,8 +931,8 @@ c
                     tff = del2d
                     phiff = pi-phigd
                     ebeamff = cl_beam_energy
-                    ikeygene = 10
-                    CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot)
+                    ikeygene = 4
+                    CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot,probn,probp,probs)
                     dstot = dstot/2.0/pi
                 else
                     CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
@@ -1098,10 +1098,10 @@ C..     Generation of an event in GENDVCS
                     tff = del2d
                     phiff = pi-phigd
                     ebeamff = cl_beam_energy
-                    ikeygene = 10
+                    ikeygene = 4
                     CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
                     bornweight = dstot
-                    CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot)
+                    CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot,probn,probp,probs)
                     dstot = dstot/2.0/pi
                     radweight = dstot
                     radq2 = Q2d
