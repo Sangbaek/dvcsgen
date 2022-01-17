@@ -405,12 +405,12 @@ c
            CALL GETARG(i,cnumber)
            cl_smf=valnum(cnumber)           
         else
-          call printusage
+        call printusage
           stop
         endif
         if(i.lt. numopts) goto 1
  2      continue
-        call printvalues
+c        call printvalues
 c
 c randomize
 c
@@ -685,7 +685,7 @@ C
         call printgpd
         stop
         endif
-        print *,'CALL getSCALE-->',Ipn,xmax,xmin,tmax,tmin
+c        print *,'CALL getSCALE-->',Ipn,xmax,xmin,tmax,tmin
         CALL getSCALE
 c
         if(cl_radgen) then
@@ -731,6 +731,7 @@ c
          if( .not.outoflimits(xbd,Q2d) ) then
 c
               del2d=tmin
+              write (*, fmt="(1x, a)", advance ='no'), "["
               DO ifg=1,nfg
                phigd=ifg*dfg
 c
@@ -740,9 +741,11 @@ c
 
 C            endif
 c
-              print 11, xbd, Q2d, del2d, phigd, dstot*2*pi*0.001
-11          FORMAT (4(2X, F8.3), 2X, F8.5)
+              write (*,11, advance ='no'), dstot*2*pi*0.001, ","
+c 11          FORMAT (2X, F8.5)
+11          FORMAT (F8.5, a)
               ENDDO
+              write (*, fmt="(1x, a)"), "]"
         endif
         return
         end            
@@ -3145,7 +3148,7 @@ c
       deallocate(seeds)
       CALL SRAND(irannom)
       call random_number(rnd)  ! random number in [0,1]
-      print *,'Rndm numb->',irannom,now(1),now(2),now(3),rnd
+c     print *,'Rndm numb->',irannom,now(1),now(2),now(3),rnd
 c           DO 100 iran=1,irannom
 c 100       RND=rand()
 c
