@@ -183,6 +183,7 @@ c
       cl_thmax=1.57            ! def e'tmax
       cl_tmax=1.0             ! def tmax
       cl_tmin=0.0             ! def tmin
+      cl_phigd=0.0            ! def phigd for rc factor
       cl_q2max=15.0            ! def Q2 max
       cl_q2min=1.0            ! def Q2 min
       cl_xmax=0.75             ! def Q2 max
@@ -311,6 +312,10 @@ c
            i=i+1
            CALL GETARG(i,cnumber)
            cl_wmin=valnum(cnumber)
+        elseif(cnumber.eq.'--phi'.and.i.lt.numopts) then
+           i=i+1
+           CALL GETARG(i,cnumber)
+           cl_phigd=valnum(cnumber)
         elseif(cnumber.eq.'--y'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cnumber)
@@ -594,6 +599,7 @@ c
         print *,'nmax-events       :   ',cl_nmax
         print *,'write form      :   ',cl_writef
         print *,'write mod       :   ',cl_mod
+        print *,'trento angle to be used at the printing born cross section:  ',cl_phigd
         print *,'write file_name  :   ',bosout
         if(cl_mom) print *,'include moments in the ntuple:   ', cl_mom 
         if(cl_smear.eq.1) 
@@ -732,8 +738,7 @@ c
 c
               del2d=tmin
               write (*, fmt="(1x, a)", advance ='no'), "["
-              DO ifg=1,nfg
-               phigd=ifg*dfg
+              phigd=pi-cl_phigd
 c
               CALL bmkxsec(xbd, Q2d, del2d, 0.1, phigd,dstot)
 c
@@ -744,7 +749,6 @@ c
               write (*,11, advance ='no'), dstot*2*pi*0.001, ","
 c 11          FORMAT (2X, F8.5)
 11          FORMAT (F8.5, a)
-              ENDDO
               write (*, fmt="(1x, a)"), "]"
         endif
         return
