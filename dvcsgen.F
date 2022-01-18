@@ -737,8 +737,7 @@ c
          if( .not.outoflimits(xbd,Q2d) ) then
 c
               del2d=tmin
-              write (*, fmt="(1x, a)", advance ='no'), "["
-              phigd=pi-cl_phigd
+              phigd=cl_phigd
 c
               CALL bmkxsec(xbd, Q2d, del2d, 0.1, phigd,dstot)
 c
@@ -746,10 +745,9 @@ c
 
 C            endif
 c
-              write (*,11, advance ='no'), dstot*2*pi*0.001, ","
+              print *, dstot*2*pi*0.001
 c 11          FORMAT (2X, F8.5)
 11          FORMAT (F8.5, a)
-              write (*, fmt="(1x, a)"), "]"
         endif
         return
         end            
