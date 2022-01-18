@@ -491,7 +491,7 @@ c
               phigd=cl_phigd
 c
               CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
-              xsec_born = dstot
+              xsec_born = dstot*2*pi*0.001
 
               print *, "Loop over 100 iterations for rad. cross sections"
 
@@ -503,7 +503,7 @@ c
               ikeygene = 10
               DO itrial=0,99
                  CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot,probn,probp,probs)
-                 dstot = dstot/2.0/pi
+                 dstot = dstot*0.001
                  avgdstot = avgdstot + dstot/100
                  avgprobp = avgprobp + probp/100
                  avgprobs = avgprobs + probs/100
@@ -523,7 +523,7 @@ c
               print *, "average prob_n, average prob_s, average prob_p, nevents_n, nevents_s, nevents_p"
               print *,  avgprobn, avgprobs,avgprobp, numn, nums, nump
               print *, "=======kinematic variables in ", heli,"helicity=========loop====",iloop
-              print *, "helicity, xb, Q2, -t, phi, xsec_born, xsec_obs, uncertainty_obs"
+              print *, "helicity, xb, Q2, -t, phi, xsec_born, xsec_obs"
               print *, heli, xbd, Q2d, del2d, phigd, xsec_born, xsec_obs
 c
 c
