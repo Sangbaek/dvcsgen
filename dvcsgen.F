@@ -462,6 +462,10 @@ c
 c
         DO iloop=0,9
         la0=0
+        sum_obs = 0
+        sum_born = 0
+        del_obs = 0
+        del_born = 0
         if(cl_pol.ge.1) la0=-1
           DO helpi=la0,1,2
             DO heli=-1,1,2
@@ -536,7 +540,6 @@ c
               print *, "=======RC factors in loop====",iloop
               print *, "A_born, A_obs, delta_u, delta_p, delta_A"
               print *, del_born/sum_born, del_obs/sum_obs, sum_obs/sum_born, del_obs/del_born, (del_obs/del_born)/(sum_obs/sum_born)-1
-              
               A_obs = A_obs + del_obs/sum_obs/10
               delta_u = delta_u + sum_obs/sum_born/10
               delta_p = delta_p + del_obs/del_born/10
