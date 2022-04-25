@@ -452,7 +452,7 @@ C..
       double precision xbd,Q2d,del2d,phield,phigd,dstot,stotint,yb,w2
      6                ,avgdstot,avgprobn,avgprobs,avgprobp,xsec_born,xsec_obs,sum_born,sum_obs,unc_obs,var_obs
      6                ,del_born, del_obs, delu,delp, A_obs, delta_u, delta_p, delta_A
-     6                , unc_A_obs, unc_delta_u, unc_delta_p, unc_delta_A
+     6                , unc_A_obs, unc_delta_u, unc_delta_p, unc_delta_A, dsigma_born, dsigma_obs, unc_dsigma_born, unc_dsigma_obs
       integer la0,itrial,iloop,numn,nump,nums
 c internal variables
 c
@@ -512,9 +512,18 @@ c
                  avgprobp = avgprobp + probp/100
                  avgprobs = avgprobs + probs/100
                  avgprobn = avgprobn + probn/100
-                 if (ichannel.eq.1) numn = numn+1
-                 if (ichannel.eq.2) nums = nums+1
-                 if (ichannel.eq.3) nump = nump+1
+                 if (ichannel.eq.1) then
+                    numn = numn+1
+C                     print *, egamma, dstot, ichannel, heli, helpi, xsec_born
+                 endif
+                 if (ichannel.eq.2) then
+                    nums = nums+1
+C                     print *, egamma, dstot, ichannel, heli, helpi
+                 endif
+                 if (ichannel.eq.3) then
+                  nump = nump+1
+C                   print *, egamma, dstot, ichannel, heli, helpi
+                 endif
               ENDDO
               xsec_obs = avgdstot
 
@@ -528,7 +537,7 @@ c
               print *,  avgprobn, avgprobs,avgprobp, numn, nums, nump
               print *, "=======kinematic variables in ", heli,"helicity=========loop====",iloop
               print *, "helicity, xb, Q2, -t, phi, xsec_born, xsec_obs"
-              print *, heli, xbd, Q2d, del2d, phigd, xsec_born, xsec_obs
+              print *, heli, xbd, Q2d, del2d, phigd, xsec_born/2, xsec_obs/2
 c
 c
 c
@@ -541,16 +550,22 @@ c
               print *, "A_born, A_obs, delta_u, delta_p, delta_A"
               print *, del_born/sum_born, del_obs/sum_obs, sum_obs/sum_born, del_obs/del_born, (del_obs/del_born)/(sum_obs/sum_born)-1
               A_obs = A_obs + del_obs/sum_obs/10
+              dsigma_obs = dsigma_obs + sum_obs/10
+              dsigma_born = dsigma_born + sum_born/10
               delta_u = delta_u + sum_obs/sum_born/10
               delta_p = delta_p + del_obs/del_born/10
               delta_A = delta_A + ((del_obs/del_born)/(sum_obs/sum_born)-1)/10
 
               unc_A_obs = unc_A_obs+(del_obs/sum_obs)**2/10 ! rms
+              unc_dsigma_obs = unc_dsigma_obs + sum_obs**2/10 ! rms
+              unc_dsigma_born = unc_dsigma_born + sum_born**2/10 ! rms
               unc_delta_u = unc_delta_u+(sum_obs/sum_born)**2/10 ! rms
               unc_delta_p = unc_delta_p+(del_obs/del_born)**2/10 ! rms
               unc_delta_A = unc_delta_A+((del_obs/del_born)/(sum_obs/sum_born)-1)**2/10 ! rms
       ENDDO
               unc_A_obs = sqrt(unc_A_obs - A_obs**2)
+              unc_dsigma_obs = sqrt(unc_dsigma_obs - dsigma_obs**2)
+              unc_dsigma_born = sqrt(unc_dsigma_born - dsigma_born**2)
               unc_delta_u = sqrt(unc_delta_u - delta_u**2)
               unc_delta_p = sqrt(unc_delta_p - delta_p**2)
               unc_delta_A = sqrt(unc_delta_A - delta_A**2)
@@ -560,7 +575,8 @@ c
               print *, "averaged:", del_born/sum_born, A_obs, delta_u, delta_p, delta_A
               print *, "unc_A_born, unc_A_obs, unc_delta_u, unc_delta_p, unc_delta_A"
               print *, 0, unc_A_obs, unc_delta_u, unc_delta_p, unc_delta_A
-
+              print *, "Frad_with_error", delta_u, unc_delta_u
+              print *, "differential_x_sec", dsigma_obs/2, unc_dsigma_obs/2, dsigma_born/2, unc_dsigma_born/2
         return
         end
 
@@ -2238,7 +2254,9 @@ c
       phip = phigd 
       phipel = phield 
 *
-      call nuclFF( del2d )
+C       call nuclFF( del2d )
+       call nuclFF_YAHL( del2d )
+
 *
       y1eps=1D0 - yb - yb*yb*eps2/4D0
       sqy1eps=sqrt(y1eps)
@@ -2875,7 +2893,55 @@ C
       enddo
       V3dotd = S
       end
-c
+
+      subroutine nuclFF_YAHL( del2 )
+C from the supplementary material of
+C Zhihong Ye, John R. Arrington, Richard J.Hill and Gabriel Lee 
+C "Proton and neutron electromagnetic form factors and uncertainties"
+C Phys. Lett. B 777 (2018) 8--15
+C doi: 10.1016/j.physletb.2017.11.023
+C
+C added by Sangbaek Lee
+C
+C
+      implicit double precision (A-H,O-Z)
+#include "dvcs.inc"
+      common/formfac/ F1pn(2), F2pn(2)
+      double precision Mv, kp, kn
+      double precision z, a0(4), a1(4), a2(4), a3(4), a4(4), a5(4), a6(4), a7(4), a8(4), a9(4), a10(4), a11(4), a12(4)
+      parameter (Mv = 0.843D0, kp = 1.79285D0, mu_n = -1.91D0, tcut = 4*0.13957**2, t0 = -0.7)
+C
+      dipol = 1D0/(1D0 - del2/Mv**2)**2
+      z = (sqrt(tcut-del2)-sqrt(tcut-t0))/(sqrt(tcut-del2)+sqrt(tcut-t0)) 
+*
+      a0 = (/ 0.239163298067, 0.264142994136, 0.048919981379, 0.257758326959 /)
+      a1 = (/ -1.109858574410, -1.095306122120, -0.064525053912, -1.079540642058 /)
+      a2 = (/ 1.444380813060, 1.218553781780, -0.240825897382, 1.182183812195 /)
+      a3 = (/ 0.479569465603, 0.661136493537, 0.392108744873, 0.711015085833 /)
+      a4 = (/ -2.286894741870, -1.405678925030, 0.300445258602, -1.348080936796 /)
+      a5 = (/ 1.126632984980, -1.356418438880, -0.661888687179, -1.662444025208 /)
+      a6 = (/ 1.250619843540, 1.447029155340, -0.175639769687, 2.624354426029 /)
+      a7 = (/ -3.631020471590, 4.235669735900, 0.624691724461, 1.751234494568 /)
+      a8 = (/ 4.082217023790, -5.334045653410, -0.077684299367, -4.922300878888 /)
+      a9 = (/ 0.504097346499, -2.916300520960, -0.236003975259, 3.197892727312 /)
+      a10 = (/ -5.085120460510, 8.707403067570, 0.090401973470, -0.712072389946 /)
+      a11 = (/ 3.967742543950, -5.706999943750, 0.0, 0.0 /)
+      a12 = (/ -0.981529071103, 1.280814375890, 0.0, 0.0 /)
+
+      GE_p = (a0(1)*z**0+a1(1)*z**1+a2(1)*z**2+a3(1)*z**3+a4(1)*z**4+a5(1)*z**5+a6(1)*z**6+a7(1)*z**7+a8(1)*z**8+a9(1)*z**9+a10(1)*z**10+a11(1)*z**11+a12(1)*z**12)
+      GM_p = (1D0 + kp)*(a0(2)*z**0+a1(2)*z**1+a2(2)*z**2+a3(2)*z**3+a4(2)*z**4+a5(2)*z**5+a6(2)*z**6+a7(2)*z**7+a8(2)*z**8+a9(2)*z**9+a10(2)*z**10+a11(2)*z**11+a12(2)*z**12)
+      GE_n = (a0(3)*z**0+a1(3)*z**1+a2(3)*z**2+a3(3)*z**3+a4(3)*z**4+a5(3)*z**5+a6(3)*z**6+a7(3)*z**7+a8(3)*z**8+a9(3)*z**9+a10(3)*z**10+a11(3)*z**11+a12(3)*z**12)
+      GM_n = mu_n*(a0(4)*z**0+a1(4)*z**1+a2(4)*z**2+a3(4)*z**3+a4(4)*z**4+a5(4)*z**5+a6(4)*z**6+a7(4)*z**7+a8(4)*z**8+a9(4)*z**9+a10(4)*z**10+a11(4)*z**11+a12(4)*z**12)
+*
+      delm = del2/(2D0*Mp)**2
+*
+      F1pn(1) = (GE_p - delm*GM_p)/(1D0-delm)
+      F1pn(2) = (GE_n - delm*GM_n)/(1D0-delm)
+      F2pn(1) = (GM_p - GE_p)/(1D0-delm)         
+      F2pn(2) = (GM_n - GE_n)/(1D0-delm)         
+      return
+      end
+
       subroutine resetmom()
 c
 C     set to 0 all moments
@@ -3158,6 +3224,8 @@ ccc- Hyon-Suk
       Esc = Ed - nu
       costel = 1D0 - Q2d/(2D0*Ed*Esc)
       sintel = sqrt(1D0 - costel**2)
+      cosphe=cos(phield)
+      sinphe=sin(phield)
 c
       if(cl_radgen) then
          if (PhRAD(4).gt.0.) then
@@ -3178,8 +3246,7 @@ c
       V3k1(1) = 0D0
       V3k1(2) = 0D0
       V3k1(3) = Ed
-      cosphe=cos(phield)
-      sinphe=sin(phield)
+
       V3k2(1) = Esc*sintel*cosphe
       V3k2(2) = Esc*sintel*sinphe   !0D0
       V3k2(3) = Esc*costel
