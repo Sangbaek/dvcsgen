@@ -210,6 +210,7 @@ c
       cl_nmax = 2000         ! max number of events in the file
       cl_printgpd=.FALSE.
       cl_printrad=.FALSE.
+      cl_printdstot=.FALSE.
       cl_mom=.FALSE.
       cl_ktcor=.FALSE.
       cl_radgen=.FALSE.
@@ -368,6 +369,10 @@ c
            i=i+1
            CALL GETARG(i,cnumber)
            cl_vv2cut=valnum(cnumber)           
+        elseif(cnumber.eq.'--heli'.and.i.lt.numopts) then
+           i=i+1
+           CALL GETARG(i,cnumber)
+           cl_heli=valnum(cnumber)           
         elseif(cnumber.eq.'--targ'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cl_target)
@@ -377,6 +382,8 @@ c
            cl_printgpd=.TRUE.
         elseif(cnumber.eq.'--printrad') then
            cl_printrad=.TRUE.
+        elseif(cnumber.eq.'--printdstot') then
+           cl_printdstot=.TRUE.
         elseif(cnumber.eq.'--acce16') then
            acce16=.TRUE.
         elseif(cnumber.eq.'--acc12') then
@@ -577,6 +584,85 @@ c
               print *, 0, unc_A_obs, unc_delta_u, unc_delta_p, unc_delta_A
               print *, "Frad_with_error", delta_u, unc_delta_u
               print *, "differential_x_sec", dsigma_obs/2, unc_dsigma_obs/2, dsigma_born/2, unc_dsigma_born/2
+        return
+        end
+
+
+        SUBROUTINE  printdstot 
+C module for reweighting        
+        implicit none
+#include "dvcs.inc"
+C..
+        integer nx,nq,nt,nfe,nfg
+        real  xmax,xmin,q2max,q2min,tmax,tmin 
+        common /xmax/  xmax,xmin,q2max,q2min,tmax,tmin 
+     6                 ,nx,nq,nt,nfe,nfg
+C..
+C..
+      double precision xbd,Q2d,del2d,phield,phigd,dstot,stotint,yb,w2
+     6                ,avgdstot,avgprobn,avgprobs,avgprobp,xsec_born,xsec_obs,sum_born,sum_obs,unc_obs,var_obs
+     6                ,del_born, del_obs, delu,delp, A_obs, delta_u, delta_p, delta_A
+     6                , unc_A_obs, unc_delta_u, unc_delta_p, unc_delta_A, dsigma_born, dsigma_obs, unc_dsigma_born, unc_dsigma_obs
+      integer la0,itrial,iloop,numn,nump,nums
+c internal variables
+c
+        logical outoflimits
+        real altime,alltime(2)
+        real*8 t1lim, t2lim
+
+        helpi = 0 ! unpol target
+c
+          xbd=xmin!+ix*dx
+          Q2d=q2min!+iq*dq
+           yb=Q2d/(2D0*Mp*xbd*cl_be)
+           w2=Mp*Mp+2.0*Mp*cl_be*yb-Q2d
+c
+         if( .not.outoflimits(xbd,Q2d) ) then
+c
+           t2lim=-0.5d0*((q2d/xbd-q2d)*(q2d/xbd+sqrt((q2d/xbd)**2+4d0*Mp*Mp*q2d))+2d0*Mp*Mp*q2d)/w2
+           t1lim=-0.5d0*((q2d/xbd-q2d)*(q2d/xbd-sqrt((q2d/xbd)**2+4d0*Mp*Mp*q2d))+2d0*Mp*Mp*q2d)/w2
+           tmax = min(-cl_tmin, t1lim)
+           tmin = max(-cl_tmin, t2lim)
+           if (tmax<tmin) then
+              print *, "check -t limit"
+              return
+           endif
+           del2d=tmin!+it*dt
+           phigd=cl_phigd
+
+           if (cl_heli.eq.1) then
+              heli = 1 ! polarized beam, (+) heli
+              CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
+              xsec_born = dstot
+              xff = xbd
+              q2ff = Q2d
+              tff = del2d
+              phiff = pi-phigd
+              ebeamff = cl_beam_energy
+              CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot,probn,probp,probs)
+              dstot = dstot/2/pi
+              print *, dstot, xsec_born
+           else if (cl_heli.eq.-1) then
+
+              heli = -1 ! polarized beam, (-) heli
+              CALL bmkxsec(xbd, Q2d, del2d, phield,phigd,dstot)
+              xsec_born = dstot
+              xff = xbd
+              q2ff = Q2d
+              tff = del2d
+              phiff = pi-phigd
+              ebeamff = cl_beam_energy
+              CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot,probn,probp,probs)
+              dstot = dstot/2/pi
+              print *, dstot, xsec_born
+            else
+               print *, "check helicity"
+               return
+            endif
+         else 
+            print *, "check xb and q2"
+         endif
+
         return
         end
 
@@ -854,6 +940,12 @@ C.. Simulation for a proton
 C
 C       get the maximum 5-dim x-section
 C
+
+        if(cl_printdstot) then 
+        call printdstot
+        stop
+        endif
+
         if(cl_printrad) then 
         call printrad
         stop
@@ -2254,8 +2346,8 @@ c
       phip = phigd 
       phipel = phield 
 *
-C       call nuclFF( del2d )
-       call nuclFF_YAHL( del2d )
+       call nuclFF( del2d )
+C       call nuclFF_YAHL( del2d )
 
 *
       y1eps=1D0 - yb - yb*yb*eps2/4D0
