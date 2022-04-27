@@ -641,7 +641,7 @@ c
               ebeamff = cl_beam_energy
               CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot,probn,probp,probs)
               dstot = dstot/2/pi
-              print *, dstot, xsec_born
+              print *, "xsec_obs,xsec_born:", dstot, xsec_born
            else if (cl_heli.eq.-1) then
 
               heli = -1 ! polarized beam, (-) heli
@@ -654,7 +654,7 @@ c
               ebeamff = cl_beam_energy
               CALL bhradgen(ebeamff, xff, q2ff, tff, phiff,cl_vv2cut,cl_delta,egamma,thetag,phig,ichannel,cl_pol,ikeygene,dstot,probn,probp,probs)
               dstot = dstot/2/pi
-              print *, dstot, xsec_born
+              print *, "xsec_obs,xsec_born:", dstot,  xsec_born
             else
                print *, "check helicity"
                return
