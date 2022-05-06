@@ -268,6 +268,8 @@ c
            cl_dvcs=.FALSE.
         elseif(cnumber.eq.'--ktcor') then
            cl_ktcor=.TRUE.
+        elseif(cnumber.eq.'--globalfit') then
+           cl_global=.TRUE.
         elseif(cnumber.eq.'--beam'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cnumber)
@@ -484,7 +486,11 @@ c            asymmetries at 90-degree
              alu=hs1Iunp/(hc0BH+hc0dvcs+hc0Iunp)
 c           print *,'xbd,Q2d,del2',xbd,Q2d,del2d,del2min,del2max
       if( del2d.le.del2min .and. del2d.ge.del2max ) then  ! in limits
+      if (cl_global) then
+      call nuclFF_YAHL( del2d )
+      else
       call nuclFF( del2d )
+      ENDIF
       skew = xbd/(2D0 - xbd)
       IF(IGPD.lt.100) then
       call amptab(skew, del2d, 
@@ -739,13 +745,20 @@ c
               del2d=tmin
               phigd=cl_phigd
 c
+              heli = 1
               CALL bmkxsec(xbd, Q2d, del2d, 0.1, phigd,dstot)
+              stotint = dstot
+              print *, dstot
+              heli = -1
+              CALL bmkxsec(xbd, Q2d, del2d, 0.1, phigd,dstot)
+              stotint = stotint+dstot
+              print *, dstot
 c
 c
 
 C            endif
 c
-              print *, dstot*2*pi*0.001
+              print *, stotint*pi*0.001
 c 11          FORMAT (2X, F8.5)
 11          FORMAT (F8.5, a)
         endif
@@ -1972,7 +1985,11 @@ c
       phip = phigd 
       phipel = phield 
 *
+      if (cl_global) then
+      call nuclFF_YAHL( del2d )
+      else
       call nuclFF( del2d )
+      ENDIF
 *
       y1eps=1D0 - yb - yb*yb*eps2/4D0
       sqy1eps=sqrt(y1eps)
@@ -2610,6 +2627,55 @@ C
       V3dotd = S
       end
 c
+      subroutine nuclFF_YAHL( del2 )
+C from the supplementary material of
+C Zhihong Ye, John R. Arrington, Richard J.Hill and Gabriel Lee 
+C "Proton and neutron electromagnetic form factors and uncertainties"
+C Phys. Lett. B 777 (2018) 8--15
+C doi: 10.1016/j.physletb.2017.11.023
+C
+C added by Sangbaek Lee
+C
+C
+      implicit double precision (A-H,O-Z)
+#include "dvcs.inc"
+      common/formfac/ F1pn(2), F2pn(2)
+      double precision Mv, kp, kn
+      double precision z, a0(4), a1(4), a2(4), a3(4), a4(4), a5(4), a6(4), a7(4), a8(4), a9(4), a10(4), a11(4), a12(4)
+      parameter (Mv = 0.843D0, kp = 1.79285D0, mu_n = -1.91D0, tcut = 4*0.13957**2, t0 = -0.7)
+C
+      dipol = 1D0/(1D0 - del2/Mv**2)**2
+      z = (sqrt(tcut-del2)-sqrt(tcut-t0))/(sqrt(tcut-del2)+sqrt(tcut-t0)) 
+*
+      a0 = (/ 0.239163298067, 0.264142994136, 0.048919981379, 0.257758326959 /)
+      a1 = (/ -1.109858574410, -1.095306122120, -0.064525053912, -1.079540642058 /)
+      a2 = (/ 1.444380813060, 1.218553781780, -0.240825897382, 1.182183812195 /)
+      a3 = (/ 0.479569465603, 0.661136493537, 0.392108744873, 0.711015085833 /)
+      a4 = (/ -2.286894741870, -1.405678925030, 0.300445258602, -1.348080936796 /)
+      a5 = (/ 1.126632984980, -1.356418438880, -0.661888687179, -1.662444025208 /)
+      a6 = (/ 1.250619843540, 1.447029155340, -0.175639769687, 2.624354426029 /)
+      a7 = (/ -3.631020471590, 4.235669735900, 0.624691724461, 1.751234494568 /)
+      a8 = (/ 4.082217023790, -5.334045653410, -0.077684299367, -4.922300878888 /)
+      a9 = (/ 0.504097346499, -2.916300520960, -0.236003975259, 3.197892727312 /)
+      a10 = (/ -5.085120460510, 8.707403067570, 0.090401973470, -0.712072389946 /)
+      a11 = (/ 3.967742543950, -5.706999943750, 0.0, 0.0 /)
+      a12 = (/ -0.981529071103, 1.280814375890, 0.0, 0.0 /)
+
+      GE_p = (a0(1)*z**0+a1(1)*z**1+a2(1)*z**2+a3(1)*z**3+a4(1)*z**4+a5(1)*z**5+a6(1)*z**6+a7(1)*z**7+a8(1)*z**8+a9(1)*z**9+a10(1)*z**10+a11(1)*z**11+a12(1)*z**12)
+      GM_p = (1D0 + kp)*(a0(2)*z**0+a1(2)*z**1+a2(2)*z**2+a3(2)*z**3+a4(2)*z**4+a5(2)*z**5+a6(2)*z**6+a7(2)*z**7+a8(2)*z**8+a9(2)*z**9+a10(2)*z**10+a11(2)*z**11+a12(2)*z**12)
+      GE_n = (a0(3)*z**0+a1(3)*z**1+a2(3)*z**2+a3(3)*z**3+a4(3)*z**4+a5(3)*z**5+a6(3)*z**6+a7(3)*z**7+a8(3)*z**8+a9(3)*z**9+a10(3)*z**10+a11(3)*z**11+a12(3)*z**12)
+      GM_n = mu_n*(a0(4)*z**0+a1(4)*z**1+a2(4)*z**2+a3(4)*z**3+a4(4)*z**4+a5(4)*z**5+a6(4)*z**6+a7(4)*z**7+a8(4)*z**8+a9(4)*z**9+a10(4)*z**10+a11(4)*z**11+a12(4)*z**12)
+*
+      delm = del2/(2D0*Mp)**2
+*
+      F1pn(1) = (GE_p - delm*GM_p)/(1D0-delm)
+      F1pn(2) = (GE_n - delm*GM_n)/(1D0-delm)
+      F2pn(1) = (GM_p - GE_p)/(1D0-delm)         
+      F2pn(2) = (GM_n - GE_n)/(1D0-delm)         
+      return
+      end
+
+
       subroutine resetmom()
 c
 C     set to 0 all moments
