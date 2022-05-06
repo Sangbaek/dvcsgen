@@ -24,7 +24,7 @@
       common /clasdvcs9/ cl_sme,cl_smf,cl_smg,cl_rast
       common /dvcsgencont/ dvcsgenOK,bosOK,ntOK,weightOK,bossmearOK,
      6cl_mom,cl_dvcs,cl_pi0,cl_eta,cl_radgen,cl_mod,
-     6datfileOK,acce16,acceg1,acc12,cl_ktcor,cl_printgpd,cl_docker
+     6datfileOK,acce16,acceg1,acc12,cl_ktcor,cl_printgpd,cl_docker,cl_global
 C..
       double precision Mp, mele, pi,mpi0,metta
       parameter (Mp=0.93827D0)

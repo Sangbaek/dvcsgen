@@ -209,6 +209,7 @@ c
       cl_printgpd=.FALSE.
       cl_mom=.FALSE.
       cl_ktcor=.FALSE.
+      cl_global=.FALSE.
       cl_radgen=.FALSE.
       cl_mod=0              ! write all, otherwise filter
       datfileOK=.TRUE.      ! write a data file
