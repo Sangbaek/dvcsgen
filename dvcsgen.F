@@ -748,10 +748,12 @@ c
 c
               heli = 1
               CALL bmkxsec(xbd, Q2d, del2d, 0.1, phigd,dstot)
+              dstot = dstot * 2 * pi * 0.001 ! sigma+
               stotint = dstot
               print *, dstot
               heli = -1
               CALL bmkxsec(xbd, Q2d, del2d, 0.1, phigd,dstot)
+              dstot = dstot * 2 * pi * 0.001 ! sigma -
               stotint = stotint+dstot
               print *, dstot
 c
@@ -759,7 +761,7 @@ c
 
 C            endif
 c
-              print *, stotint*pi*0.001
+              print *, stotint*0.5 ! (sigma+ + sigma-)/2 (unpol.)
 c 11          FORMAT (2X, F8.5)
 11          FORMAT (F8.5, a)
         endif
