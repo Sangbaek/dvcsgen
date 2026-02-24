@@ -7,10 +7,24 @@ cd dvcsgen
 make
 ```
 
-Please cite the following articles for this generator.
+Please cite this generator for publication.
 ```
-V. A. Korotkov and W. D. Nowak, Eur. Phys. J. C 23, 455–
-461 (2002).
+H. Avakian, The dvcsgen generator, available at https://github.com/JeffersonLab/dvcsgen
+```
+
+If `--gpd` options used GPD model 1—4, please cite this article.
+```
+V. A. Korotkov and W. D. Nowak, Eur. Phys. J. C 23, 455–461 (2002).
+```
+
+`--gpd 101` option uses CFF grid created by G. Gavalian. The following article is related.
+```
+G. Gavalian et al. (CLAS), Phys. Rev. C 80, 035206 (2009).
+```
+
+
+If radiative correction is used, please cite this article.
+```
 I. Akushevich and A. Ilyichev, Phys. Rev. D 98, 013005 (2018).
 ```
 
