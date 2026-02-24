@@ -30,7 +30,7 @@ I. Akushevich and A. Ilyichev, Phys. Rev. D 98, 013005 (2018).
 
 The supplementary material of the following article contains the global fitting of the EM form factors.
 ```
-Z. Ye, J. R. Arrington, R. J.Hill and G. Lee, Phys. Lett. B 777 (2018) 8–15
+Z. Ye, J. R. Arrington, R. J.Hill and G. Lee, Phys. Lett. B 777 (2018) 8–15.
 ```
 
 To get command line options `./dvcsgen --help`
