@@ -12,7 +12,7 @@ Please cite this generator for publication.
 H. Avakian, The dvcsgen generator, available at https://github.com/JeffersonLab/dvcsgen
 ```
 
-`--gpd 101` option uses CFF grid created by G. Gavalian. The following article is related.
+`--gpd 101` option uses CFF grid (VGG model with D-term) created by G. Gavalian. The following article is related.
 ```
 G. Gavalian et al. (CLAS), Phys. Rev. C 80, 035206 (2009).
 ```
