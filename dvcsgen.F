@@ -210,6 +210,7 @@ c
       cl_mom=.FALSE.
       cl_ktcor=.FALSE.
       cl_global=.FALSE.
+      cl_threefold=.FALSE.
       cl_radgen=.FALSE.
       cl_mod=0              ! write all, otherwise filter
       datfileOK=.TRUE.      ! write a data file
@@ -271,6 +272,8 @@ c
            cl_ktcor=.TRUE.
         elseif(cnumber.eq.'--globalfit') then
            cl_global=.TRUE.
+        elseif(cnumber.eq.'--threefold') then
+           cl_threefold=.TRUE.
         elseif(cnumber.eq.'--beam'.and.i.lt.numopts) then
            i=i+1
            CALL GETARG(i,cnumber)
@@ -456,7 +459,7 @@ c
         cpi=-3.1415926
         dx=0.05
         dq=0.5
-        dt=0.1
+        dt=0.01
         nx=(xmax-xmin)/dx+1
         nq=(q2max-q2min)/dq+1
         nt=(tmax-tmin)/dt+1
@@ -512,6 +515,16 @@ c
         write(6,'(A,18F10.5)') 'BM-GPD2 ',del2minc,P1,P2,Kfac,Jfac,ds,
      &hc0BH,hc1BH/hc0BH,hc2BH/hc0BH,hs1Iunp/hc0BH,hc0Iunp/hc0BH,hc0dvcs/hc0BH
         write(6,'(A,18F10.5)') 'BM-MOM  ',ac0int,ac1int,as1int,ac0dvcs,ac1dvcs
+
+        write(*, *)'ReH=', H1_RE
+        write(*, *)'ImH=', H1_IM
+        write(*, *)'ReHt=', H1T_RE
+        write(*, *)'ImHt=', H1T_IM
+        write(*, *)'ReE=', E1_RE
+        write(*, *)'ImE=', E1_IM
+        write(*, *)'ReEt=', E1T_RE
+        write(*, *)'ImEt=', E1T_IM
+        write(6, '(A,8F10.5)')'CFFs ', -H1_RE, -H1_IM, -H1T_RE, -H1T_IM, -E1_RE, -E1_IM, -E1T_RE, -E1T_IM
         endif ! if( del2d.....
         enddo
         endif  !if( .not.outoflimits
@@ -1659,6 +1672,7 @@ c
 c      
 c
 c      scale the sin\phi moment
+      write (*, *) hc1BH/hc0BH, hc2BH/hc0BH, hc0dvcs/hc0BH, hc0Iunp/hc0BH, hc1Iunp/hc0BH, hc2Iunp/hc0BH
        dsIunp=dsIunp*cl_scale
 c
        if(cl_ktcor) then
@@ -1691,6 +1705,10 @@ c
 c
 c
 c
+       if(cl_threefold) then 
+         dsigma = 2*pi*hc0dvcs
+       endif
+
       else
         dsigma=0
 c       print *,'out of limits ',xb,xmin1,xmax1,del2,del2min,del2max,istat      
